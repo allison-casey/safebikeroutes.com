@@ -76,15 +76,3 @@ export const legacyRouteStyles = [
   { routeType: "protected", paintLayers: [{}] },
   { routeType: "track", paintLayers: [{}] },
 ];
-
-export function paintRoute(map, source, routeType, paintLayers) {
-  for (const [index, paintLayer] of paintLayers.entries()) {
-    map.addLayer({
-      id: `${source}-${routeType}-${index}`,
-      type: "line",
-      source: source,
-      filter: ["==", "routeType", routeType],
-      paint: paintLayer,
-    });
-  }
-}
