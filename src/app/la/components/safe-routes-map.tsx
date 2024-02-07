@@ -29,7 +29,10 @@ interface SafeRoutesProps {
   useLegacyStyles?: boolean;
 }
 
-const SafeRoutesMap = ({ routes, useLegacyStyles }: SafeRoutesProps) => {
+const SafeRoutesMap = ({
+  routes,
+  useLegacyStyles = false,
+}: SafeRoutesProps) => {
   const styles = useLegacyStyles ? legacyRouteStyles : routeStyles;
   const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
 
