@@ -1,9 +1,9 @@
 import { clsx } from "clsx";
-import Map, { GeolocateControl, Layer, Source } from "react-map-gl";
-import GeocoderControl from "./geocoder-control";
 import mapboxgl, { LngLatBoundsLike } from "mapbox-gl";
 import { useState } from "react";
+import Map, { GeolocateControl, Layer, Source } from "react-map-gl";
 import { legacyRouteStyles, routeStyles } from "../../route_styles";
+import GeocoderControl from "./geocoder-control";
 
 const BOUNDS: LngLatBoundsLike = [
   [-118.88065856936811, 33.63722119725411], // Southwest coordinates
