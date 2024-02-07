@@ -72,22 +72,20 @@ const SafeRoutesMap = ({
       >
         {routes ? (
           <Source id="saferoutesla" type="geojson" data={routes}>
-            {styles.map(({ routeType, paintLayers }) => {
-              return (
-                <>
-                  {paintLayers.map((paintLayer, index) => (
-                    <Layer
-                      key={`saferoutesla-${routeType}-${index}`}
-                      id={`saferoutesla-${routeType}-${index}`}
-                      type="line"
-                      source="saferoutesla"
-                      filter={["==", "routeType", routeType]}
-                      paint={paintLayer}
-                    />
-                  ))}
-                </>
-              );
-            })}
+            {styles.map(({ routeType, paintLayers }) => (
+              <>
+                {paintLayers.map((paintLayer, index) => (
+                  <Layer
+                    key={`saferoutesla-${routeType}-${index}`}
+                    id={`saferoutesla-${routeType}-${index}`}
+                    type="line"
+                    source="saferoutesla"
+                    filter={["==", "routeType", routeType]}
+                    paint={paintLayer}
+                  />
+                ))}
+              </>
+            ))}
           </Source>
         ) : null}
         <GeocoderControl

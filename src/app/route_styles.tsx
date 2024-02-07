@@ -1,4 +1,9 @@
-export const routeStyles = [
+interface RouteStyle {
+  routeType: "sidewalk" | "street" | "lane" | "protected" | "track";
+  paintLayers: object[];
+}
+
+export const routeStyles: RouteStyle[] = [
   {
     routeType: "sidewalk",
     paintLayers: [
@@ -60,7 +65,7 @@ export const routeStyles = [
   },
 ];
 
-export const legacyRouteStyles = [
+export const legacyRouteStyles: RouteStyle[] = [
   {
     routeType: "sidwalk",
     paintLayers: [
