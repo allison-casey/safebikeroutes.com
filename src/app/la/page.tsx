@@ -7,6 +7,7 @@ import Map, { GeolocateControl, Layer, Source } from "react-map-gl";
 import useSWR, { Fetcher } from "swr";
 import GeocoderControl from "../geocoder-control";
 import { legacyRouteStyles, routeStyles } from "../route_styles";
+import ControlPanel from "./components/control-panel";
 
 const BOUNDS: LngLatBoundsLike = [
   [-118.88065856936811, 33.63722119725411], // Southwest coordinates
@@ -31,13 +32,13 @@ const ACCESS_TOKEN =
 const fetcher: Fetcher<GeoJSON.GeoJSON, string> = (url) =>
   fetch(url).then((r) => r.json());
 
-export default function Home() {
+export default function SafeRoutesLA() {
   const { data } = useSWR("/api/map", fetcher);
   const styles = USE_LEGACY_ROUTE_STYLES ? legacyRouteStyles : routeStyles;
   const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
 
   return (
-    <div className="w-screen h-screen">
+    <div className="w-screen h-screen grid grid-rows-2 grid-cols-1 md:grid-cols-[65%_auto] md:grid-rows-1">
       <div className="absolute flex left-2 bottom-0 mb-9 z-20 rounded-lg drop-shadow-md">
         {MAP_STYLES.map(({ title }) => (
           <div
@@ -102,6 +103,7 @@ export default function Home() {
           position="top-left"
         />
       </Map>
+      <ControlPanel />
     </div>
   );
 }
