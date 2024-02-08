@@ -3,8 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
-import "@fortawesome/fontawesome-free/css/fontawesome.min.css";
-import "@fortawesome/fontawesome-free/css/solid.min.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
