@@ -20,7 +20,7 @@ type GeocoderControlProps = Omit<
 
 /* eslint-disable complexity,max-statements */
 export default function GeocoderControl(props: GeocoderControlProps) {
-  const [marker, setMarker] = useState(null);
+  const [marker, setMarker] = useState<any>(null);
 
   const geocoder = useControl<MapboxGeocoder>(
     () => {
@@ -29,10 +29,10 @@ export default function GeocoderControl(props: GeocoderControlProps) {
         marker: false,
         accessToken: props.mapboxAccessToken,
       });
-      ctrl.on("loading", props.onLoading);
-      ctrl.on("results", props.onResults);
+      props.onLoading && ctrl.on("loading", props.onLoading);
+      props.onResults && ctrl.on("results", props.onResults);
       ctrl.on("result", (evt) => {
-        props.onResult(evt);
+        props.onResult && props.onResult(evt);
 
         const { result } = evt;
         const location =
@@ -40,18 +40,13 @@ export default function GeocoderControl(props: GeocoderControlProps) {
           (result.center ||
             (result.geometry?.type === "Point" && result.geometry.coordinates));
         if (location && props.marker) {
-          setMarker(
-            <Marker
-              {...props.marker}
-              longitude={location[0]}
-              latitude={location[1]}
-            />,
-          );
+          console.log(props.marker);
+          setMarker(<Marker longitude={location[0]} latitude={location[1]} />);
         } else {
           setMarker(null);
         }
       });
-      ctrl.on("error", props.onError);
+      props.onError && ctrl.on("error", props.onError);
       return ctrl;
     },
     {

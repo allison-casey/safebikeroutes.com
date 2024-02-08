@@ -67,7 +67,7 @@ export const routeStyles: RouteStyle[] = [
 
 export const legacyRouteStyles: RouteStyle[] = [
   {
-    routeType: "sidwalk",
+    routeType: "sidewalk",
     paintLayers: [
       {
         "line-color": "orange",

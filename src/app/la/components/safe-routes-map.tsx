@@ -7,8 +7,10 @@ import ControlPanel from "./control-panel";
 import GeocoderControl from "./geocoder-control";
 
 const BOUNDS: LngLatBoundsLike = [
-  [-118.88065856936811, 33.63722119725411], // Southwest coordinates
-  [-117.83375850298786, 34.4356118682199], // Northeast coordinates
+  -118.88065856936811,
+  33.63722119725411, // Southwest coordinates
+  -117.83375850298786,
+  34.4356118682199, // Northeast coordinates
 ];
 const CENTER = [-118.35874251099995, 34.061734936928694];
 const DEFAULT_MAP_STYLE = "Streets";
@@ -141,7 +143,7 @@ const SafeRoutesMap = ({
           <GeocoderControl
             mapboxAccessToken={ACCESS_TOKEN}
             position="top-right"
-            bbox={BOUNDS.flat()}
+            bbox={BOUNDS}
           />
           <GeolocateControl
             trackUserLocation
