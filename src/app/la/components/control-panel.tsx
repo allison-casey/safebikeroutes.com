@@ -1,9 +1,7 @@
 import { clsx } from "clsx";
 
 const ControlPanel = ({ className }: { className: string }) => (
-  <div
-    className={clsx([className, "p-5 overflow-y-auto bg-white drop-shadow-md"])}
-  >
+  <div className={clsx(["overflow-y-auto bg-white drop-shadow-md", className])}>
     <div className="text-xl font-medium text-black">Safe Bike Routes: LA</div>
     <p className="text-slate-500">
       Because Google Maps Bike Routes are ass and we don&apos;t want to die.

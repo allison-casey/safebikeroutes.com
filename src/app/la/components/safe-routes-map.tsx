@@ -107,6 +107,21 @@ const SafeRoutesMap = ({
   const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
   const [showControlPanel, toggleControlPanel] = useState(true);
 
+  const layers = styles
+    .map(({ routeType, paintLayers }) =>
+      paintLayers.map((paintLayer, index) => (
+        <Layer
+          key={`saferoutesla-${routeType}-${index}`}
+          id={`saferoutesla-${routeType}-${index}`}
+          type="line"
+          source="saferoutesla"
+          filter={["==", "routeType", routeType]}
+          paint={paintLayer}
+        />
+      )),
+    )
+    .flat();
+
   return (
     <div className="w-screen h-screen grid grid-rows-[1fr_auto] grid-cols-1 md:grid-cols-[1fr_auto] md:grid-rows-1">
       <div className="relative">
@@ -124,20 +139,7 @@ const SafeRoutesMap = ({
         >
           {routes ? (
             <Source id="saferoutesla" type="geojson" data={routes}>
-              {styles.map(({ routeType, paintLayers }) => (
-                <>
-                  {paintLayers.map((paintLayer, index) => (
-                    <Layer
-                      key={`saferoutesla-${routeType}-${index}`}
-                      id={`saferoutesla-${routeType}-${index}`}
-                      type="line"
-                      source="saferoutesla"
-                      filter={["==", "routeType", routeType]}
-                      paint={paintLayer}
-                    />
-                  ))}
-                </>
-              ))}
+              {...layers}
             </Source>
           ) : null}
           <GeocoderControl
@@ -166,8 +168,8 @@ const SafeRoutesMap = ({
       </div>
       <ControlPanel
         className={clsx([
-          showControlPanel ? "h-[300px]" : "h-0 p-0",
-          showControlPanel ? "md:w-[400px]" : "w-0 p-0",
+          showControlPanel ? "h-[300px] p-5" : "h-0 p-0",
+          showControlPanel ? "md:w-[400px] p-5" : "w-0 p-0",
           "md:h-auto",
           "transition",
           "transition-all",
