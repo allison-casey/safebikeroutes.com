@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 
-const ControlPanel = ({ className }) => (
+const ControlPanel = ({ className }: { className: string }) => (
   <div
     className={clsx([className, "p-5 overflow-y-auto bg-white drop-shadow-md"])}
   >

@@ -1,4 +1,4 @@
-interface RouteStyle {
+export interface RouteStyle {
   routeType: "sidewalk" | "street" | "lane" | "protected" | "track";
   paintLayers: object[];
 }

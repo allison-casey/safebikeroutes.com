@@ -30,7 +30,13 @@ interface SafeRoutesProps {
   useLegacyStyles?: boolean;
 }
 
-const ControlPanelButton = ({ showControlPanel, onClick }) => (
+const ControlPanelButton = ({
+  showControlPanel,
+  onClick,
+}: {
+  showControlPanel: boolean;
+  onClick: any;
+}) => (
   <div
     className="absolute flex right-[calc(50%-1rem)] bottom-0 md:right-2 mb-2 md:mb-10 md:bottom-0 z-20 px-4 py-2 rounded-lg bg-white drop-shadow-md"
     onClick={onClick}
@@ -60,7 +66,13 @@ const ControlPanelButton = ({ showControlPanel, onClick }) => (
   </div>
 );
 
-const StyleSelector = ({ styles, currentlySelectedStyle, onClick }) => (
+const StyleSelector = ({
+  currentlySelectedStyle,
+  onClick,
+}: {
+  currentlySelectedStyle: string;
+  onClick: (title: string) => any;
+}) => (
   <div className="absolute flex left-2 bottom-0 mb-9 z-20 rounded-lg drop-shadow-md">
     {MAP_STYLES.map(({ title }) => (
       <div
@@ -139,7 +151,6 @@ const SafeRoutesMap = ({
           />
         </Map>
         <StyleSelector
-          styles={styles}
           onClick={(title) => setCurrentStyle(title)}
           currentlySelectedStyle={currentStyle}
         />
