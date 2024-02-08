@@ -1,5 +1,9 @@
-const ControlPanel = () => (
-  <div className="p-5 overflow-y-auto bg-white drop-shadow-md">
+import { clsx } from "clsx";
+
+const ControlPanel = ({ className }) => (
+  <div
+    className={clsx([className, "p-5 overflow-y-auto bg-white drop-shadow-md"])}
+  >
     <div className="text-xl font-medium text-black">Safe Bike Routes: LA</div>
     <p className="text-slate-500">
       Because Google Maps Bike Routes are ass and we don&apos;t want to die.
