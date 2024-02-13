@@ -58,7 +58,7 @@ const LAControlPanel = () => (
       <li>everything else is ass and LADOT should get their shit together</li>
     </ul>
     <a
-      href="https://github.com/allison-casey/safe_bike_routes"
+      href="https://github.com/allison-casey/safebikeroutes.com"
       className="group relative rounded-2xl px-3 w-32 my-5 mx-auto ext-sm font-semibold leading-6 text-slate-500 sm:py-3"
     >
       <span className="absolute inset-0 rounded-2xl bg-zinc-50 transition group-hover:bg-zinc-100 sm:group-hover:scale-105"></span>
