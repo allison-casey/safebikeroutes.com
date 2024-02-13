@@ -1,4 +1,4 @@
-const DescriptionControlPanel = () => (
+const LAControlPanel = () => (
   <div>
     <div className="text-xl font-medium text-black">Safe Bike Routes: LA</div>
     <p className="text-slate-500">
@@ -77,4 +77,4 @@ const DescriptionControlPanel = () => (
   </div>
 );
 
-export default DescriptionControlPanel;
+export default LAControlPanel;
