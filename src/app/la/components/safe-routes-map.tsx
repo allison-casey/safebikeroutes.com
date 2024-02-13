@@ -1,9 +1,8 @@
 import { clsx } from "clsx";
 import mapboxgl, { LngLatBoundsLike } from "mapbox-gl";
-import { useRef, useState } from "react";
+import { ReactElement, useRef, useState } from "react";
 import Map, { GeolocateControl, Layer, MapRef, Source } from "react-map-gl";
 import { legacyRouteStyles, routeStyles } from "../../route_styles";
-import ControlPanel from "./control-panel";
 import GeocoderControl from "./geocoder-control";
 
 const BOUNDS: LngLatBoundsLike = [
@@ -29,6 +28,7 @@ const ACCESS_TOKEN =
 
 interface SafeRoutesProps {
   routes?: GeoJSON.GeoJSON;
+  controlPanelContent: ReactElement;
   useLegacyStyles?: boolean;
 }
 
@@ -100,6 +100,7 @@ const StyleSelector = ({
 
 const SafeRoutesMap = ({
   routes,
+  controlPanelContent,
   useLegacyStyles = false,
 }: SafeRoutesProps) => {
   const styles = useLegacyStyles ? legacyRouteStyles : routeStyles;
@@ -166,15 +167,20 @@ const SafeRoutesMap = ({
           }}
         />
       </div>
-      <ControlPanel
+      <div
         className={clsx([
           showControlPanel ? "h-[300px] p-5" : "h-0 p-0",
           showControlPanel ? "md:w-[400px] p-5" : "w-0 p-0",
           "md:h-auto",
           "transition",
           "transition-all",
+          "overflow-y-auto",
+          "bg-white",
+          "drop-shadow-md",
         ])}
-      />
+      >
+        {controlPanelContent}
+      </div>
     </div>
   );
 };
