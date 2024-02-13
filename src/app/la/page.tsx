@@ -1,14 +1,19 @@
 "use client";
 
 import useSWR, { Fetcher } from "swr";
-import SafeRoutesMap from "./components/safe-routes-map";
-import ControlPanel from "./components/control-panel";
+import SafeRoutesMap from "@/app/components/safe-routes-map";
+import DescriptionControlPanel from "@/app/components/DescriptionControlPanel";
 
 const fetcher: Fetcher<GeoJSON.GeoJSON, string> = (url) =>
   fetch(url).then((r) => r.json());
 
 export default function SafeRoutesLA() {
-  const { data } = useSWR("/api/map", fetcher);
+  const { data } = useSWR("/api/la", fetcher);
 
-  return <SafeRoutesMap routes={data} controlPanelContent={<ControlPanel />} />;
+  return (
+    <SafeRoutesMap
+      routes={data}
+      controlPanelContent={<DescriptionControlPanel />}
+    />
+  );
 }
