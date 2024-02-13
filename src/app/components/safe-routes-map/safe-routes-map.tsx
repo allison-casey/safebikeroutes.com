@@ -26,12 +26,6 @@ const MAP_STYLES = [
 const ACCESS_TOKEN =
   "pk.eyJ1IjoiYWxsaXNvbi1jYXNleSIsImEiOiJjbGt5Y2puaDExOTJ2M2dvODk3YmtvZ2RsIn0.c_wjxvRq0S2Nv58mxfStyg";
 
-interface SafeRoutesProps {
-  routes?: GeoJSON.GeoJSON;
-  controlPanelContent: ReactElement;
-  useLegacyStyles?: boolean;
-}
-
 const ControlPanelButton = ({
   showControlPanel,
   onClick,
@@ -97,6 +91,12 @@ const StyleSelector = ({
     ))}
   </div>
 );
+
+export interface SafeRoutesProps {
+  routes?: GeoJSON.GeoJSON;
+  controlPanelContent: ReactElement;
+  useLegacyStyles?: boolean;
+}
 
 const SafeRoutesMap = ({
   routes,
