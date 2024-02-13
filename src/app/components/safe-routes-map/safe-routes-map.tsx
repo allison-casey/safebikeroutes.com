@@ -1,17 +1,17 @@
 import { clsx } from "clsx";
-import mapboxgl, { LngLatBoundsLike } from "mapbox-gl";
+import mapboxgl from "mapbox-gl";
 import { ReactElement, useRef, useState } from "react";
-import Map, { GeolocateControl, Layer, MapRef, Source } from "react-map-gl";
+import Map, {
+  GeolocateControl,
+  Layer,
+  MapProps,
+  MapRef,
+  Source,
+} from "react-map-gl";
 import { legacyRouteStyles, routeStyles } from "../../route_styles";
 import GeocoderControl from "./geocoder-control";
+import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 
-const BOUNDS: LngLatBoundsLike = [
-  -118.88065856936811,
-  33.63722119725411, // Southwest coordinates
-  -117.83375850298786,
-  34.4356118682199, // Northeast coordinates
-];
-const CENTER = [-118.35874251099995, 34.061734936928694];
 const DEFAULT_MAP_STYLE = "Streets";
 const MAP_STYLES = [
   {
@@ -92,17 +92,23 @@ const StyleSelector = ({
   </div>
 );
 
-export interface SafeRoutesProps {
+export type SafeRoutesMapProps = Omit<
+  MapProps,
+  "mapboxAccessToken" | "mapLib" | "mapStyle"
+> & {
   routes?: GeoJSON.GeoJSON;
   controlPanelContent: ReactElement;
+  geocoderBbox: MapboxGeocoder.Bbox;
   useLegacyStyles?: boolean;
-}
+};
 
 const SafeRoutesMap = ({
   routes,
   controlPanelContent,
+  geocoderBbox,
   useLegacyStyles = false,
-}: SafeRoutesProps) => {
+  ...mapboxProps
+}: SafeRoutesMapProps) => {
   const styles = useLegacyStyles ? legacyRouteStyles : routeStyles;
   const mapRef = useRef<MapRef>(null);
   const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
@@ -129,14 +135,9 @@ const SafeRoutesMap = ({
         <Map
           mapboxAccessToken={ACCESS_TOKEN}
           mapLib={mapboxgl}
-          initialViewState={{
-            longitude: CENTER[0],
-            latitude: CENTER[1],
-            zoom: 12,
-          }}
-          maxBounds={BOUNDS}
           mapStyle={MAP_STYLES.find((d) => d.title === currentStyle)?.style}
           ref={mapRef}
+          {...mapboxProps}
         >
           {routes ? (
             <Source id="saferoutesla" type="geojson" data={routes}>
@@ -146,7 +147,7 @@ const SafeRoutesMap = ({
           <GeocoderControl
             mapboxAccessToken={ACCESS_TOKEN}
             position="top-right"
-            bbox={BOUNDS}
+            bbox={geocoderBbox}
           />
           <GeolocateControl
             trackUserLocation
