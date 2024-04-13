@@ -18,8 +18,19 @@ type GeocoderControlProps = Omit<
   onError?: (e: object) => void;
 };
 
+const noop = () => {};
+
+const defaultProps = {
+  marker: true,
+  onLoading: noop,
+  onResults: noop,
+  onResult: noop,
+  onError: noop,
+};
+
 /* eslint-disable complexity,max-statements */
-export default function GeocoderControl(props: GeocoderControlProps) {
+export default function GeocoderControl(inputProps: GeocoderControlProps) {
+  const props = { ...defaultProps, ...inputProps };
   const [marker, setMarker] = useState<any>(null);
 
   const geocoder = useControl<MapboxGeocoder>(
@@ -126,13 +137,3 @@ export default function GeocoderControl(props: GeocoderControlProps) {
   }
   return marker;
 }
-
-const noop = () => {};
-
-GeocoderControl.defaultProps = {
-  marker: true,
-  onLoading: noop,
-  onResults: noop,
-  onResult: noop,
-  onError: noop,
-};

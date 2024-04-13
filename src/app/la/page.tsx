@@ -1,11 +1,6 @@
-"use client";
-
-import useSWR, { Fetcher } from "swr";
+import { promises as fs } from "fs";
 import SafeRoutesMap from "@/app/components/safe-routes-map";
 import LAControlPanel from "./LAControlPanel";
-
-const fetcher: Fetcher<GeoJSON.GeoJSON, string> = (url) =>
-  fetch(url).then((r) => r.json());
 
 const BOUNDS: MapboxGeocoder.Bbox = [
   -118.88065856936811,
@@ -15,8 +10,11 @@ const BOUNDS: MapboxGeocoder.Bbox = [
 ];
 const CENTER = [-118.35874251099995, 34.061734936928694];
 
-export default function SafeRoutesLA() {
-  const { data } = useSWR("/api/la", fetcher);
+export default async function SafeRoutesLA() {
+  const file = await fs.readFile(process.cwd() + "/src/app/map.json", "utf8");
+  const data = JSON.parse(file);
+
+  console.log(data);
 
   return (
     <SafeRoutesMap

@@ -1,3 +1,5 @@
+"use client";
+
 import { clsx } from "clsx";
 import mapboxgl from "mapbox-gl";
 import { ReactElement, useRef, useState } from "react";
@@ -96,7 +98,7 @@ export type SafeRoutesMapProps = Omit<
   MapProps,
   "mapboxAccessToken" | "mapLib" | "mapStyle"
 > & {
-  routes?: GeoJSON.GeoJSON;
+  routes: GeoJSON.GeoJSON;
   controlPanelContent: ReactElement;
   geocoderBbox: MapboxGeocoder.Bbox;
   useLegacyStyles?: boolean;
@@ -130,7 +132,7 @@ const SafeRoutesMap = ({
     .flat();
 
   return (
-    <div className="w-screen h-screen grid grid-rows-[1fr_auto] grid-cols-1 md:grid-cols-[1fr_auto] md:grid-rows-1">
+    <div className="w-dvh h-dvh grid grid-rows-[1fr_auto] grid-cols-1 md:grid-cols-[1fr_auto] md:grid-rows-1">
       <div className="relative">
         <Map
           mapboxAccessToken={ACCESS_TOKEN}
