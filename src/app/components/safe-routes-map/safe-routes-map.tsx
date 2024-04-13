@@ -71,7 +71,7 @@ const StyleSelector = ({
   currentlySelectedStyle: string;
   onClick: (title: string) => any;
 }) => (
-  <div className="absolute flex left-2 bottom-0 mb-9 z-20 rounded-lg drop-shadow-md">
+  <div className="absolute flex left-2 bottom-0 mb-12 z-20 rounded-lg drop-shadow-md">
     {MAP_STYLES.map(({ title }) => (
       <div
         onClick={() => onClick(title)}
