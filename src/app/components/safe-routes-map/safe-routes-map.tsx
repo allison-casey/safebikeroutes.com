@@ -25,9 +25,6 @@ const MAP_STYLES = [
     style: "mapbox://styles/mapbox/satellite-streets-v12",
   },
 ];
-const ACCESS_TOKEN =
-  "pk.eyJ1IjoiYWxsaXNvbi1jYXNleSIsImEiOiJjbGt5Y2puaDExOTJ2M2dvODk3YmtvZ2RsIn0.c_wjxvRq0S2Nv58mxfStyg";
-
 const ControlPanelButton = ({
   showControlPanel,
   onClick,
@@ -98,6 +95,7 @@ export type SafeRoutesMapProps = Omit<
   MapProps,
   "mapboxAccessToken" | "mapLib" | "mapStyle"
 > & {
+  token?: string;
   routes: GeoJSON.GeoJSON;
   controlPanelContent: ReactElement;
   geocoderBbox: MapboxGeocoder.Bbox;
@@ -105,12 +103,17 @@ export type SafeRoutesMapProps = Omit<
 };
 
 const SafeRoutesMap = ({
+  token,
   routes,
   controlPanelContent,
   geocoderBbox,
   useLegacyStyles = false,
   ...mapboxProps
 }: SafeRoutesMapProps) => {
+  if (!token) {
+    throw new Error("ACCESS_TOKEN is undefined");
+  }
+
   const styles = useLegacyStyles ? legacyRouteStyles : routeStyles;
   const mapRef = useRef<MapRef>(null);
   const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
@@ -135,7 +138,7 @@ const SafeRoutesMap = ({
     <div className="w-dvh h-dvh grid grid-rows-[1fr_auto] grid-cols-1 md:grid-cols-[1fr_auto] md:grid-rows-1">
       <div className="relative">
         <Map
-          mapboxAccessToken={ACCESS_TOKEN}
+          mapboxAccessToken={token}
           mapLib={mapboxgl}
           mapStyle={MAP_STYLES.find((d) => d.title === currentStyle)?.style}
           ref={mapRef}
@@ -147,7 +150,7 @@ const SafeRoutesMap = ({
             </Source>
           ) : null}
           <GeocoderControl
-            mapboxAccessToken={ACCESS_TOKEN}
+            mapboxAccessToken={token}
             position="top-right"
             bbox={geocoderBbox}
           />

@@ -14,10 +14,9 @@ export default async function SafeRoutesLA() {
   const file = await fs.readFile(process.cwd() + "/src/app/map.json", "utf8");
   const data = JSON.parse(file);
 
-  console.log(data);
-
   return (
     <SafeRoutesMap
+      token={process.env.ACCESS_TOKEN}
       routes={data}
       controlPanelContent={<LAControlPanel />}
       initialViewState={{
