@@ -5,7 +5,7 @@ import mapboxgl from "mapbox-gl";
 
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
-import { ReactElement, useCallback, useRef, useState } from "react";
+import { ReactElement, useRef, useState } from "react";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import Map, {
   GeolocateControl,
@@ -18,12 +18,7 @@ import { RouteStyle } from "../../route_styles";
 import GeocoderControl from "./geocoder-control";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import DrawControl from "./draw-control";
-import { drop, dropLast, indexBy, omitBy } from "remeda";
-import {
-  DrawCreateEvent,
-  DrawDeleteEvent,
-  DrawUpdateEvent,
-} from "@mapbox/mapbox-gl-draw";
+import { drop, dropLast } from "remeda";
 
 const DEFAULT_MAP_STYLE = "Streets";
 const MAP_STYLES = [
@@ -151,18 +146,16 @@ const SafeRoutesMapAdmin = ({
   );
   const [history, setHistory] = useState<GeoJSON.FeatureCollection[]>([routes]);
 
-  const onUpdate = (_e: DrawUpdateEvent) => {
-    if (drawRef.current) {
-      setHistory((history) => {
-        if (!drawRef.current) {
-          return history;
-        } else if (history.length >= 10) {
-          return [...drop(history, 1), drawRef.current.getAll()];
-        } else {
-          return [...history, drawRef.current.getAll()];
-        }
-      });
-    }
+  const onUpdate = () => {
+    setHistory((history) => {
+      if (!drawRef.current) {
+        return history;
+      } else if (history.length >= 10) {
+        return [...drop(history, 1), drawRef.current.getAll()];
+      } else {
+        return [...history, drawRef.current.getAll()];
+      }
+    });
   };
 
   console.log(history.length);
