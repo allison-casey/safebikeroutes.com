@@ -18,7 +18,7 @@ import { RouteStyle } from "../../route_styles";
 import GeocoderControl from "./geocoder-control";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import DrawControl from "./draw-control";
-import { indexBy, omitBy } from "remeda";
+import { dropLast, indexBy, omitBy } from "remeda";
 import {
   DrawCreateEvent,
   DrawDeleteEvent,
@@ -144,33 +144,20 @@ const SafeRoutesMapAdmin = ({
   if (!token) {
     throw new Error("ACCESS_TOKEN is undefined");
   }
+
+  const drawRef = useRef<MapboxDraw>(null);
   const [selectedFeatures, setSelectedFeatures] = useState<GeoJSON.Feature[]>(
     [],
   );
-  const [_features, setFeatures] = useState<{ [id: string]: GeoJSON.Feature }>(
-    {},
-  );
+  const [history, setHistory] = useState<GeoJSON.FeatureCollection[]>([routes]);
 
-  const addFeatures = (features: GeoJSON.Feature[]) =>
-    setFeatures((currFeatures) => ({
-      ...currFeatures,
-      ...indexBy(features, (feature) => feature.id),
-    }));
-
-  const onCreate = useCallback((e: DrawCreateEvent) => {
-    addFeatures(e.features);
-  }, []);
-
-  const onUpdate = useCallback((e: DrawUpdateEvent) => {
-    addFeatures(e.features);
-  }, []);
-
-  const onDelete = useCallback((e: DrawDeleteEvent) => {
-    const toDelete = new Set(e.features.map((e) => e.id));
-    setFeatures((currFeatures) =>
-      omitBy(currFeatures, (_, key) => toDelete.has(key)),
-    );
-  }, []);
+  const onUpdate = (_e: DrawUpdateEvent) => {
+    if (drawRef.current) {
+      setHistory((history) =>
+        drawRef.current ? [...history, drawRef.current?.getAll()] : history,
+      );
+    }
+  };
 
   const mapRef = useRef<MapRef>(null);
   const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
@@ -198,6 +185,7 @@ const SafeRoutesMapAdmin = ({
             position="top-left"
           />
           <DrawControl
+            ref={drawRef}
             userProperties
             position="top-left"
             displayControlsDefault={false}
@@ -206,9 +194,7 @@ const SafeRoutesMapAdmin = ({
               line_string: true,
               trash: true,
             }}
-            onCreate={onCreate}
             onUpdate={onUpdate}
-            onDelete={onDelete}
             onSelectionChange={(evt) => setSelectedFeatures(evt.features)}
           />
         </Map>
@@ -236,6 +222,20 @@ const SafeRoutesMapAdmin = ({
           "drop-shadow-md",
         ])}
       >
+        <button
+          type="button"
+          disabled={history.length === 1}
+          onClick={() => {
+            if (drawRef.current) {
+              const state = history[history.length - 2];
+              drawRef.current.deleteAll();
+              drawRef.current.add(state);
+              setHistory((history) => dropLast(history, 1));
+            }
+          }}
+        >
+          undo
+        </button>
         <CodeMirror
           readOnly
           value={JSON.stringify(selectedFeatures, null, 2)}

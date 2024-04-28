@@ -5,6 +5,7 @@ import MapboxDraw, {
   DrawSelectionChangeEvent,
   DrawUpdateEvent,
 } from "@mapbox/mapbox-gl-draw";
+import { forwardRef, useImperativeHandle, useRef } from "react";
 import { useControl } from "react-map-gl";
 
 import type { ControlPosition } from "react-map-gl";
@@ -20,7 +21,10 @@ type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {
   onModeChange?: (evt: DrawModeChangeEvent) => void;
 };
 
-export default function DrawControl(props: DrawControlProps) {
+const DrawControl = forwardRef(function DrawControl(
+  props: DrawControlProps,
+  ref,
+) {
   const draw = useControl<MapboxDraw>(
     () => new MapboxDraw(props),
     ({ map }) => {
@@ -28,12 +32,8 @@ export default function DrawControl(props: DrawControlProps) {
       props.onUpdate && map.on("draw.update", props.onUpdate);
       props.onDelete && map.on("draw.delete", props.onDelete);
       props.onSelectionChange &&
-        map.on(
-          "draw.selectionchange",
-          props.onSelectionChange as (event?: any) => void,
-        );
-      props.onModeChange &&
-        map.on("draw.modechange", props.onModeChange as (event?: any) => void);
+        map.on("draw.selectionchange", props.onSelectionChange);
+      props.onModeChange && map.on("draw.modechange", props.onModeChange);
       map.on("load", () => draw.add(props.features));
     },
     ({ map }) => {
@@ -47,6 +47,15 @@ export default function DrawControl(props: DrawControlProps) {
       position: props.position,
     },
   );
+  useImperativeHandle(
+    ref,
+    () => {
+      return draw;
+    },
+    [draw],
+  );
 
   return null;
-}
+});
+
+export default DrawControl;
