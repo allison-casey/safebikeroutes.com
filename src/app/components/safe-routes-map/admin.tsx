@@ -20,6 +20,9 @@ import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import DrawControl from "./draw-control";
 import { drop, dropLast } from "remeda";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import { Button, MenuItem, Select } from "@mui/material";
+import SelectInput from "@mui/material/Select/SelectInput";
+import { RouteType } from "@prisma/client";
 
 const DEFAULT_MAP_STYLE = "Streets";
 const MAP_STYLES = [
@@ -129,6 +132,27 @@ const MultiPaintLayer = ({ routeStyle, ...props }: MultiPaintLayer) => (
   </>
 );
 
+const RouteControlPanel = ({
+  features,
+  updateFeature,
+}: {
+  features: GeoJSON.Feature[];
+  updateFeature: (feature: GeoJSON.Feature, routeType: RouteType) => void;
+}) =>
+  features.map((feature) => (
+    <Select
+      key={feature.id}
+      value={feature.properties!.route_type}
+      onChange={(evt) => updateFeature(feature, evt.target.value as RouteType)}
+    >
+      <MenuItem value={"SIDEWALK"}>Sidewalk</MenuItem>
+      <MenuItem value={"STREET"}>Street</MenuItem>
+      <MenuItem value={"LANE"}>Lane</MenuItem>
+      <MenuItem value={"PROTECTED"}>Protected</MenuItem>
+      <MenuItem value={"TRACK"}>Track</MenuItem>
+    </Select>
+  ));
+
 const SafeRoutesMapAdmin = ({
   token,
   routes,
@@ -146,22 +170,43 @@ const SafeRoutesMapAdmin = ({
     [],
   );
   const [history, setHistory] = useState<GeoJSON.FeatureCollection[]>([routes]);
-
-  const onUpdate = () => {
+  const pushHistory = (features: GeoJSON.FeatureCollection) => {
     setHistory((history) => {
       if (!drawRef.current) {
         return history;
       } else if (history.length >= 10) {
-        return [...drop(history, 1), drawRef.current.getAll()];
+        return [...drop(history, 1), features];
       } else {
-        return [...history, drawRef.current.getAll()];
+        return [...history, features];
       }
     });
+  };
+
+  const onUpdate = () => {
+    drawRef.current && pushHistory(drawRef.current.getAll());
   };
 
   const mapRef = useRef<MapRef>(null);
   const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
   const [showControlPanel, toggleControlPanel] = useState(true);
+
+  const updateFeatureInPanel = (
+    feature: GeoJSON.Feature,
+    routeType: RouteType,
+  ) => {
+    if (drawRef.current) {
+      drawRef.current.setFeatureProperty(
+        feature.id!.toString(),
+        "route_type",
+        routeType,
+      );
+      const data = drawRef.current.getAll();
+      pushHistory(data);
+      drawRef.current.deleteAll();
+      drawRef.current.add(data);
+      setSelectedFeatures([]);
+    }
+  };
 
   return (
     <div className="w-dvh h-dvh grid grid-rows-[1fr_auto] grid-cols-1 md:grid-cols-[1fr_auto] md:grid-rows-1">
@@ -240,27 +285,31 @@ const SafeRoutesMapAdmin = ({
           "drop-shadow-md",
         ])}
       >
-        <button
-          type="button"
-          disabled={history.length === 1}
-          onClick={() => {
-            if (drawRef.current) {
-              const state = history[history.length - 2];
-              drawRef.current.deleteAll();
-              drawRef.current.add(state);
-              setHistory((history) => dropLast(history, 1));
-            }
-          }}
-        >
-          undo
-        </button>
-        <CodeMirror
-          readOnly
-          value={JSON.stringify(selectedFeatures, null, 2)}
-          extensions={[json()]}
-          height="100%"
-          style={{ height: "100%" }}
-        />
+        <div className="grid grid-rows grid-rows-1">
+          <div>
+            <Button
+              disabled={history.length === 1}
+              onClick={() => {
+                if (drawRef.current) {
+                  const state = history[history.length - 2];
+                  drawRef.current.deleteAll();
+                  drawRef.current.add(state);
+                  setHistory((history) => dropLast(history, 1));
+                }
+              }}
+            >
+              undo
+            </Button>
+          </div>
+          <div>
+            {selectedFeatures ? (
+              <RouteControlPanel
+                features={selectedFeatures}
+                updateFeature={updateFeatureInPanel}
+              />
+            ) : null}
+          </div>
+        </div>
       </div>
     </div>
   );
