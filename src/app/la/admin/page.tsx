@@ -1,7 +1,9 @@
 import { promises as fs } from "fs";
 import MapSkeleton from "@/app/components/safe-routes-map/map-skeleton";
 import SafeRoutesMapAdmin from "@/app/components/safe-routes-map/admin";
-import { db } from "@/db/client";
+import prisma from "@/db/client";
+import { Prisma, Region } from "@prisma/client";
+import { getRoutes } from "@/db/routes";
 
 const BOUNDS: MapboxGeocoder.Bbox = [
   -118.88065856936811,
@@ -12,13 +14,12 @@ const BOUNDS: MapboxGeocoder.Bbox = [
 const CENTER = [-118.35874251099995, 34.061734936928694];
 
 export default async function SafeRoutesLA() {
-  const file = await fs.readFile(process.cwd() + "/src/app/map.json", "utf8");
-  const data = JSON.parse(file);
+  const routes = await getRoutes("LA");
 
   return (
     <SafeRoutesMapAdmin
       token={process.env.ACCESS_TOKEN}
-      routes={data}
+      routes={routes}
       controlPanelContent={<div>hello world</div>}
       initialViewState={{
         longitude: CENTER[0],
