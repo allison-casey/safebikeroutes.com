@@ -14,11 +14,12 @@ import Map, {
   MapProps,
   MapRef,
 } from "react-map-gl";
-import { RouteStyle } from "../../route_styles";
+import { RouteStyle, routeStyles } from "../../route_styles";
 import GeocoderControl from "./geocoder-control";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import DrawControl from "./draw-control";
 import { drop, dropLast } from "remeda";
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
 
 const DEFAULT_MAP_STYLE = "Streets";
 const MAP_STYLES = [
@@ -158,8 +159,6 @@ const SafeRoutesMapAdmin = ({
     });
   };
 
-  console.log(history.length);
-
   const mapRef = useRef<MapRef>(null);
   const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
   const [showControlPanel, toggleControlPanel] = useState(true);
@@ -190,6 +189,24 @@ const SafeRoutesMapAdmin = ({
             userProperties
             position="top-left"
             displayControlsDefault={false}
+            styles={[
+              ...routeStyles.map(({ routeType, paintLayers }) =>
+                paintLayers.map((layer, index) => ({
+                  id: `saferoutesla-${routeType}-${index}`,
+                  type: "line",
+                  filter: [
+                    "all",
+                    ["==", "$type", "LineString"],
+                    ["!=", "mode", "static"],
+                    ["==", "user_route_type", routeType],
+                  ],
+                  paint: layer,
+                })),
+              ),
+              ...MapboxDraw.lib.theme.filter(
+                (style) => style.id !== "gl-draw-line-inactive",
+              ),
+            ].flat()}
             features={routes}
             controls={{
               line_string: true,

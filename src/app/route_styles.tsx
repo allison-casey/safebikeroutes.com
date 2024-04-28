@@ -1,11 +1,13 @@
+import { RouteType } from "@prisma/client";
+
 export interface RouteStyle {
-  routeType: "sidewalk" | "street" | "lane" | "protected" | "track";
+  routeType: RouteType;
   paintLayers: object[];
 }
 
 export const routeStyles: RouteStyle[] = [
   {
-    routeType: "sidewalk",
+    routeType: "SIDEWALK",
     paintLayers: [
       { "line-width": 3 },
       {
@@ -16,7 +18,7 @@ export const routeStyles: RouteStyle[] = [
     ],
   },
   {
-    routeType: "street",
+    routeType: "STREET",
     paintLayers: [
       { "line-width": 3, "line-color": "white" },
       {
@@ -27,7 +29,7 @@ export const routeStyles: RouteStyle[] = [
     ],
   },
   {
-    routeType: "lane",
+    routeType: "LANE",
     paintLayers: [
       {
         "line-color": "#c2a5cf",
@@ -36,7 +38,7 @@ export const routeStyles: RouteStyle[] = [
     ],
   },
   {
-    routeType: "protected",
+    routeType: "PROTECTED",
     paintLayers: [
       {
         "line-color": "#7b3294",
@@ -50,7 +52,7 @@ export const routeStyles: RouteStyle[] = [
     ],
   },
   {
-    routeType: "track",
+    routeType: "TRACK",
     paintLayers: [
       {
         "line-color": "#008837",
@@ -67,7 +69,7 @@ export const routeStyles: RouteStyle[] = [
 
 export const legacyRouteStyles: RouteStyle[] = [
   {
-    routeType: "sidewalk",
+    routeType: "SIDEWALK",
     paintLayers: [
       {
         "line-color": "orange",
@@ -76,8 +78,8 @@ export const legacyRouteStyles: RouteStyle[] = [
       },
     ],
   },
-  { routeType: "street", paintLayers: [{}] },
-  { routeType: "lane", paintLayers: [{}] },
-  { routeType: "protected", paintLayers: [{}] },
-  { routeType: "track", paintLayers: [{}] },
+  { routeType: "STREET", paintLayers: [{}] },
+  { routeType: "LANE", paintLayers: [{}] },
+  { routeType: "PROTECTED", paintLayers: [{}] },
+  { routeType: "TRACK", paintLayers: [{}] },
 ];
