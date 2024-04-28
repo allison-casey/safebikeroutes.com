@@ -7,11 +7,11 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 import type { Region, RouteType } from "./enums";
 
 export type Route = {
-    id: string;
+    id: Generated<string>;
     name: string | null;
     region: Region;
     route_type: RouteType;
 };
 export type DB = {
-    Route: Route;
+    route: Route;
 };

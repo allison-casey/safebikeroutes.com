@@ -31,9 +31,10 @@ enum RouteType {
 }
 
 model Route {
-  id String @id @default(uuid())
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name String?
   region Region
-  route_type RouteType
+  routeType RouteType @map("route_type")
   geometry Unsupported("geography(Linestring, 4326)")
+  @@map("route")
 }

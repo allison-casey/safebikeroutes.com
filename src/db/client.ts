@@ -1,14 +1,22 @@
-import { PrismaClient } from "@prisma/client";
+import { Pool } from "pg";
+import { Kysely, PostgresDialect } from "kysely";
+import { DB } from "./types";
 
-let prisma: PrismaClient;
+const dialect = new PostgresDialect({
+  pool: new Pool({
+    database: "db",
+    host: "localhost",
+    user: "postgres",
+    port: 5432,
+    password: "postgres",
+    max: 10,
+  }),
+});
 
-if (process.env.NODE_ENV === "production") {
-  prisma = new PrismaClient();
-} else {
-  if (!global.prisma) {
-    global.prisma = new PrismaClient();
-  }
-  prisma = global.prisma;
-}
-
-export default prisma;
+// Database interface is passed to Kysely's constructor, and from now on, Kysely
+// knows your database structure.
+// Dialect is passed to Kysely's constructor, and from now on, Kysely knows how
+// to communicate with your database.
+export const db = new Kysely<DB>({
+  dialect,
+});
