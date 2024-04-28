@@ -2,6 +2,9 @@
 
 import { clsx } from "clsx";
 import mapboxgl from "mapbox-gl";
+
+import CodeMirror from "@uiw/react-codemirror";
+import { json } from "@codemirror/lang-json";
 import { ReactElement, useCallback, useRef, useState } from "react";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import Map, {
@@ -141,6 +144,9 @@ const SafeRoutesMapAdmin = ({
   if (!token) {
     throw new Error("ACCESS_TOKEN is undefined");
   }
+  const [selectedFeatures, setSelectedFeatures] = useState<GeoJSON.Feature[]>(
+    [],
+  );
   const [_features, setFeatures] = useState<{ [id: string]: GeoJSON.Feature }>(
     {},
   );
@@ -192,6 +198,7 @@ const SafeRoutesMapAdmin = ({
             position="top-left"
           />
           <DrawControl
+            userProperties
             position="top-left"
             displayControlsDefault={false}
             features={routes}
@@ -199,10 +206,10 @@ const SafeRoutesMapAdmin = ({
               line_string: true,
               trash: true,
             }}
-            defaultMode="draw_polygon"
             onCreate={onCreate}
             onUpdate={onUpdate}
             onDelete={onDelete}
+            onSelectionChange={(evt) => setSelectedFeatures(evt.features)}
           />
         </Map>
         <StyleSelector
@@ -229,7 +236,13 @@ const SafeRoutesMapAdmin = ({
           "drop-shadow-md",
         ])}
       >
-        {controlPanelContent}
+        <CodeMirror
+          readOnly
+          value={JSON.stringify(selectedFeatures, null, 2)}
+          extensions={[json()]}
+          height="100%"
+          style={{ height: "100%" }}
+        />
       </div>
     </div>
   );

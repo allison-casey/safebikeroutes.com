@@ -1,5 +1,6 @@
-import { Prisma, Region } from "@prisma/client";
+import { Region } from "@prisma/client";
 import prisma from "./client";
+import { evolve, set } from "remeda";
 
 export const getRoutes = async (
   region: Region,
@@ -14,5 +15,9 @@ export const getRoutes = async (
     FROM route r
     WHERE region = ${region}::"Region"
   `;
-  return data;
+
+  return evolve(data, {
+    features: (features) =>
+      features.map((feature) => set(feature, "id", feature.properties?.id)),
+  });
 };

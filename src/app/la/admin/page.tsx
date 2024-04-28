@@ -1,8 +1,4 @@
-import { promises as fs } from "fs";
-import MapSkeleton from "@/app/components/safe-routes-map/map-skeleton";
 import SafeRoutesMapAdmin from "@/app/components/safe-routes-map/admin";
-import prisma from "@/db/client";
-import { Prisma, Region } from "@prisma/client";
 import { getRoutes } from "@/db/routes";
 
 const BOUNDS: MapboxGeocoder.Bbox = [
