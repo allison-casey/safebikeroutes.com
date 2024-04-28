@@ -18,7 +18,7 @@ import { RouteStyle } from "../../route_styles";
 import GeocoderControl from "./geocoder-control";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import DrawControl from "./draw-control";
-import { dropLast, indexBy, omitBy } from "remeda";
+import { drop, dropLast, indexBy, omitBy } from "remeda";
 import {
   DrawCreateEvent,
   DrawDeleteEvent,
@@ -153,11 +153,19 @@ const SafeRoutesMapAdmin = ({
 
   const onUpdate = (_e: DrawUpdateEvent) => {
     if (drawRef.current) {
-      setHistory((history) =>
-        drawRef.current ? [...history, drawRef.current?.getAll()] : history,
-      );
+      setHistory((history) => {
+        if (!drawRef.current) {
+          return history;
+        } else if (history.length >= 10) {
+          return [...drop(history, 1), drawRef.current.getAll()];
+        } else {
+          return [...history, drawRef.current.getAll()];
+        }
+      });
     }
   };
+
+  console.log(history.length);
 
   const mapRef = useRef<MapRef>(null);
   const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
