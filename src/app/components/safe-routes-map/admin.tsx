@@ -3,103 +3,21 @@
 import { clsx } from "clsx";
 import mapboxgl from "mapbox-gl";
 
-import CodeMirror from "@uiw/react-codemirror";
-import { json } from "@codemirror/lang-json";
 import { ReactElement, useRef, useState } from "react";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
-import Map, {
-  GeolocateControl,
-  Layer,
-  LayerProps,
-  MapProps,
-  MapRef,
-} from "react-map-gl";
-import { RouteStyle, routeStyles } from "../../route_styles";
+import Map, { GeolocateControl, MapProps, MapRef } from "react-map-gl";
+import { routeStyles } from "../../route_styles";
 import GeocoderControl from "./geocoder-control";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import DrawControl from "./draw-control";
 import { drop, dropLast } from "remeda";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { Button, MenuItem, Select } from "@mui/material";
-import SelectInput from "@mui/material/Select/SelectInput";
 import { RouteType } from "@prisma/client";
+import ControlPanelButton from "./control-panel-button";
+import StyleSelector, { MAP_STYLES } from "./style-selector";
 
 const DEFAULT_MAP_STYLE = "Streets";
-const MAP_STYLES = [
-  {
-    title: "Streets",
-    style: "mapbox://styles/mapbox/streets-v12",
-  },
-  {
-    title: "Satellite Streets",
-    style: "mapbox://styles/mapbox/satellite-streets-v12",
-  },
-];
-const ControlPanelButton = ({
-  showControlPanel,
-  onClick,
-}: {
-  showControlPanel: boolean;
-  onClick: any;
-}) => (
-  <div
-    className="absolute flex right-[calc(50%-1rem)] bottom-0 md:right-2 mb-2 md:mb-10 md:bottom-0 z-20 px-4 py-2 rounded-lg bg-white drop-shadow-md"
-    onClick={onClick}
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className={clsx([
-        "w-4",
-        "h-4",
-        showControlPanel ? "rotate-90" : "-rotate-90",
-        showControlPanel ? "md:rotate-0" : "md:rotate-180",
-      ])}
-    >
-      <path
-        fillRule="evenodd"
-        d="M13.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L11.69 12 4.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
-        clipRule="evenodd"
-      />
-      <path
-        fillRule="evenodd"
-        d="M19.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 1 1-1.06-1.06L17.69 12l-6.97-6.97a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
-        clipRule="evenodd"
-      />
-    </svg>
-  </div>
-);
-
-const StyleSelector = ({
-  currentlySelectedStyle,
-  onClick,
-}: {
-  currentlySelectedStyle: string;
-  onClick: (title: string) => any;
-}) => (
-  <div className="absolute flex left-2 bottom-0 mb-12 z-20 rounded-lg drop-shadow-md">
-    {MAP_STYLES.map(({ title }) => (
-      <div
-        onClick={() => onClick(title)}
-        key={title}
-        className={clsx([
-          title === currentlySelectedStyle ? "bg-blue-500" : "bg-white",
-          title === currentlySelectedStyle ? "text-white" : "text-gray-500",
-          "first:rounded-l",
-          "last:rounded-r",
-          "py-1",
-          "px-2",
-          "text-s",
-          "font",
-          "cursor-pointer",
-        ])}
-      >
-        {title}
-      </div>
-    ))}
-  </div>
-);
 
 export type SafeRoutesMapProps = Omit<
   MapProps,
@@ -112,46 +30,96 @@ export type SafeRoutesMapProps = Omit<
   useLegacyStyles?: boolean;
 };
 
-type MultiPaintLayer = Omit<LayerProps, "paint" | "key" | "id"> & {
-  routeStyle: RouteStyle;
+const drawRouteStyles = [
+  ...routeStyles.map(({ routeType, paintLayers }) =>
+    paintLayers.map((layer, index) => ({
+      id: `saferoutesla-${routeType}-${index}`,
+      type: "line",
+      filter: [
+        "all",
+        ["==", "$type", "LineString"],
+        ["!=", "mode", "static"],
+        ["==", "user_route_type", routeType],
+      ],
+      paint: layer,
+    })),
+  ),
+  ...MapboxDraw.lib.theme.filter(
+    (style) => style.id !== "gl-draw-line-inactive",
+  ),
+].flat();
+
+const pushDrawHistory = (
+  history: GeoJSON.FeatureCollection[],
+  features: GeoJSON.FeatureCollection,
+) =>
+  history.length >= 10
+    ? [...drop(history, 1), features]
+    : [...history, features];
+
+const popDrawHistory = (
+  history: GeoJSON.FeatureCollection[],
+): [GeoJSON.FeatureCollection[], GeoJSON.FeatureCollection] => [
+  dropLast(history, 1),
+  history[history.length - 2],
+];
+
+const repaintDrawLayer = (
+  draw: MapboxDraw,
+  features: GeoJSON.FeatureCollection,
+) => {
+  draw.deleteAll();
+  draw.add(features);
 };
 
-const MultiPaintLayer = ({ routeStyle, ...props }: MultiPaintLayer) => (
-  <>
-    {routeStyle.paintLayers.map((paintLayer, index) => (
-      <Layer
-        key={`saferoutesla-${routeStyle.routeType}-${index}`}
-        id={`saferoutesla-${routeStyle.routeType}-${index}`}
-        // type="line"
-        // source="saferoutesla"
-        // filter={["==", "routeType", routeStyle.routeType]}
-        paint={paintLayer}
-        {...props}
-      />
-    ))}
-  </>
-);
+interface ControlPanelProps {
+  drawRef: React.Ref<MapboxDraw>;
+  undoDisabled: boolean;
+  undoHandler: () => void;
+  onSaveHandler: () => void;
+  selectedFeatures: GeoJSON.Feature[];
+  updateFeatureHandler: (
+    feature: GeoJSON.Feature,
+    routeType: RouteType,
+  ) => void;
+}
 
-const RouteControlPanel = ({
-  features,
-  updateFeature,
-}: {
-  features: GeoJSON.Feature[];
-  updateFeature: (feature: GeoJSON.Feature, routeType: RouteType) => void;
-}) =>
-  features.map((feature) => (
-    <Select
-      key={feature.id}
-      value={feature.properties!.route_type}
-      onChange={(evt) => updateFeature(feature, evt.target.value as RouteType)}
-    >
-      <MenuItem value={"SIDEWALK"}>Sidewalk</MenuItem>
-      <MenuItem value={"STREET"}>Street</MenuItem>
-      <MenuItem value={"LANE"}>Lane</MenuItem>
-      <MenuItem value={"PROTECTED"}>Protected</MenuItem>
-      <MenuItem value={"TRACK"}>Track</MenuItem>
-    </Select>
-  ));
+const ControlPanel = ({
+  undoDisabled,
+  undoHandler,
+  onSaveHandler,
+  selectedFeatures,
+  updateFeatureHandler,
+}: ControlPanelProps) => (
+  <div className="grid grid-rows grid-rows-1">
+    <div>
+      <Button disabled={undoDisabled} onClick={undoHandler}>
+        Undo
+      </Button>
+      <Button onClick={onSaveHandler}>Save</Button>
+    </div>
+
+    <div>
+      {selectedFeatures
+        ? selectedFeatures.map((feature) => (
+            <Select
+              key={feature.id}
+              value={feature.properties!.route_type}
+              onChange={(evt) =>
+                updateFeatureHandler(feature, evt.target.value as RouteType)
+              }
+            >
+              <MenuItem value={"SIDEWALK"}>Sidewalk</MenuItem>
+              <MenuItem value={"STREET"}>Street</MenuItem>
+              <MenuItem value={"LANE"}>Lane</MenuItem>
+              <MenuItem value={"PROTECTED"}>Protected</MenuItem>
+              <MenuItem value={"TRACK"}>Track</MenuItem>
+            </Select>
+          ))
+        : null}
+    </div>
+  </div>
+);
 
 const SafeRoutesMapAdmin = ({
   token,
@@ -170,20 +138,10 @@ const SafeRoutesMapAdmin = ({
     [],
   );
   const [history, setHistory] = useState<GeoJSON.FeatureCollection[]>([routes]);
-  const pushHistory = (features: GeoJSON.FeatureCollection) => {
-    setHistory((history) => {
-      if (!drawRef.current) {
-        return history;
-      } else if (history.length >= 10) {
-        return [...drop(history, 1), features];
-      } else {
-        return [...history, features];
-      }
-    });
-  };
 
   const onUpdate = () => {
-    drawRef.current && pushHistory(drawRef.current.getAll());
+    drawRef.current &&
+      setHistory(pushDrawHistory(history, drawRef.current.getAll()));
   };
 
   const mapRef = useRef<MapRef>(null);
@@ -201,9 +159,8 @@ const SafeRoutesMapAdmin = ({
         routeType,
       );
       const data = drawRef.current.getAll();
-      pushHistory(data);
-      drawRef.current.deleteAll();
-      drawRef.current.add(data);
+      setHistory(pushDrawHistory(history, data));
+      repaintDrawLayer(drawRef.current, data);
       setSelectedFeatures([]);
     }
   };
@@ -234,24 +191,7 @@ const SafeRoutesMapAdmin = ({
             userProperties
             position="top-left"
             displayControlsDefault={false}
-            styles={[
-              ...routeStyles.map(({ routeType, paintLayers }) =>
-                paintLayers.map((layer, index) => ({
-                  id: `saferoutesla-${routeType}-${index}`,
-                  type: "line",
-                  filter: [
-                    "all",
-                    ["==", "$type", "LineString"],
-                    ["!=", "mode", "static"],
-                    ["==", "user_route_type", routeType],
-                  ],
-                  paint: layer,
-                })),
-              ),
-              ...MapboxDraw.lib.theme.filter(
-                (style) => style.id !== "gl-draw-line-inactive",
-              ),
-            ].flat()}
+            styles={drawRouteStyles}
             features={routes}
             controls={{
               line_string: true,
@@ -285,31 +225,19 @@ const SafeRoutesMapAdmin = ({
           "drop-shadow-md",
         ])}
       >
-        <div className="grid grid-rows grid-rows-1">
-          <div>
-            <Button
-              disabled={history.length === 1}
-              onClick={() => {
-                if (drawRef.current) {
-                  const state = history[history.length - 2];
-                  drawRef.current.deleteAll();
-                  drawRef.current.add(state);
-                  setHistory((history) => dropLast(history, 1));
-                }
-              }}
-            >
-              undo
-            </Button>
-          </div>
-          <div>
-            {selectedFeatures ? (
-              <RouteControlPanel
-                features={selectedFeatures}
-                updateFeature={updateFeatureInPanel}
-              />
-            ) : null}
-          </div>
-        </div>
+        <ControlPanel
+          drawRef={drawRef}
+          undoDisabled={history.length === 1}
+          undoHandler={() => {
+            if (drawRef.current) {
+              const [newHistory, state] = popDrawHistory(history);
+              repaintDrawLayer(drawRef.current, state);
+              setHistory(newHistory);
+            }
+          }}
+          selectedFeatures={selectedFeatures}
+          updateFeatureHandler={updateFeatureInPanel}
+        />
       </div>
     </div>
   );

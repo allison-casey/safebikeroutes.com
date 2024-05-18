@@ -5,7 +5,7 @@ import MapboxDraw, {
   DrawSelectionChangeEvent,
   DrawUpdateEvent,
 } from "@mapbox/mapbox-gl-draw";
-import { forwardRef, useImperativeHandle, useRef } from "react";
+import { forwardRef, useImperativeHandle } from "react";
 import { useControl } from "react-map-gl";
 
 import type { ControlPosition } from "react-map-gl";
@@ -47,13 +47,7 @@ const DrawControl = forwardRef(function DrawControl(
       position: props.position,
     },
   );
-  useImperativeHandle(
-    ref,
-    () => {
-      return draw;
-    },
-    [draw],
-  );
+  useImperativeHandle(ref, () => draw, [draw]);
 
   return null;
 });

@@ -1,4 +1,5 @@
 import SafeRoutesMapAdmin from "@/app/components/safe-routes-map/admin";
+import prisma from "@/db/client";
 import { getRoutes } from "@/db/routes";
 
 const BOUNDS: MapboxGeocoder.Bbox = [
@@ -8,6 +9,8 @@ const BOUNDS: MapboxGeocoder.Bbox = [
   34.4356118682199, // Northeast coordinates
 ];
 const CENTER = [-118.35874251099995, 34.061734936928694];
+
+const saveRoutes = async (featureCollection: GeoJSON.FeatureCollection) => {};
 
 export default async function SafeRoutesLA() {
   const routes = await getRoutes("LA");
