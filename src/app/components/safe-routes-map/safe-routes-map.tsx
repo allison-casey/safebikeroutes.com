@@ -129,6 +129,7 @@ const SafeRoutesMap = ({
           source="saferoutesla"
           filter={["==", "routeType", routeType]}
           paint={paintLayer}
+          beforeId="road-label"
         />
       )),
     )
