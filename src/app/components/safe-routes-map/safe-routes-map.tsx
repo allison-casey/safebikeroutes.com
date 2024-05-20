@@ -13,6 +13,7 @@ import Map, {
 import { legacyRouteStyles, routeStyles } from "../../route_styles";
 import GeocoderControl from "./geocoder-control";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
+import { useLocalStorage } from "@uidotdev/usehooks";
 
 const DEFAULT_MAP_STYLE = "Streets";
 const MAP_STYLES = [
@@ -117,7 +118,11 @@ const SafeRoutesMap = ({
   const styles = useLegacyStyles ? legacyRouteStyles : routeStyles;
   const mapRef = useRef<MapRef>(null);
   const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
-  const [showControlPanel, toggleControlPanel] = useState(true);
+  // const [showControlPanel, toggleControlPanel] = useState(true);
+  const [showControlPanel, toggleControlPanel] = useLocalStorage(
+    "display-panel",
+    true,
+  );
 
   const layers = styles
     .map(({ routeType, paintLayers }) =>
