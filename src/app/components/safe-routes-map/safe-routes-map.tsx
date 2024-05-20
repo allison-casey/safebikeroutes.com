@@ -118,7 +118,6 @@ const SafeRoutesMap = ({
   const styles = useLegacyStyles ? legacyRouteStyles : routeStyles;
   const mapRef = useRef<MapRef>(null);
   const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
-  // const [showControlPanel, toggleControlPanel] = useState(true);
   const [showControlPanel, toggleControlPanel] = useLocalStorage(
     "display-panel",
     true,
