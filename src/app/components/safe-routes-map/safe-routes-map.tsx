@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { clsx } from "clsx";
 import mapboxgl from "mapbox-gl";
 import { ReactElement, useRef, useState } from "react";
@@ -196,4 +197,4 @@ const SafeRoutesMap = ({
   );
 };
 
-export default SafeRoutesMap;
+export default dynamic(() => Promise.resolve(SafeRoutesMap), { ssr: false });
