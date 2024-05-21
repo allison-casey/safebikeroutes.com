@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { clsx } from "clsx";
 import mapboxgl from "mapbox-gl";
 import { ReactElement, useRef, useState } from "react";
@@ -13,6 +14,7 @@ import Map, {
 import { legacyRouteStyles, routeStyles } from "../../route_styles";
 import GeocoderControl from "./geocoder-control";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
+import { useLocalStorage } from "@uidotdev/usehooks";
 
 const DEFAULT_MAP_STYLE = "Streets";
 const MAP_STYLES = [
@@ -117,7 +119,10 @@ const SafeRoutesMap = ({
   const styles = useLegacyStyles ? legacyRouteStyles : routeStyles;
   const mapRef = useRef<MapRef>(null);
   const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
-  const [showControlPanel, toggleControlPanel] = useState(true);
+  const [showControlPanel, toggleControlPanel] = useLocalStorage(
+    "display-panel",
+    true,
+  );
 
   const layers = styles
     .map(({ routeType, paintLayers }) =>
@@ -129,6 +134,7 @@ const SafeRoutesMap = ({
           source="saferoutesla"
           filter={["==", "routeType", routeType]}
           paint={paintLayer}
+          beforeId="road-label"
         />
       )),
     )
@@ -191,4 +197,4 @@ const SafeRoutesMap = ({
   );
 };
 
-export default SafeRoutesMap;
+export default dynamic(() => Promise.resolve(SafeRoutesMap), { ssr: false });
