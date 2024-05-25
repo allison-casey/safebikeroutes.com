@@ -28,6 +28,7 @@ export type SafeRoutesMapProps = Omit<
   controlPanelContent: ReactElement;
   geocoderBbox: MapboxGeocoder.Bbox;
   useLegacyStyles?: boolean;
+  saveRoutesHandler: any;
 };
 
 const drawRouteStyles = [
@@ -125,6 +126,7 @@ const SafeRoutesMapAdmin = ({
   token,
   routes,
   controlPanelContent,
+  saveRoutesHandler,
   geocoderBbox,
   useLegacyStyles = false,
   ...mapboxProps
@@ -228,6 +230,11 @@ const SafeRoutesMapAdmin = ({
         <ControlPanel
           drawRef={drawRef}
           undoDisabled={history.length === 1}
+          onSaveHandler={async () => {
+            if (drawRef.current) {
+              await saveRoutesHandler(drawRef.current.getAll());
+            }
+          }}
           undoHandler={() => {
             if (drawRef.current) {
               const [newHistory, state] = popDrawHistory(history);

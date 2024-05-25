@@ -1,10 +1,10 @@
-import { jsonArrayFrom, jsonBuildObject } from "kysely/helpers/postgres";
 import { db } from "./client";
 import { RawBuilder, sql } from "kysely";
 import { DB } from "kysely-codegen";
 
-const asGeoJSON = <TE extends keyof DB & string>(value: TE): RawBuilder<TE> =>
-  sql`CAST(ST_AsGeoJSON(${sql.ref(value)}) as JSON)`;
+export const asGeoJSON = <TE extends keyof DB & string>(
+  value: TE,
+): RawBuilder<TE> => sql`CAST(ST_AsGeoJSON(${sql.ref(value)}) as JSON)`;
 
 export const getRoutes = async (
   region: string,
@@ -32,4 +32,26 @@ export const getRoutes = async (
   // console.log(result);
 
   return feature_collection;
+};
+
+export const saveRoutes = async (
+  _region: string,
+  featureCollection: GeoJSON.FeatureCollection,
+) => {
+  const result = db.transaction().execute(async (trx) => {
+    await trx.deleteFrom("route").where("region", "=", "LA").execute();
+    return await trx
+      .insertInto("route")
+      .values(
+        featureCollection.features.map((feature) => ({
+          region: "LA",
+          route_type: feature.properties?.route_type || "STREET",
+          geometry: sql<string>`ST_GeomFromGeoJSON(${feature.geometry})`,
+        })),
+      )
+      .returningAll()
+      .execute();
+  });
+
+  return result;
 };
