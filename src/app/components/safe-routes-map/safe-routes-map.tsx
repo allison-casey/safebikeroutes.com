@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { clsx } from "clsx";
 import mapboxgl from "mapbox-gl";
-import { ReactElement, useState } from "react";
+import { ReactElement } from "react";
 import {
   GeolocateControl,
   Map,
@@ -19,8 +19,10 @@ import GeocoderControl from "./geocoder-control";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import { useLocalStorage } from "@uidotdev/usehooks";
 
-const DEFAULT_MAP_STYLE = "Streets";
-const MAP_STYLES = [
+type Styles = "Streets" | "Satellite Streets";
+
+const DEFAULT_MAP_STYLE: Styles = "Streets";
+const MAP_STYLES: { title: Styles; style: string }[] = [
   {
     title: "Streets",
     style: "mapbox://styles/mapbox/streets-v12",
@@ -73,8 +75,8 @@ const StyleSelector = ({
   currentlySelectedStyle,
   onClick,
 }: {
-  currentlySelectedStyle: string;
-  onClick: (title: string) => any;
+  currentlySelectedStyle: Styles;
+  onClick: (title: Styles) => void;
 }) => (
   <div className="absolute flex left-2 bottom-0 mb-12 z-20 rounded-lg drop-shadow-md">
     {MAP_STYLES.map(({ title }) => (
@@ -123,7 +125,10 @@ const SafeRoutesMap = ({
   }
 
   const styles = useLegacyStyles ? legacyRouteStyles : routeStyles;
-  const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
+  const [currentStyle, setCurrentStyle] = useLocalStorage<Styles>(
+    "map-style",
+    DEFAULT_MAP_STYLE,
+  );
   const [showControlPanel, toggleControlPanel] = useLocalStorage(
     "display-panel",
     true,
