@@ -2,8 +2,8 @@
 
 import dynamic from "next/dynamic";
 import { clsx } from "clsx";
-import mapboxgl from "mapbox-gl";
-import { ReactElement } from "react";
+import mapboxgl, { GeolocateControl as IGeolocateControl } from "mapbox-gl";
+import { ReactElement, useCallback, useState } from "react";
 import {
   GeolocateControl,
   Map,
@@ -20,6 +20,13 @@ import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import { useLocalStorage } from "@uidotdev/usehooks";
 
 type Styles = "Streets" | "Satellite Streets";
+type WatchState =
+  | "OFF"
+  | "ACTIVE_LOCK"
+  | "WAITING_ACTIVE"
+  | "ACTIVE_ERROR"
+  | "BACKGROUND"
+  | "BACKGROUND_ERROR";
 
 const DEFAULT_MAP_STYLE: Styles = "Streets";
 const MAP_STYLES: { title: Styles; style: string }[] = [
@@ -133,6 +140,16 @@ const SafeRoutesMap = ({
     "display-panel",
     true,
   );
+  const [geolocationEnabled, setGeolocationEnabled] = useLocalStorage(
+    "geolocation-enabled",
+    false,
+  );
+
+  const [geolocater, setGelocater] = useState<IGeolocateControl | null>(null);
+  const geolocateRef = useCallback(
+    (node: IGeolocateControl) => setGelocater(node),
+    [],
+  );
 
   const layers = styles
     .map(({ routeType, paintLayers }) =>
@@ -159,6 +176,25 @@ const SafeRoutesMap = ({
             mapboxAccessToken={token}
             mapLib={mapboxgl}
             mapStyle={MAP_STYLES.find((d) => d.title === currentStyle)?.style}
+            onLoad={() => {
+              if (geolocater) {
+                if (geolocationEnabled) {
+                  geolocater.trigger();
+                }
+                geolocater.on("trackuserlocationstart", () => {
+                  setGeolocationEnabled(true);
+                });
+                geolocater.on("trackuserlocationend", () => {
+                  // NOTE: accessing internal property so have to do this
+                  // janky typescript shenanigans
+                  const watchState: WatchState = (geolocater as any)
+                    ._watchState;
+                  if (watchState === "OFF") {
+                    setGeolocationEnabled(false);
+                  }
+                });
+              }
+            }}
             {...mapboxProps}
           >
             {routes ? (
@@ -176,6 +212,7 @@ const SafeRoutesMap = ({
               showUserHeading
               positionOptions={{ enableHighAccuracy: true }}
               position="top-left"
+              ref={geolocateRef}
             />
           </Map>
           <StyleSelector
