@@ -1,6 +1,8 @@
 import SafeRoutesMapAdmin from "@/app/components/safe-routes-map/admin";
 import { getRoutes, saveRoutes } from "@/db/routes";
 
+export const dynamic = 'force-dynamic'
+
 const BOUNDS: MapboxGeocoder.Bbox = [
   -118.88065856936811,
   33.63722119725411, // Southwest coordinates
