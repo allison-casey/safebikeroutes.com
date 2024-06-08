@@ -10,10 +10,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const isOnAdminPanel = nextUrl.pathname.endsWith('/admin');
       const isAuthorized = isLoggedIn && auth.user?.email === 'allie.jo.casey@gmail.com'
       if (isOnAdminPanel) {
-        if (isAuthorized) {
-          return true
+        if (isLoggedIn) {
+          return isAuthorized || NextResponse.redirect(new URL('/la', nextUrl.origin))
         } else {
-          return NextResponse.redirect(new URL('/la', nextUrl.origin))
+          return false
         }
       }
       return true;
