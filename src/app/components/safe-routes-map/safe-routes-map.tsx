@@ -159,7 +159,7 @@ const SafeRoutesMap = ({
           id={`saferoutesla-${routeType}-${index}`}
           type="line"
           source="saferoutesla"
-          filter={["==", "routeType", routeType]}
+          filter={["==", "route_type", routeType]}
           paint={paintLayer}
           beforeId="road-label"
         />

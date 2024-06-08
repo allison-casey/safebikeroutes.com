@@ -1,7 +1,11 @@
-"use client";
-
+'use client';
+import { SessionProvider } from "next-auth/react";
 import { MapProvider } from "react-map-gl";
 
-export const Providers = ({ children }: { children: React.ReactNode }) => {
-  return children;
-};
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <SessionProvider>
+      {children}
+    </SessionProvider>
+  );
+}

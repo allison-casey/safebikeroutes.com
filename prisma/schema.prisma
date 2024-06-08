@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator kysely {
+  provider = "prisma-kysely"
+  output = "../src/db"
+  fileName = "types.ts"
+  enumFileName = "enums.ts"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("POSTGRES_PRISMA_URL")
+  extensions = [uuidOssp(map: "uuid-ossp"), postgis]
+}
+
+enum Region {
+  LA
+}
+
+enum RouteType {
+  SIDEWALK
+  STREET 
+  LANE 
+  PROTECTED
+  TRACK
+}
+
+model Route {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name String?
+  region Region
+  routeType RouteType @map("route_type")
+  geometry Unsupported("geography(Linestring, 4326)")
+  @@map("route")
+}

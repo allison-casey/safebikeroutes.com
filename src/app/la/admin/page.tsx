@@ -1,6 +1,5 @@
-import SafeRoutesMap from "@/app/components/safe-routes-map";
-import LAControlPanel from "./LAControlPanel";
-import { getRoutes } from "@/db/routes";
+import SafeRoutesMapAdmin from "@/app/components/safe-routes-map/admin";
+import { getRoutes, saveRoutes } from "@/db/routes";
 
 const BOUNDS: MapboxGeocoder.Bbox = [
   -118.88065856936811,
@@ -10,14 +9,22 @@ const BOUNDS: MapboxGeocoder.Bbox = [
 ];
 const CENTER = [-118.35874251099995, 34.061734936928694];
 
+const saveRoutesForMap = async (
+  featureCollection: GeoJSON.FeatureCollection,
+) => {
+  "use server";
+  await saveRoutes("LA", featureCollection);
+};
+
 export default async function SafeRoutesLA() {
   const routes = await getRoutes("LA");
 
   return (
-    <SafeRoutesMap
+    <SafeRoutesMapAdmin
       token={process.env.ACCESS_TOKEN}
       routes={routes}
-      controlPanelContent={<LAControlPanel />}
+      controlPanelContent={<div>hello world</div>}
+      saveRoutesHandler={saveRoutesForMap}
       initialViewState={{
         longitude: CENTER[0],
         latitude: CENTER[1],
