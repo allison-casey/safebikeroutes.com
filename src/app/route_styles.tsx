@@ -1,4 +1,4 @@
-import { RouteType } from "@prisma/client";
+import { RouteType } from "@/db/enums";
 
 export interface RouteStyle {
   routeType: RouteType;
