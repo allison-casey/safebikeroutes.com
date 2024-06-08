@@ -2,7 +2,7 @@
 
 import { clsx } from "clsx";
 import mapboxgl from "mapbox-gl";
-
+import MenuIcon from '@mui/icons-material/Menu';
 import { ReactElement, useRef, useState } from "react";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import Map, { GeolocateControl, MapProps, MapRef } from "react-map-gl";
@@ -12,10 +12,12 @@ import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import DrawControl from "./draw-control";
 import { drop, dropLast } from "remeda";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
-import { Button, MenuItem, Select } from "@mui/material";
+import { AppBar, Box, Button, IconButton, MenuItem, Select, Toolbar, Typography } from "@mui/material";
 import { RouteType } from "@prisma/client";
 import ControlPanelButton from "./control-panel-button";
 import StyleSelector, { MAP_STYLES } from "./style-selector";
+import { signIn, signOut } from "@root/auth";
+import { ControlPanelToolbar } from "./control-panel-toolbar";
 
 const DEFAULT_MAP_STYLE = "Streets";
 
@@ -61,9 +63,9 @@ const pushDrawHistory = (
 const popDrawHistory = (
   history: GeoJSON.FeatureCollection[],
 ): [GeoJSON.FeatureCollection[], GeoJSON.FeatureCollection] => [
-  dropLast(history, 1),
-  history[history.length - 2],
-];
+    dropLast(history, 1),
+    history[history.length - 2],
+  ];
 
 const repaintDrawLayer = (
   draw: MapboxDraw,
@@ -103,20 +105,20 @@ const ControlPanel = ({
     <div>
       {selectedFeatures
         ? selectedFeatures.map((feature) => (
-            <Select
-              key={feature.id}
-              value={feature.properties!.route_type}
-              onChange={(evt) =>
-                updateFeatureHandler(feature, evt.target.value as RouteType)
-              }
-            >
-              <MenuItem value={"SIDEWALK"}>Sidewalk</MenuItem>
-              <MenuItem value={"STREET"}>Street</MenuItem>
-              <MenuItem value={"LANE"}>Lane</MenuItem>
-              <MenuItem value={"PROTECTED"}>Protected</MenuItem>
-              <MenuItem value={"TRACK"}>Track</MenuItem>
-            </Select>
-          ))
+          <Select
+            key={feature.id}
+            value={feature.properties!.route_type}
+            onChange={(evt) =>
+              updateFeatureHandler(feature, evt.target.value as RouteType)
+            }
+          >
+            <MenuItem value={"SIDEWALK"}>Sidewalk</MenuItem>
+            <MenuItem value={"STREET"}>Street</MenuItem>
+            <MenuItem value={"LANE"}>Lane</MenuItem>
+            <MenuItem value={"PROTECTED"}>Protected</MenuItem>
+            <MenuItem value={"TRACK"}>Track</MenuItem>
+          </Select>
+        ))
         : null}
     </div>
   </div>
@@ -215,10 +217,10 @@ const SafeRoutesMapAdmin = ({
           }}
         />
       </div>
-      <div
+      <Box sx={{ flexGrow: 1 }}
         className={clsx([
-          showControlPanel ? "h-[300px] p-5" : "h-0 p-0",
-          showControlPanel ? "md:w-[400px] p-5" : "w-0 p-0",
+          showControlPanel ? "h-[300px]" : "h-0 p-0",
+          showControlPanel ? "md:w-[400px]" : "w-0 p-0",
           "md:h-auto",
           "transition",
           "transition-all",
@@ -227,25 +229,28 @@ const SafeRoutesMapAdmin = ({
           "drop-shadow-md",
         ])}
       >
-        <ControlPanel
-          drawRef={drawRef}
-          undoDisabled={history.length === 1}
-          onSaveHandler={async () => {
-            if (drawRef.current) {
-              await saveRoutesHandler(drawRef.current.getAll());
-            }
-          }}
-          undoHandler={() => {
-            if (drawRef.current) {
-              const [newHistory, state] = popDrawHistory(history);
-              repaintDrawLayer(drawRef.current, state);
-              setHistory(newHistory);
-            }
-          }}
-          selectedFeatures={selectedFeatures}
-          updateFeatureHandler={updateFeatureInPanel}
-        />
-      </div>
+        <ControlPanelToolbar />
+        <div className='p-5'>
+          <ControlPanel
+            drawRef={drawRef}
+            undoDisabled={history.length === 1}
+            onSaveHandler={async () => {
+              if (drawRef.current) {
+                await saveRoutesHandler(drawRef.current.getAll());
+              }
+            }}
+            undoHandler={() => {
+              if (drawRef.current) {
+                const [newHistory, state] = popDrawHistory(history);
+                repaintDrawLayer(drawRef.current, state);
+                setHistory(newHistory);
+              }
+            }}
+            selectedFeatures={selectedFeatures}
+            updateFeatureHandler={updateFeatureInPanel}
+          />
+        </div>
+      </Box>
     </div>
   );
 };
