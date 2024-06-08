@@ -150,7 +150,6 @@ const SafeRoutesMap = ({
     (node: IGeolocateControl) => setGelocater(node),
     [],
   );
-  console.log(routes)
 
   const layers = styles
     .map(({ routeType, paintLayers }) =>
