@@ -20,6 +20,7 @@ export const getRoutes = async (
      WHERE region = ${region}::"Region"
   `.execute(db);
 
+  // TODO: figure out how to do this in kysely
   // const result = await db
   //   .selectFrom("route")
   //   .select((eb) => [
@@ -38,20 +39,16 @@ export const saveRoutes = async (
   _region: string,
   featureCollection: GeoJSON.FeatureCollection,
 ) => {
-  const result = db.transaction().execute(async (trx) => {
-    await trx.deleteFrom("route").where("region", "=", "LA").execute();
-    return await trx
-      .insertInto("route")
-      .values(
-        featureCollection.features.map((feature) => ({
-          region: "LA",
-          route_type: feature.properties?.route_type || "STREET",
-          geometry: sql<string>`ST_GeomFromGeoJSON(${feature.geometry})`,
-        })),
-      )
-      .returningAll()
-      .execute();
-  });
-
-  return result;
+  await db.deleteFrom("route").where("region", "=", "LA").execute();
+  return await db
+    .insertInto("route")
+    .values(
+      featureCollection.features.map((feature) => ({
+        region: "LA",
+        route_type: feature.properties?.route_type || "STREET",
+        geometry: sql<string>`ST_GeomFromGeoJSON(${feature.geometry})`,
+      })),
+    )
+    .returningAll()
+    .execute();
 };
