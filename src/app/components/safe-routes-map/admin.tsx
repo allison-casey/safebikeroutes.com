@@ -13,11 +13,11 @@ import DrawControl from "./draw-control";
 import { drop, dropLast } from "remeda";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { AppBar, Box, Button, IconButton, MenuItem, Select, Toolbar, Typography } from "@mui/material";
-import { RouteType } from "@prisma/client";
 import ControlPanelButton from "./control-panel-button";
 import StyleSelector, { MAP_STYLES } from "./style-selector";
 import { signIn, signOut } from "@root/auth";
 import { ControlPanelToolbar } from "./control-panel-toolbar";
+import { RouteType } from "@/db/enums";
 
 const DEFAULT_MAP_STYLE = "Streets";
 
