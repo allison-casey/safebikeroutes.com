@@ -1,6 +1,6 @@
 "use client";
 import UndoIcon from '@mui/icons-material/Undo';
-import RedoIcon from '@mui/icons-material/Redo';
+import SaveIcon from '@mui/icons-material/Save';
 import { clsx } from "clsx";
 import { Controller, useForm } from "react-hook-form";
 import mapboxgl from "mapbox-gl";
@@ -178,7 +178,7 @@ const ControlPanel = ({
           sx={{ mr: 2 }}
           onClick={onSaveHandler}
         >
-          <RedoIcon />
+          <SaveIcon />
         </IconButton>
       </Grid>
     </Grid>
