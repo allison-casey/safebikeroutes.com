@@ -6,12 +6,62 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 import type { Region, RouteType } from "./enums";
 
+export type Account = {
+    id: Generated<string>;
+    userId: string;
+    type: string;
+    provider: string;
+    providerAccountId: string;
+    refresh_token: string | null;
+    access_token: string | null;
+    expires_at: number | null;
+    token_type: string | null;
+    scope: string | null;
+    id_token: string | null;
+    session_state: string | null;
+    createdAt: Generated<Timestamp>;
+};
+export type Authenticator = {
+    credentialID: string;
+    userId: string;
+    providerAccountId: string;
+    credentialPublicKey: string;
+    counter: number;
+    credentialDeviceType: string;
+    credentialBackedUp: boolean;
+    transports: string | null;
+};
 export type Route = {
     id: Generated<string>;
     name: string | null;
     region: Region;
     route_type: RouteType;
 };
+export type Session = {
+    id: Generated<string>;
+    sessionToken: string;
+    userId: string;
+    expires: Timestamp;
+    createdAt: Generated<Timestamp>;
+};
+export type User = {
+    id: Generated<string>;
+    name: string | null;
+    email: string;
+    emailVerified: Timestamp | null;
+    image: string | null;
+    createdAt: Generated<Timestamp>;
+};
+export type VerificationToken = {
+    identifier: string;
+    token: string;
+    expires: Timestamp;
+};
 export type DB = {
+    accounts: Account;
+    authenticator: Authenticator;
     route: Route;
+    sessions: Session;
+    users: User;
+    verification_token: VerificationToken;
 };
