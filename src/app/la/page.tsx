@@ -3,6 +3,13 @@ import LAControlPanel from "./LAControlPanel";
 import { getRoutes } from "@/db/routes";
 
 export const dynamic = 'force-dynamic'
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '2mb'
+    }
+  }
+}
 
 const BOUNDS: MapboxGeocoder.Bbox = [
   -118.88065856936811,
