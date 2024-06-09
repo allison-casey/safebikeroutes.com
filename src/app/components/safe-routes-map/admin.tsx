@@ -11,7 +11,7 @@ import GeocoderControl from "./geocoder-control";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import DrawControl from "./draw-control";
 import { drop, dropLast } from "remeda";
-import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import MapboxDraw, { DrawUpdateEvent } from "@mapbox/mapbox-gl-draw";
 import { AppBar, Box, Button, IconButton, MenuItem, Select, Toolbar, Typography } from "@mui/material";
 import ControlPanelButton from "./control-panel-button";
 import StyleSelector, { MAP_STYLES } from "./style-selector";
@@ -143,7 +143,7 @@ const SafeRoutesMapAdmin = ({
   );
   const [history, setHistory] = useState<GeoJSON.FeatureCollection[]>([routes]);
 
-  const onUpdate = () => {
+  const onUpdate = (evt: DrawUpdateEvent) => {
     drawRef.current &&
       setHistory(pushDrawHistory(history, drawRef.current.getAll()));
   };
@@ -165,7 +165,7 @@ const SafeRoutesMapAdmin = ({
       const data = drawRef.current.getAll();
       setHistory(pushDrawHistory(history, data));
       repaintDrawLayer(drawRef.current, data);
-      setSelectedFeatures([]);
+      setSelectedFeatures([])
     }
   };
 
@@ -202,7 +202,14 @@ const SafeRoutesMapAdmin = ({
               trash: true,
             }}
             onUpdate={onUpdate}
-            onSelectionChange={(evt) => setSelectedFeatures(evt.features)}
+            onCreate={(evt) => {
+              for (const feature of evt.features) {
+                updateFeatureInPanel(feature, 'STREET')
+              }
+            }}
+            onSelectionChange={(evt) => {
+              setSelectedFeatures(evt.features)
+            }}
           />
         </Map>
         <StyleSelector
