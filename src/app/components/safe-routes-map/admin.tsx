@@ -1,8 +1,9 @@
 "use client";
-
+import UndoIcon from '@mui/icons-material/Undo';
+import SaveIcon from '@mui/icons-material/Save';
 import { clsx } from "clsx";
+import { Controller, useForm } from "react-hook-form";
 import mapboxgl from "mapbox-gl";
-import MenuIcon from '@mui/icons-material/Menu';
 import { ReactElement, useRef, useState } from "react";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import Map, { GeolocateControl, MapProps, MapRef } from "react-map-gl";
@@ -12,14 +13,27 @@ import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import DrawControl from "./draw-control";
 import { drop, dropLast } from "remeda";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
-import { AppBar, Box, Button, IconButton, MenuItem, Select, Toolbar, Typography } from "@mui/material";
+import { Box, Button, Grid, IconButton, MenuItem, Select, TextField } from "@mui/material";
 import ControlPanelButton from "./control-panel-button";
 import StyleSelector, { MAP_STYLES } from "./style-selector";
-import { signIn, signOut } from "@root/auth";
 import { ControlPanelToolbar } from "./control-panel-toolbar";
-import { RouteType } from "@/db/enums";
+import { Region, RouteType } from "@/db/enums";
 
 const DEFAULT_MAP_STYLE = "Streets";
+
+interface IRouteProperties {
+  route_type: RouteType;
+  region: Region;
+  name?: string;
+}
+
+interface IUpdateRouteProperty {
+  <K extends keyof IRouteProperties, V extends Required<IRouteProperties>[K]>(
+    feature: GeoJSON.Feature,
+    key: K,
+    value: V
+  ): void
+}
 
 export type SafeRoutesMapProps = Omit<
   MapProps,
@@ -81,45 +95,95 @@ interface ControlPanelProps {
   undoHandler: () => void;
   onSaveHandler: () => void;
   selectedFeatures: GeoJSON.Feature[];
-  updateFeatureHandler: (
-    feature: GeoJSON.Feature,
-    routeType: RouteType,
-  ) => void;
+  updateFeatureProperty: IUpdateRouteProperty
 }
+
+
+const RouteEditor = ({ feature, updateRouteProperty }: { feature: GeoJSON.Feature, updateRouteProperty: IUpdateRouteProperty }) => {
+  const { handleSubmit, control } = useForm<IRouteProperties>(
+    {
+      defaultValues: {
+        name: feature.properties?.name || "",
+        route_type: feature.properties?.route_type || "STREET"
+      }
+    }
+  )
+
+  const onSubmit = (data: IRouteProperties) => {
+    updateRouteProperty(feature, 'route_type', data.route_type)
+    data.name && updateRouteProperty(feature, 'name', data.name)
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Grid container direction='column' gap={1}>
+        <Controller
+          name="name"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <Grid item><TextField label="Route Name" fullWidth onChange={onChange} value={value} /> </Grid>
+          )}
+        />
+        <Controller
+          name="route_type"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <Grid item>
+              <Select onChange={onChange} value={value} fullWidth>
+                <MenuItem value={"SIDEWALK"}>Sidewalk</MenuItem>
+                <MenuItem value={"STREET"}>Street</MenuItem>
+                <MenuItem value={"LANE"}>Lane</MenuItem>
+                <MenuItem value={"PROTECTED"}>Protected</MenuItem>
+                <MenuItem value={"TRACK"}>Track</MenuItem>
+              </Select>
+            </Grid>
+          )}
+        />
+        <Button color="primary" type="submit" >
+          Submit
+        </Button>
+      </Grid>
+    </form>
+  )
+}
+
 
 const ControlPanel = ({
   undoDisabled,
   undoHandler,
   onSaveHandler,
   selectedFeatures,
-  updateFeatureHandler,
+  updateFeatureProperty,
 }: ControlPanelProps) => (
   <div className="grid grid-rows grid-rows-1">
+    <Grid container direction='row' justifyContent='space-around'>
+      <Grid item>
+        <IconButton
+          size="large"
+          edge="start"
+          color="inherit"
+          aria-label="menu"
+          sx={{ mr: 2 }}
+          disabled={undoDisabled} onClick={undoHandler}
+        >
+          <UndoIcon />
+        </IconButton>
+      </Grid>
+      <Grid item>
+        <IconButton
+          size="large"
+          edge="start"
+          color='primary'
+          aria-label="menu"
+          sx={{ mr: 2 }}
+          onClick={onSaveHandler}
+        >
+          <SaveIcon />
+        </IconButton>
+      </Grid>
+    </Grid>
     <div>
-      <Button disabled={undoDisabled} onClick={undoHandler}>
-        Undo
-      </Button>
-      <Button onClick={onSaveHandler}>Save</Button>
-    </div>
-
-    <div>
-      {selectedFeatures
-        ? selectedFeatures.map((feature) => (
-          <Select
-            key={feature.id}
-            value={feature.properties!.route_type}
-            onChange={(evt) =>
-              updateFeatureHandler(feature, evt.target.value as RouteType)
-            }
-          >
-            <MenuItem value={"SIDEWALK"}>Sidewalk</MenuItem>
-            <MenuItem value={"STREET"}>Street</MenuItem>
-            <MenuItem value={"LANE"}>Lane</MenuItem>
-            <MenuItem value={"PROTECTED"}>Protected</MenuItem>
-            <MenuItem value={"TRACK"}>Track</MenuItem>
-          </Select>
-        ))
-        : null}
+      {selectedFeatures ? selectedFeatures.map(feature => <RouteEditor key={feature.id} feature={feature} updateRouteProperty={updateFeatureProperty} />) : null}
     </div>
   </div>
 );
@@ -152,22 +216,23 @@ const SafeRoutesMapAdmin = ({
   const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
   const [showControlPanel, toggleControlPanel] = useState(true);
 
-  const updateFeatureInPanel = (
+  const updateFeatureProperty: IUpdateRouteProperty = (
     feature: GeoJSON.Feature,
-    routeType: RouteType,
+    key,
+    value
   ) => {
     if (drawRef.current) {
       drawRef.current.setFeatureProperty(
         feature.id!.toString(),
-        "route_type",
-        routeType,
+        key,
+        value,
       );
       const data = drawRef.current.getAll();
       setHistory(pushDrawHistory(history, data));
       repaintDrawLayer(drawRef.current, data);
-      setSelectedFeatures([]);
+      setSelectedFeatures([])
     }
-  };
+  }
 
   return (
     <div className="w-dvh h-dvh grid grid-rows-[1fr_auto] grid-cols-1 md:grid-cols-[1fr_auto] md:grid-rows-1">
@@ -202,7 +267,14 @@ const SafeRoutesMapAdmin = ({
               trash: true,
             }}
             onUpdate={onUpdate}
-            onSelectionChange={(evt) => setSelectedFeatures(evt.features)}
+            onCreate={(evt) => {
+              for (const feature of evt.features) {
+                updateFeatureProperty(feature, 'route_type', 'STREET')
+              }
+            }}
+            onSelectionChange={(evt) => {
+              setSelectedFeatures(evt.features)
+            }}
           />
         </Map>
         <StyleSelector
@@ -247,7 +319,7 @@ const SafeRoutesMapAdmin = ({
               }
             }}
             selectedFeatures={selectedFeatures}
-            updateFeatureHandler={updateFeatureInPanel}
+            updateFeatureProperty={updateFeatureProperty}
           />
         </div>
       </Box>
