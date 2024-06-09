@@ -38,3 +38,92 @@ model Route {
   geometry Unsupported("geography(Linestring, 4326)")
   @@map("route")
 }
+
+model User {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String?
+  email         String          @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  roles         UserRoles[]
+  Authenticator Authenticator[]
+ 
+  createdAt DateTime @default(now())
+  @@map("users")
+}
+ 
+model Account {
+  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+ 
+  createdAt DateTime @default(now())
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@map("accounts")
+}
+ 
+model Session {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionToken String   @unique
+  userId       String   @db.Uuid
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  createdAt DateTime @default(now())
+  @@map("sessions")
+}
+ 
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+ 
+  @@id([identifier, token])
+  @@map("verification_token")
+}
+ 
+// Optional for WebAuthn support
+model Authenticator {
+  credentialID         String  @unique
+  userId               String  @db.Uuid
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@id([userId, credentialID])
+  @@map("authenticator")
+}
+
+enum Role {
+  ADMIN
+  CONTRIBUTOR
+}
+
+model UserRoles {
+  id     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String  @db.Uuid
+  role   Role
+  region Region
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("user_roles")
+}
+
