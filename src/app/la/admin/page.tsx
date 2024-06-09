@@ -1,6 +1,7 @@
 import SafeRoutesMapAdmin from "@/app/components/safe-routes-map/admin";
 import { Role } from "@/db/enums";
 import { getRoutes, saveRoutes } from "@/db/routes";
+import { Grid, Typography } from "@mui/material";
 import { auth } from "@root/auth";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +27,13 @@ export default async function SafeRoutesLA() {
   const routes = await getRoutes("LA");
   const session = await auth();
   if (!session?.user.roles.some((role) => permittedRoles.has(role.role))) {
-    return <div>Not Authorized</div>;
+    return (
+      <main className="flex items-center justify-center md:h-screen">
+        <div className="relative mx-auto flex w-full max-w-[400px] flex-col space-y-2.5 p-4 md:-mt-32">
+          <Typography variant="h3">Not Authorized</Typography>
+        </div>
+      </main>
+    );
   }
 
   return (
