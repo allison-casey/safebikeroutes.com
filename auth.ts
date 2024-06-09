@@ -7,13 +7,11 @@ import { sql } from "kysely";
 import { Region } from "@/db/enums";
 
 const isUserAuthorized = async (user: User, region: Region) => {
-  console.log("entered isUserAuthorized", user);
   const roles = await db
     .selectFrom("user_roles")
     .where("userId", "=", sql<string>`${user.id}::uuid`)
     .where("region", "=", region)
     .execute();
-  console.log("user roles", roles);
 
   return roles.length !== 0;
 };
@@ -27,8 +25,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const isOnAdminPanel = nextUrl.pathname.endsWith("/admin");
       if (isOnAdminPanel) {
         if (auth?.user && isLoggedIn) {
+          console.log("checking if authorized");
+          const isAuthorized = await isUserAuthorized(auth.user, "LA");
+          console.log("isAuthorized", isAuthorized);
           return (
-            (await isUserAuthorized(auth.user, "LA")) ||
+            isAuthorized ||
             NextResponse.redirect(new URL("/la", nextUrl.origin))
           );
         } else {
