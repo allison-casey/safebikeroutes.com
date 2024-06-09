@@ -11,12 +11,11 @@ import { routeStyles } from "../../route_styles";
 import GeocoderControl from "./geocoder-control";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import DrawControl from "./draw-control";
-import { drop, dropLast, forEachObj } from "remeda";
-import MapboxDraw, { DrawUpdateEvent } from "@mapbox/mapbox-gl-draw";
+import { drop, dropLast } from "remeda";
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { Box, Button, Grid, IconButton, MenuItem, Select, TextField } from "@mui/material";
 import ControlPanelButton from "./control-panel-button";
 import StyleSelector, { MAP_STYLES } from "./style-selector";
-import { signIn, signOut } from "@root/auth";
 import { ControlPanelToolbar } from "./control-panel-toolbar";
 import { Region, RouteType } from "@/db/enums";
 
@@ -208,7 +207,7 @@ const SafeRoutesMapAdmin = ({
   );
   const [history, setHistory] = useState<GeoJSON.FeatureCollection[]>([routes]);
 
-  const onUpdate = (evt: DrawUpdateEvent) => {
+  const onUpdate = () => {
     drawRef.current &&
       setHistory(pushDrawHistory(history, drawRef.current.getAll()));
   };
