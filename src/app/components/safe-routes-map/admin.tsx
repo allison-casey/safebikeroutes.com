@@ -78,10 +78,11 @@ const drawRouteStyles = [
 const pushDrawHistory = (
   history: GeoJSON.FeatureCollection[],
   features: GeoJSON.FeatureCollection,
-) =>
-  history.length >= 10
+) => {
+  return history.length >= 10
     ? [...drop(history, 1), features]
     : [...history, features];
+};
 
 const popDrawHistory = (
   history: GeoJSON.FeatureCollection[],
@@ -250,8 +251,11 @@ const SafeRoutesMapAdmin = ({
   const [history, setHistory] = useState<GeoJSON.FeatureCollection[]>([routes]);
 
   const onUpdate = () => {
-    drawRef.current &&
-      setHistory(pushDrawHistory(history, drawRef.current.getAll()));
+    setHistory((history) =>
+      drawRef.current
+        ? pushDrawHistory(history, drawRef.current.getAll())
+        : history,
+    );
   };
 
   const mapRef = useRef<MapRef>(null);
@@ -266,7 +270,11 @@ const SafeRoutesMapAdmin = ({
     if (drawRef.current) {
       drawRef.current.setFeatureProperty(feature.id!.toString(), key, value);
       const data = drawRef.current.getAll();
-      setHistory(pushDrawHistory(history, data));
+      setHistory((history) =>
+        drawRef.current
+          ? pushDrawHistory(history, drawRef.current.getAll())
+          : history,
+      );
       repaintDrawLayer(drawRef.current, data);
       setSelectedFeatures([]);
     }
