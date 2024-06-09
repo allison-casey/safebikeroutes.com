@@ -27,6 +27,14 @@ interface RouteProperties {
   name?: string;
 }
 
+interface IUpdateRouteProperty {
+  <K extends keyof RouteProperties, V extends Required<RouteProperties>[K]>(
+    feature: GeoJSON.Feature,
+    key: K,
+    value: V
+  ): void
+}
+
 export type SafeRoutesMapProps = Omit<
   MapProps,
   "mapboxAccessToken" | "mapLib" | "mapStyle"
@@ -87,11 +95,7 @@ interface ControlPanelProps {
   undoHandler: () => void;
   onSaveHandler: () => void;
   selectedFeatures: GeoJSON.Feature[];
-  updateFeatureHandler: <K extends keyof RouteProperties, V extends Required<RouteProperties>[K]>(
-    feature: GeoJSON.Feature,
-    key: K,
-    value: V
-  ) => void;
+  updateFeatureHandler: IUpdateRouteProperty
 }
 
 
@@ -160,10 +164,10 @@ const SafeRoutesMapAdmin = ({
   const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
   const [showControlPanel, toggleControlPanel] = useState(true);
 
-  const updateFeatureProperty = <K extends keyof RouteProperties, V extends Required<RouteProperties>[K]>(
+  const updateFeatureProperty: IUpdateRouteProperty = (
     feature: GeoJSON.Feature,
-    key: K,
-    value: V
+    key,
+    value
   ) => {
     if (drawRef.current) {
       drawRef.current.setFeatureProperty(
