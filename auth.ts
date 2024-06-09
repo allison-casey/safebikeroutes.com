@@ -12,7 +12,7 @@ const isUserAuthorized = async (user: User, region: Region) => {
     .selectFrom("user_roles")
     .where("userId", "=", sql<string>`${user.id}::uuid`)
     .where("region", "=", region)
-    .compile();
+    .execute();
   console.log("user roles", roles);
 
   return roles.length !== 0;
