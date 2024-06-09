@@ -47,6 +47,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  roles         UserRoles[]
   Authenticator Authenticator[]
  
   createdAt DateTime @default(now())
@@ -109,5 +110,20 @@ model Authenticator {
  
   @@id([userId, credentialID])
   @@map("authenticator")
+}
+
+enum Role {
+  ADMIN
+  CONTRIBUTOR
+}
+
+model UserRoles {
+  id     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String  @db.Uuid
+  role   Role
+  region Region
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("user_roles")
 }
 

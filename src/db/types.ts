@@ -4,7 +4,7 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   : ColumnType<T, T | undefined, T>;
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
-import type { Region, RouteType } from "./enums";
+import type { Region, RouteType, Role } from "./enums";
 
 export type Account = {
     id: Generated<string>;
@@ -52,6 +52,12 @@ export type User = {
     image: string | null;
     createdAt: Generated<Timestamp>;
 };
+export type UserRoles = {
+    id: Generated<string>;
+    userId: string;
+    role: Role;
+    region: Region;
+};
 export type VerificationToken = {
     identifier: string;
     token: string;
@@ -62,6 +68,7 @@ export type DB = {
     authenticator: Authenticator;
     route: Route;
     sessions: Session;
+    user_roles: UserRoles;
     users: User;
     verification_token: VerificationToken;
 };
