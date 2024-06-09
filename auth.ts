@@ -25,13 +25,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const isOnAdminPanel = nextUrl.pathname.endsWith("/admin");
       if (isOnAdminPanel) {
         if (auth?.user && isLoggedIn) {
-          console.log("checking if authorized");
           const isAuthorized = await isUserAuthorized(auth.user, "LA");
-          console.log("isAuthorized", isAuthorized);
-          return (
-            isAuthorized ||
-            NextResponse.redirect(new URL("/la", nextUrl.origin))
-          );
+          const newUrl = new URL("/la", req.nextUrl.origin);
+          return isAuthorized || Response.redirect(newUrl);
         } else {
           return false;
         }
