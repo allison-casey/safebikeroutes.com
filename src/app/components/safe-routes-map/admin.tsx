@@ -17,9 +17,15 @@ import ControlPanelButton from "./control-panel-button";
 import StyleSelector, { MAP_STYLES } from "./style-selector";
 import { signIn, signOut } from "@root/auth";
 import { ControlPanelToolbar } from "./control-panel-toolbar";
-import { RouteType } from "@/db/enums";
+import { Region, RouteType } from "@/db/enums";
 
 const DEFAULT_MAP_STYLE = "Streets";
+
+interface RouteProperties {
+  route_type: RouteType;
+  region: Region;
+  name?: string;
+}
 
 export type SafeRoutesMapProps = Omit<
   MapProps,
@@ -81,11 +87,13 @@ interface ControlPanelProps {
   undoHandler: () => void;
   onSaveHandler: () => void;
   selectedFeatures: GeoJSON.Feature[];
-  updateFeatureHandler: (
+  updateFeatureHandler: <K extends keyof RouteProperties, V extends Required<RouteProperties>[K]>(
     feature: GeoJSON.Feature,
-    routeType: RouteType,
+    key: K,
+    value: V
   ) => void;
 }
+
 
 const ControlPanel = ({
   undoDisabled,
@@ -109,7 +117,7 @@ const ControlPanel = ({
             key={feature.id}
             value={feature.properties!.route_type}
             onChange={(evt) =>
-              updateFeatureHandler(feature, evt.target.value as RouteType)
+              updateFeatureHandler(feature, 'route_type', evt.target.value as RouteType)
             }
           >
             <MenuItem value={"SIDEWALK"}>Sidewalk</MenuItem>
@@ -152,22 +160,23 @@ const SafeRoutesMapAdmin = ({
   const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
   const [showControlPanel, toggleControlPanel] = useState(true);
 
-  const updateFeatureInPanel = (
+  const updateFeatureProperty = <K extends keyof RouteProperties, V extends Required<RouteProperties>[K]>(
     feature: GeoJSON.Feature,
-    routeType: RouteType,
+    key: K,
+    value: V
   ) => {
     if (drawRef.current) {
       drawRef.current.setFeatureProperty(
         feature.id!.toString(),
-        "route_type",
-        routeType,
+        key,
+        value,
       );
       const data = drawRef.current.getAll();
       setHistory(pushDrawHistory(history, data));
       repaintDrawLayer(drawRef.current, data);
       setSelectedFeatures([])
     }
-  };
+  }
 
   return (
     <div className="w-dvh h-dvh grid grid-rows-[1fr_auto] grid-cols-1 md:grid-cols-[1fr_auto] md:grid-rows-1">
@@ -204,7 +213,7 @@ const SafeRoutesMapAdmin = ({
             onUpdate={onUpdate}
             onCreate={(evt) => {
               for (const feature of evt.features) {
-                updateFeatureInPanel(feature, 'STREET')
+                updateFeatureProperty(feature, 'route_type', 'STREET')
               }
             }}
             onSelectionChange={(evt) => {
@@ -254,7 +263,7 @@ const SafeRoutesMapAdmin = ({
               }
             }}
             selectedFeatures={selectedFeatures}
-            updateFeatureHandler={updateFeatureInPanel}
+            updateFeatureHandler={updateFeatureProperty}
           />
         </div>
       </Box>
