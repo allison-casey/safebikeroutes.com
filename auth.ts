@@ -7,12 +7,13 @@ import { sql } from "kysely";
 import { Region } from "@/db/enums";
 
 const isUserAuthorized = async (user: User, region: Region) => {
+  console.log("entered isUserAuthorized", user);
   const roles = await db
     .selectFrom("user_roles")
-    .selectAll()
     .where("userId", "=", sql<string>`${user.id}::uuid`)
     .where("region", "=", region)
-    .execute();
+    .compile();
+  console.log("user roles", roles);
 
   return roles.length !== 0;
 };
