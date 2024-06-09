@@ -17,13 +17,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.roles = userRoles;
       return session;
     },
-    async authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user;
-      const isOnAdminPanel = nextUrl.pathname.endsWith("/admin");
-      if (isOnAdminPanel) {
-        return isLoggedIn;
-      }
-      return true;
-    },
   },
 });
