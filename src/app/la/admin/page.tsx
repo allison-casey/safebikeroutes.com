@@ -2,7 +2,6 @@ import SafeRoutesMapAdmin from "@/app/components/safe-routes-map/admin";
 import { Role } from "@/db/enums";
 import { getRoutes, saveRoutes } from "@/db/routes";
 import { auth } from "@root/auth";
-import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +26,7 @@ export default async function SafeRoutesLA() {
   const routes = await getRoutes("LA");
   const session = await auth();
   if (!session?.user.roles.some((role) => permittedRoles.has(role.role))) {
-    return redirect("/la");
+    return <div>Not Authorized</div>;
   }
 
   return (
