@@ -1,6 +1,6 @@
 "use client";
-import UndoIcon from '@mui/icons-material/Undo';
-import SaveIcon from '@mui/icons-material/Save';
+import UndoIcon from "@mui/icons-material/Undo";
+import SaveIcon from "@mui/icons-material/Save";
 import { clsx } from "clsx";
 import { Controller, useForm } from "react-hook-form";
 import mapboxgl from "mapbox-gl";
@@ -13,7 +13,16 @@ import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import DrawControl from "./draw-control";
 import { drop, dropLast } from "remeda";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
-import { Box, Button, Grid, IconButton, MenuItem, Select, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  Grid,
+  IconButton,
+  MenuItem,
+  Select,
+  Snackbar,
+  TextField,
+} from "@mui/material";
 import ControlPanelButton from "./control-panel-button";
 import StyleSelector, { MAP_STYLES } from "./style-selector";
 import { ControlPanelToolbar } from "./control-panel-toolbar";
@@ -31,8 +40,8 @@ interface IUpdateRouteProperty {
   <K extends keyof IRouteProperties, V extends Required<IRouteProperties>[K]>(
     feature: GeoJSON.Feature,
     key: K,
-    value: V
-  ): void
+    value: V,
+  ): void;
 }
 
 export type SafeRoutesMapProps = Omit<
@@ -69,17 +78,18 @@ const drawRouteStyles = [
 const pushDrawHistory = (
   history: GeoJSON.FeatureCollection[],
   features: GeoJSON.FeatureCollection,
-) =>
-  history.length >= 10
+) => {
+  return history.length >= 10
     ? [...drop(history, 1), features]
     : [...history, features];
+};
 
 const popDrawHistory = (
   history: GeoJSON.FeatureCollection[],
 ): [GeoJSON.FeatureCollection[], GeoJSON.FeatureCollection] => [
-    dropLast(history, 1),
-    history[history.length - 2],
-  ];
+  dropLast(history, 1),
+  history[history.length - 2],
+];
 
 const repaintDrawLayer = (
   draw: MapboxDraw,
@@ -95,33 +105,43 @@ interface ControlPanelProps {
   undoHandler: () => void;
   onSaveHandler: () => void;
   selectedFeatures: GeoJSON.Feature[];
-  updateFeatureProperty: IUpdateRouteProperty
+  updateFeatureProperty: IUpdateRouteProperty;
 }
 
-
-const RouteEditor = ({ feature, updateRouteProperty }: { feature: GeoJSON.Feature, updateRouteProperty: IUpdateRouteProperty }) => {
-  const { handleSubmit, control } = useForm<IRouteProperties>(
-    {
-      defaultValues: {
-        name: feature.properties?.name || "",
-        route_type: feature.properties?.route_type || "STREET"
-      }
-    }
-  )
+const RouteEditor = ({
+  feature,
+  updateRouteProperty,
+}: {
+  feature: GeoJSON.Feature;
+  updateRouteProperty: IUpdateRouteProperty;
+}) => {
+  const { handleSubmit, control } = useForm<IRouteProperties>({
+    defaultValues: {
+      name: feature.properties?.name || "",
+      route_type: feature.properties?.route_type || "STREET",
+    },
+  });
 
   const onSubmit = (data: IRouteProperties) => {
-    updateRouteProperty(feature, 'route_type', data.route_type)
-    data.name && updateRouteProperty(feature, 'name', data.name)
-  }
+    updateRouteProperty(feature, "route_type", data.route_type);
+    data.name && updateRouteProperty(feature, "name", data.name);
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Grid container direction='column' gap={1}>
+      <Grid container direction="column" gap={1}>
         <Controller
           name="name"
           control={control}
           render={({ field: { onChange, value } }) => (
-            <Grid item><TextField label="Route Name" fullWidth onChange={onChange} value={value} /> </Grid>
+            <Grid item>
+              <TextField
+                label="Route Name"
+                fullWidth
+                onChange={onChange}
+                value={value}
+              />{" "}
+            </Grid>
           )}
         />
         <Controller
@@ -139,14 +159,13 @@ const RouteEditor = ({ feature, updateRouteProperty }: { feature: GeoJSON.Featur
             </Grid>
           )}
         />
-        <Button color="primary" type="submit" >
+        <Button color="primary" type="submit">
           Submit
         </Button>
       </Grid>
     </form>
-  )
-}
-
+  );
+};
 
 const ControlPanel = ({
   undoDisabled,
@@ -154,39 +173,63 @@ const ControlPanel = ({
   onSaveHandler,
   selectedFeatures,
   updateFeatureProperty,
-}: ControlPanelProps) => (
-  <div className="grid grid-rows grid-rows-1">
-    <Grid container direction='row' justifyContent='space-around'>
-      <Grid item>
-        <IconButton
-          size="large"
-          edge="start"
-          color="inherit"
-          aria-label="menu"
-          sx={{ mr: 2 }}
-          disabled={undoDisabled} onClick={undoHandler}
-        >
-          <UndoIcon />
-        </IconButton>
-      </Grid>
-      <Grid item>
-        <IconButton
-          size="large"
-          edge="start"
-          color='primary'
-          aria-label="menu"
-          sx={{ mr: 2 }}
-          onClick={onSaveHandler}
-        >
-          <SaveIcon />
-        </IconButton>
-      </Grid>
-    </Grid>
-    <div>
-      {selectedFeatures ? selectedFeatures.map(feature => <RouteEditor key={feature.id} feature={feature} updateRouteProperty={updateFeatureProperty} />) : null}
-    </div>
-  </div>
-);
+}: ControlPanelProps) => {
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  return (
+    <>
+      <Snackbar
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        autoHideDuration={3000}
+        open={showSnackbar}
+        onClose={() => setShowSnackbar(false)}
+        message="Map Saved."
+      />
+      <div className="grid grid-rows grid-rows-1">
+        <Grid container direction="row" justifyContent="space-around">
+          <Grid item>
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              sx={{ mr: 2 }}
+              disabled={undoDisabled}
+              onClick={undoHandler}
+            >
+              <UndoIcon />
+            </IconButton>
+          </Grid>
+          <Grid item>
+            <IconButton
+              size="large"
+              edge="start"
+              color="primary"
+              aria-label="menu"
+              sx={{ mr: 2 }}
+              onClick={() => {
+                onSaveHandler();
+                setShowSnackbar(true);
+              }}
+            >
+              <SaveIcon />
+            </IconButton>
+          </Grid>
+        </Grid>
+        <div>
+          {selectedFeatures
+            ? selectedFeatures.map((feature) => (
+                <RouteEditor
+                  key={feature.id}
+                  feature={feature}
+                  updateRouteProperty={updateFeatureProperty}
+                />
+              ))
+            : null}
+        </div>
+      </div>
+    </>
+  );
+};
 
 const SafeRoutesMapAdmin = ({
   token,
@@ -208,8 +251,11 @@ const SafeRoutesMapAdmin = ({
   const [history, setHistory] = useState<GeoJSON.FeatureCollection[]>([routes]);
 
   const onUpdate = () => {
-    drawRef.current &&
-      setHistory(pushDrawHistory(history, drawRef.current.getAll()));
+    setHistory((history) =>
+      drawRef.current
+        ? pushDrawHistory(history, drawRef.current.getAll())
+        : history,
+    );
   };
 
   const mapRef = useRef<MapRef>(null);
@@ -219,20 +265,20 @@ const SafeRoutesMapAdmin = ({
   const updateFeatureProperty: IUpdateRouteProperty = (
     feature: GeoJSON.Feature,
     key,
-    value
+    value,
   ) => {
     if (drawRef.current) {
-      drawRef.current.setFeatureProperty(
-        feature.id!.toString(),
-        key,
-        value,
-      );
+      drawRef.current.setFeatureProperty(feature.id!.toString(), key, value);
       const data = drawRef.current.getAll();
-      setHistory(pushDrawHistory(history, data));
+      setHistory((history) =>
+        drawRef.current
+          ? pushDrawHistory(history, drawRef.current.getAll())
+          : history,
+      );
       repaintDrawLayer(drawRef.current, data);
-      setSelectedFeatures([])
+      setSelectedFeatures([]);
     }
-  }
+  };
 
   return (
     <div className="w-dvh h-dvh grid grid-rows-[1fr_auto] grid-cols-1 md:grid-cols-[1fr_auto] md:grid-rows-1">
@@ -269,11 +315,11 @@ const SafeRoutesMapAdmin = ({
             onUpdate={onUpdate}
             onCreate={(evt) => {
               for (const feature of evt.features) {
-                updateFeatureProperty(feature, 'route_type', 'STREET')
+                updateFeatureProperty(feature, "route_type", "STREET");
               }
             }}
             onSelectionChange={(evt) => {
-              setSelectedFeatures(evt.features)
+              setSelectedFeatures(evt.features);
             }}
           />
         </Map>
@@ -289,7 +335,8 @@ const SafeRoutesMapAdmin = ({
           }}
         />
       </div>
-      <Box sx={{ flexGrow: 1 }}
+      <Box
+        sx={{ flexGrow: 1 }}
         className={clsx([
           showControlPanel ? "h-[300px]" : "h-0 p-0",
           showControlPanel ? "md:w-[400px]" : "w-0 p-0",
@@ -302,7 +349,7 @@ const SafeRoutesMapAdmin = ({
         ])}
       >
         <ControlPanelToolbar />
-        <div className='p-5'>
+        <div className="p-5">
           <ControlPanel
             drawRef={drawRef}
             undoDisabled={history.length === 1}
