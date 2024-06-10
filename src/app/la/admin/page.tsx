@@ -3,8 +3,7 @@ import { Role } from "@/db/enums";
 import { getRoutes, saveRoutes } from "@/db/routes";
 import { Grid, Typography } from "@mui/material";
 import { auth } from "@root/auth";
-
-export const dynamic = "force-dynamic";
+import { unstable_noStore as noStore } from "next/cache";
 
 const BOUNDS: MapboxGeocoder.Bbox = [
   -118.88065856936811,
@@ -24,6 +23,7 @@ const saveRoutesForMap = async (
 const permittedRoles = new Set<Role>(["ADMIN", "CONTRIBUTOR"]);
 
 export default async function SafeRoutesLA() {
+  noStore();
   const routes = await getRoutes("LA");
   const session = await auth();
   if (!session?.user.roles.some((role) => permittedRoles.has(role.role))) {
