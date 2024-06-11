@@ -44,6 +44,10 @@ export const saveRoutes = async (
   region: Region,
   featureCollection: GeoJSON.FeatureCollection,
 ) => {
+  if (featureCollection.features.length === 0) {
+    return [];
+  }
+
   return await db
     .insertInto("route")
     .values(
