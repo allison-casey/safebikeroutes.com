@@ -21,5 +21,26 @@ services:
       - "5433:80"
     depends_on:
       - db
+
+  # test database
+  test_db:
+    image: postgis/postgis:16-3.4
+    restart: always
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: db
+      POSTGRES_PASSWORD: postgres
+  test_pg_proxy:
+    image: ghcr.io/neondatabase/wsproxy:latest
+    environment:
+      APPEND_PORT: "test_db:5432"
+      ALLOW_ADDR_REGEX: ".*"
+      LOG_TRAFFIC: "true"
+    ports:
+      - "5435:80"
+    depends_on:
+      - db
 volumes:
   db_data:

@@ -36,6 +36,13 @@ interface IRouteProperties {
   name?: string;
 }
 
+interface IUpdateRoutesHandler {
+  (
+    features: GeoJSON.FeatureCollection,
+    routeIdsToDelete: string[],
+  ): Promise<void>;
+}
+
 interface IUpdateRouteProperty {
   <K extends keyof IRouteProperties, V extends Required<IRouteProperties>[K]>(
     feature: GeoJSON.Feature,
@@ -53,7 +60,7 @@ export type SafeRoutesMapProps = Omit<
   controlPanelContent: ReactElement;
   geocoderBbox: MapboxGeocoder.Bbox;
   useLegacyStyles?: boolean;
-  saveRoutesHandler: any;
+  saveRoutesHandler: IUpdateRoutesHandler;
 };
 
 const drawRouteStyles = [
@@ -248,6 +255,7 @@ const SafeRoutesMapAdmin = ({
   const [selectedFeatures, setSelectedFeatures] = useState<GeoJSON.Feature[]>(
     [],
   );
+  const [deletedRouteIds, setDeletedRouteIds] = useState<string[]>([]);
   const [history, setHistory] = useState<GeoJSON.FeatureCollection[]>([routes]);
 
   const onUpdate = () => {
@@ -318,6 +326,14 @@ const SafeRoutesMapAdmin = ({
                 updateFeatureProperty(feature, "route_type", "STREET");
               }
             }}
+            onDelete={(evt) =>
+              setDeletedRouteIds((ids) => [
+                ...ids,
+                ...evt.features
+                  .map((feature) => feature.properties?.id)
+                  .filter((id) => !!id),
+              ])
+            }
             onSelectionChange={(evt) => {
               setSelectedFeatures(evt.features);
             }}
@@ -355,7 +371,11 @@ const SafeRoutesMapAdmin = ({
             undoDisabled={history.length === 1}
             onSaveHandler={async () => {
               if (drawRef.current) {
-                await saveRoutesHandler(drawRef.current.getAll());
+                await saveRoutesHandler(
+                  drawRef.current.getAll(),
+                  deletedRouteIds,
+                );
+                setDeletedRouteIds([]);
               }
             }}
             undoHandler={() => {

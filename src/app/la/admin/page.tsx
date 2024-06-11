@@ -1,6 +1,6 @@
 import SafeRoutesMapAdmin from "@/app/components/safe-routes-map/admin";
 import { Role } from "@/db/enums";
-import { getRoutes, saveRoutes } from "@/db/routes";
+import { deleteRoutes, getRoutes, saveRoutes } from "@/db/routes";
 import { Grid, Typography } from "@mui/material";
 import { auth } from "@root/auth";
 import { unstable_noStore as noStore } from "next/cache";
@@ -15,9 +15,11 @@ const CENTER = [-118.35874251099995, 34.061734936928694];
 
 const saveRoutesForMap = async (
   featureCollection: GeoJSON.FeatureCollection,
-) => {
+  routeIdsToDelete: string[],
+): Promise<void> => {
   "use server";
   await saveRoutes("LA", featureCollection);
+  await deleteRoutes("LA", routeIdsToDelete);
 };
 
 const permittedRoles = new Set<Role>(["ADMIN", "CONTRIBUTOR"]);
