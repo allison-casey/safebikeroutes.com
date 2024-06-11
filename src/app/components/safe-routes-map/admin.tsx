@@ -11,7 +11,7 @@ import { routeStyles } from "../../route_styles";
 import GeocoderControl from "./geocoder-control";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import DrawControl from "./draw-control";
-import { drop, dropLast } from "remeda";
+import { drop, dropLast, indexBy } from "remeda";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import {
   Box,
@@ -27,6 +27,7 @@ import ControlPanelButton from "./control-panel-button";
 import StyleSelector, { MAP_STYLES } from "./style-selector";
 import { ControlPanelToolbar } from "./control-panel-toolbar";
 import { Region, RouteType } from "@/db/enums";
+import { features } from "process";
 
 const DEFAULT_MAP_STYLE = "Streets";
 
@@ -34,6 +35,13 @@ interface IRouteProperties {
   route_type: RouteType;
   region: Region;
   name?: string;
+}
+
+interface IUpdateRoutesHandler {
+  (
+    features: GeoJSON.FeatureCollection,
+    routeIdsToDelete: string[],
+  ): Promise<void>;
 }
 
 interface IUpdateRouteProperty {
@@ -53,7 +61,7 @@ export type SafeRoutesMapProps = Omit<
   controlPanelContent: ReactElement;
   geocoderBbox: MapboxGeocoder.Bbox;
   useLegacyStyles?: boolean;
-  saveRoutesHandler: any;
+  saveRoutesHandler: IUpdateRoutesHandler;
 };
 
 const drawRouteStyles = [
@@ -248,9 +256,17 @@ const SafeRoutesMapAdmin = ({
   const [selectedFeatures, setSelectedFeatures] = useState<GeoJSON.Feature[]>(
     [],
   );
+  const [deletedRouteIds, setDeletedRouteIds] = useState<string[]>([]);
+  const [featuresToUpdate, setFeaturesToUpdate] = useState<{
+    [key: string]: GeoJSON.Feature;
+  }>({});
   const [history, setHistory] = useState<GeoJSON.FeatureCollection[]>([routes]);
 
-  const onUpdate = () => {
+  const onUpdate = (event: MapboxDraw.DrawUpdateEvent) => {
+    setFeaturesToUpdate((features) => ({
+      ...features,
+      ...indexBy(event.features, (ft) => ft.id),
+    }));
     setHistory((history) =>
       drawRef.current
         ? pushDrawHistory(history, drawRef.current.getAll())
@@ -312,11 +328,19 @@ const SafeRoutesMapAdmin = ({
               line_string: true,
               trash: true,
             }}
-            onUpdate={onUpdate}
+            onUpdate={(evt) => onUpdate(evt)}
             onCreate={(evt) => {
               for (const feature of evt.features) {
                 updateFeatureProperty(feature, "route_type", "STREET");
               }
+            }}
+            onDelete={(evt) => {
+              setDeletedRouteIds((ids) => [
+                ...ids,
+                ...evt.features
+                  .map((feature) => feature.id as string)
+                  .filter((id) => !!id),
+              ]);
             }}
             onSelectionChange={(evt) => {
               setSelectedFeatures(evt.features);
@@ -355,7 +379,15 @@ const SafeRoutesMapAdmin = ({
             undoDisabled={history.length === 1}
             onSaveHandler={async () => {
               if (drawRef.current) {
-                await saveRoutesHandler(drawRef.current.getAll());
+                await saveRoutesHandler(
+                  {
+                    type: "FeatureCollection",
+                    features: Object.values(featuresToUpdate),
+                  },
+                  deletedRouteIds,
+                );
+                setDeletedRouteIds([]);
+                setFeaturesToUpdate({});
               }
             }}
             undoHandler={() => {

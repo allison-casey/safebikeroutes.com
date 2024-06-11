@@ -51,7 +51,6 @@ export default function GeocoderControl(inputProps: GeocoderControlProps) {
           (result.center ||
             (result.geometry?.type === "Point" && result.geometry.coordinates));
         if (location && props.marker) {
-          console.log(props.marker);
           setMarker(<Marker longitude={location[0]} latitude={location[1]} />);
         } else {
           setMarker(null);
