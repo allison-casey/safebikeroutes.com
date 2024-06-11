@@ -6,7 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import mapboxgl from "mapbox-gl";
 import { ReactElement, useRef, useState } from "react";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
-import Map, { GeolocateControl, MapProps, MapRef } from "react-map-gl";
+import Map, { GeolocateControl, MapProps, MapProvider } from "react-map-gl";
 import { routeStyles } from "../../route_styles";
 import GeocoderControl from "./geocoder-control";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
@@ -274,7 +274,6 @@ const SafeRoutesMapAdmin = ({
     );
   };
 
-  const mapRef = useRef<MapRef>(null);
   const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
   const [showControlPanel, toggleControlPanel] = useState(true);
 
@@ -297,112 +296,112 @@ const SafeRoutesMapAdmin = ({
   };
 
   return (
-    <div className="w-dvh h-dvh grid grid-rows-[1fr_auto] grid-cols-1 md:grid-cols-[1fr_auto] md:grid-rows-1">
-      <div className="relative">
-        <Map
-          mapboxAccessToken={token}
-          mapLib={mapboxgl}
-          mapStyle={MAP_STYLES.find((d) => d.title === currentStyle)?.style}
-          ref={mapRef}
-          {...mapboxProps}
-        >
-          <GeocoderControl
+    <MapProvider>
+      <div className="w-dvh h-dvh grid grid-rows-[1fr_auto] grid-cols-1 md:grid-cols-[1fr_auto] md:grid-rows-1">
+        <div className="relative">
+          <Map
             mapboxAccessToken={token}
-            position="top-right"
-            bbox={geocoderBbox}
+            mapLib={mapboxgl}
+            mapStyle={MAP_STYLES.find((d) => d.title === currentStyle)?.style}
+            {...mapboxProps}
+          >
+            <GeocoderControl
+              mapboxAccessToken={token}
+              position="top-right"
+              bbox={geocoderBbox}
+            />
+            <GeolocateControl
+              trackUserLocation
+              showUserHeading
+              positionOptions={{ enableHighAccuracy: true }}
+              position="top-left"
+            />
+            <DrawControl
+              ref={drawRef}
+              userProperties
+              position="top-left"
+              displayControlsDefault={false}
+              styles={drawRouteStyles}
+              features={routes}
+              controls={{
+                line_string: true,
+                trash: true,
+              }}
+              onUpdate={(evt) => onUpdate(evt)}
+              onCreate={(evt) => {
+                for (const feature of evt.features) {
+                  updateFeatureProperty(feature, "route_type", "STREET");
+                }
+              }}
+              onDelete={(evt) => {
+                setDeletedRouteIds((ids) => [
+                  ...ids,
+                  ...evt.features
+                    .map((feature) => feature.id as string)
+                    .filter((id) => !!id),
+                ]);
+              }}
+              onSelectionChange={(evt) => {
+                setSelectedFeatures(evt.features);
+              }}
+            />
+          </Map>
+          <StyleSelector
+            onClick={(title) => setCurrentStyle(title)}
+            currentlySelectedStyle={currentStyle}
           />
-          <GeolocateControl
-            trackUserLocation
-            showUserHeading
-            positionOptions={{ enableHighAccuracy: true }}
-            position="top-left"
-          />
-          <DrawControl
-            ref={drawRef}
-            userProperties
-            position="top-left"
-            displayControlsDefault={false}
-            styles={drawRouteStyles}
-            features={routes}
-            controls={{
-              line_string: true,
-              trash: true,
+          <ControlPanelButton
+            showControlPanel={showControlPanel}
+            onClick={() => {
+              toggleControlPanel(!showControlPanel);
             }}
-            onUpdate={(evt) => onUpdate(evt)}
-            onCreate={(evt) => {
-              for (const feature of evt.features) {
-                updateFeatureProperty(feature, "route_type", "STREET");
-              }
-            }}
-            onDelete={(evt) => {
-              setDeletedRouteIds((ids) => [
-                ...ids,
-                ...evt.features
-                  .map((feature) => feature.id as string)
-                  .filter((id) => !!id),
-              ]);
-            }}
-            onSelectionChange={(evt) => {
-              setSelectedFeatures(evt.features);
-            }}
-          />
-        </Map>
-        <StyleSelector
-          onClick={(title) => setCurrentStyle(title)}
-          currentlySelectedStyle={currentStyle}
-        />
-        <ControlPanelButton
-          showControlPanel={showControlPanel}
-          onClick={() => {
-            toggleControlPanel(!showControlPanel);
-            setTimeout(() => mapRef.current?.resize(), 150);
-          }}
-        />
-      </div>
-      <Box
-        sx={{ flexGrow: 1 }}
-        className={clsx([
-          showControlPanel ? "h-[300px]" : "h-0 p-0",
-          showControlPanel ? "md:w-[400px]" : "w-0 p-0",
-          "md:h-auto",
-          "transition",
-          "transition-all",
-          "overflow-y-auto",
-          "bg-white",
-          "drop-shadow-md",
-        ])}
-      >
-        <ControlPanelToolbar />
-        <div className="p-5">
-          <ControlPanel
-            drawRef={drawRef}
-            undoDisabled={history.length === 1}
-            onSaveHandler={async () => {
-              if (drawRef.current) {
-                await saveRoutesHandler(
-                  {
-                    type: "FeatureCollection",
-                    features: Object.values(featuresToUpdate),
-                  },
-                  deletedRouteIds,
-                );
-                setDeletedRouteIds([]);
-                setFeaturesToUpdate({});
-              }
-            }}
-            undoHandler={() => {
-              if (drawRef.current) {
-                const [newHistory, state] = popDrawHistory(history);
-                repaintDrawLayer(drawRef.current, state);
-                setHistory(newHistory);
-              }
-            }}
-            selectedFeatures={selectedFeatures}
-            updateFeatureProperty={updateFeatureProperty}
           />
         </div>
-      </Box>
-    </div>
+        <Box
+          sx={{ flexGrow: 1 }}
+          className={clsx([
+            showControlPanel ? "h-[300px]" : "h-0 p-0",
+            showControlPanel ? "md:w-[400px]" : "w-0 p-0",
+            "md:h-auto",
+            "transition",
+            "transition-all",
+            "overflow-y-auto",
+            "bg-white",
+            "drop-shadow-md",
+          ])}
+        >
+          <ControlPanelToolbar />
+          <div className="p-5">
+            <ControlPanel
+              drawRef={drawRef}
+              undoDisabled={history.length === 1}
+              onSaveHandler={async () => {
+                if (drawRef.current) {
+                  await saveRoutesHandler(
+                    {
+                      type: "FeatureCollection",
+                      features: Object.values(featuresToUpdate),
+                    },
+                    deletedRouteIds,
+                  );
+                  setDeletedRouteIds([]);
+                  setFeaturesToUpdate({});
+                }
+              }}
+              undoHandler={() => {
+                if (drawRef.current) {
+                  const [newHistory, state] = popDrawHistory(history);
+                  repaintDrawLayer(drawRef.current, state);
+                  setHistory(newHistory);
+                }
+              }}
+              selectedFeatures={selectedFeatures}
+              updateFeatureProperty={updateFeatureProperty}
+            />
+          </div>
+        </Box>
+      </div>
+    </MapProvider>
   );
 };
 
