@@ -2,6 +2,7 @@ import { db } from "./client";
 import { RawBuilder, sql } from "kysely";
 import { DB } from "kysely-codegen";
 import { Region } from "./enums";
+import { IRouteFeatureCollection } from "@/types/map";
 
 export const asGeoJSON = <TE extends keyof DB & string>(
   value: TE,
@@ -9,8 +10,8 @@ export const asGeoJSON = <TE extends keyof DB & string>(
 
 export const getRoutes = async (
   region: Region,
-): Promise<GeoJSON.FeatureCollection> => {
-  const results = await sql<{ geojson: GeoJSON.FeatureCollection }>`
+): Promise<IRouteFeatureCollection> => {
+  const results = await sql<{ geojson: IRouteFeatureCollection }>`
     SELECT jsonb_build_object(
         'type',     'FeatureCollection',
         'features', jsonb_agg(features.feature)
@@ -22,7 +23,7 @@ export const getRoutes = async (
         'geometry',   ST_AsGeoJSON(geometry)::jsonb,
         'properties', to_jsonb(inputs) - 'id' - 'geometry'
       ) AS feature
-      FROM (SELECT * FROM route) inputs
+      FROM (SELECT * FROM route WHERE region = ${region}) inputs
     ) features;
   `.execute(db);
 
@@ -42,7 +43,7 @@ export const getRoutes = async (
 
 export const saveRoutes = async (
   region: Region,
-  featureCollection: GeoJSON.FeatureCollection,
+  featureCollection: IRouteFeatureCollection,
 ) => {
   if (featureCollection.features.length === 0) {
     return [];
@@ -71,13 +72,14 @@ export const saveRoutes = async (
 };
 
 export const deleteRoutes = async (
-  _region: Region,
+  region: Region,
   ids: string[],
 ): Promise<number> => {
   if (ids.length) {
     const { numDeletedRows } = await db
       .deleteFrom("route")
       .where("id", "in", ids)
+      .where("region", "=", region)
       .executeTakeFirst();
     return Number(numDeletedRows);
   } else {
