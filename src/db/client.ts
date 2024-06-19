@@ -1,12 +1,12 @@
-import { DB } from "kysely-codegen";
-import { Pool, neonConfig } from "@neondatabase/serverless";
-import { Kysely, PostgresDialect } from "kysely";
-import ws from "ws";
+import { DB } from 'kysely-codegen';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { Kysely, PostgresDialect } from 'kysely';
+import ws from 'ws';
 
 // if we're running locally
 if (!process.env.VERCEL_ENV) {
   // Set the WebSocket proxy to work with the local instance
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV === 'development') {
     neonConfig.wsProxy = (host) => `${host}:5433/v1`;
   } else {
     neonConfig.wsProxy = (host) => `${host}:5435/v1`;
@@ -17,7 +17,7 @@ if (!process.env.VERCEL_ENV) {
   neonConfig.pipelineConnect = false;
 
   // websocket doesn't exist in the test env
-  if (process.env.NODE_ENV === "test") {
+  if (process.env.NODE_ENV === 'test') {
     neonConfig.webSocketConstructor = ws;
   }
 }

@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import dynamic from "next/dynamic";
-import { clsx } from "clsx";
-import mapboxgl, { GeolocateControl as IGeolocateControl } from "mapbox-gl";
-import { ReactElement, useCallback, useState } from "react";
+import dynamic from 'next/dynamic';
+import { clsx } from 'clsx';
+import mapboxgl, { GeolocateControl as IGeolocateControl } from 'mapbox-gl';
+import { ReactElement, useCallback, useState } from 'react';
 import {
   GeolocateControl,
   Map,
@@ -13,30 +13,30 @@ import {
   Source,
   useMap,
   MapProvider,
-} from "react-map-gl";
-import { legacyRouteStyles, routeStyles } from "../../route_styles";
-import GeocoderControl from "./geocoder-control";
-import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
-import { useLocalStorage } from "@uidotdev/usehooks";
+} from 'react-map-gl';
+import { legacyRouteStyles, routeStyles } from '../../../route_styles';
+import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
+import { useLocalStorage } from '@uidotdev/usehooks';
+import GeocoderControl from '../../mapbox/geocoder-control';
 
-type Styles = "Streets" | "Satellite Streets";
+type Styles = 'Streets' | 'Satellite Streets';
 type WatchState =
-  | "OFF"
-  | "ACTIVE_LOCK"
-  | "WAITING_ACTIVE"
-  | "ACTIVE_ERROR"
-  | "BACKGROUND"
-  | "BACKGROUND_ERROR";
+  | 'OFF'
+  | 'ACTIVE_LOCK'
+  | 'WAITING_ACTIVE'
+  | 'ACTIVE_ERROR'
+  | 'BACKGROUND'
+  | 'BACKGROUND_ERROR';
 
-const DEFAULT_MAP_STYLE: Styles = "Streets";
+const DEFAULT_MAP_STYLE: Styles = 'Streets';
 const MAP_STYLES: { title: Styles; style: string }[] = [
   {
-    title: "Streets",
-    style: "mapbox://styles/mapbox/streets-v12",
+    title: 'Streets',
+    style: 'mapbox://styles/mapbox/streets-v12',
   },
   {
-    title: "Satellite Streets",
-    style: "mapbox://styles/mapbox/satellite-streets-v12",
+    title: 'Satellite Streets',
+    style: 'mapbox://styles/mapbox/satellite-streets-v12',
   },
 ];
 const ControlPanelButton = ({
@@ -57,10 +57,10 @@ const ControlPanelButton = ({
         viewBox="0 0 24 24"
         fill="currentColor"
         className={clsx([
-          "w-4",
-          "h-4",
-          showControlPanel ? "rotate-90" : "-rotate-90",
-          showControlPanel ? "md:rotate-0" : "md:rotate-180",
+          'w-4',
+          'h-4',
+          showControlPanel ? 'rotate-90' : '-rotate-90',
+          showControlPanel ? 'md:rotate-0' : 'md:rotate-180',
         ])}
       >
         <path
@@ -91,15 +91,15 @@ const StyleSelector = ({
         onClick={() => onClick(title)}
         key={title}
         className={clsx([
-          title === currentlySelectedStyle ? "bg-blue-500" : "bg-white",
-          title === currentlySelectedStyle ? "text-white" : "text-gray-500",
-          "first:rounded-l",
-          "last:rounded-r",
-          "py-1",
-          "px-2",
-          "text-s",
-          "font",
-          "cursor-pointer",
+          title === currentlySelectedStyle ? 'bg-blue-500' : 'bg-white',
+          title === currentlySelectedStyle ? 'text-white' : 'text-gray-500',
+          'first:rounded-l',
+          'last:rounded-r',
+          'py-1',
+          'px-2',
+          'text-s',
+          'font',
+          'cursor-pointer',
         ])}
       >
         {title}
@@ -110,7 +110,7 @@ const StyleSelector = ({
 
 export type SafeRoutesMapProps = Omit<
   MapProps,
-  "mapboxAccessToken" | "mapLib" | "mapStyle"
+  'mapboxAccessToken' | 'mapLib' | 'mapStyle'
 > & {
   token?: string;
   routes: GeoJSON.GeoJSON;
@@ -128,27 +128,27 @@ const SafeRoutesMap = ({
   ...mapboxProps
 }: SafeRoutesMapProps) => {
   if (!token) {
-    throw new Error("ACCESS_TOKEN is undefined");
+    throw new Error('ACCESS_TOKEN is undefined');
   }
 
   const styles = useLegacyStyles ? legacyRouteStyles : routeStyles;
   const [currentStyle, setCurrentStyle] = useLocalStorage<Styles>(
-    "map-style",
-    DEFAULT_MAP_STYLE,
+    'map-style',
+    DEFAULT_MAP_STYLE
   );
   const [showControlPanel, toggleControlPanel] = useLocalStorage(
-    "display-panel",
-    true,
+    'display-panel',
+    true
   );
   const [geolocationEnabled, setGeolocationEnabled] = useLocalStorage(
-    "geolocation-enabled",
-    false,
+    'geolocation-enabled',
+    false
   );
 
   const [geolocater, setGelocater] = useState<IGeolocateControl | null>(null);
   const geolocateRef = useCallback(
     (node: IGeolocateControl) => setGelocater(node),
-    [],
+    []
   );
 
   const layers = styles
@@ -159,11 +159,11 @@ const SafeRoutesMap = ({
           id={`saferoutesla-${routeType}-${index}`}
           type="line"
           source="saferoutesla"
-          filter={["==", "route_type", routeType]}
+          filter={['==', 'route_type', routeType]}
           paint={paintLayer}
           beforeId="road-label"
         />
-      )),
+      ))
     )
     .flat();
 
@@ -181,15 +181,15 @@ const SafeRoutesMap = ({
                 if (geolocationEnabled) {
                   geolocater.trigger();
                 }
-                geolocater.on("trackuserlocationstart", () => {
+                geolocater.on('trackuserlocationstart', () => {
                   setGeolocationEnabled(true);
                 });
-                geolocater.on("trackuserlocationend", () => {
+                geolocater.on('trackuserlocationend', () => {
                   // NOTE: accessing internal property so have to do this
                   // janky typescript shenanigans
                   const watchState: WatchState = (geolocater as any)
                     ._watchState;
-                  if (watchState === "OFF") {
+                  if (watchState === 'OFF') {
                     setGeolocationEnabled(false);
                   }
                 });
@@ -229,14 +229,14 @@ const SafeRoutesMap = ({
         </div>
         <div
           className={clsx([
-            showControlPanel ? "h-[300px] p-5" : "h-0 p-0",
-            showControlPanel ? "md:w-[400px] p-5" : "w-0 p-0",
-            "md:h-auto",
-            "transition",
-            "transition-all",
-            "overflow-y-auto",
-            "bg-white",
-            "drop-shadow-md",
+            showControlPanel ? 'h-[300px] p-5' : 'h-0 p-0',
+            showControlPanel ? 'md:w-[400px] p-5' : 'w-0 p-0',
+            'md:h-auto',
+            'transition',
+            'transition-all',
+            'overflow-y-auto',
+            'bg-white',
+            'drop-shadow-md',
           ])}
         >
           {controlPanelContent}

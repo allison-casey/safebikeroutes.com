@@ -1,9 +1,9 @@
-import SafeRoutesMapAdmin from "@/app/components/safe-routes-map/admin";
-import { Role } from "@/db/enums";
-import { deleteRoutes, getRoutes, saveRoutes } from "@/db/routes";
-import { Grid, Typography } from "@mui/material";
-import { auth } from "@root/auth";
-import { unstable_noStore as noStore } from "next/cache";
+import SafeRoutesMapAdmin from '@/app/components/safe-routes-map/admin/map';
+import { Role } from '@/db/enums';
+import { deleteRoutes, getRoutes, saveRoutes } from '@/db/routes';
+import { Typography } from '@mui/material';
+import { auth } from '@root/auth';
+import { unstable_noStore as noStore } from 'next/cache';
 
 const BOUNDS: MapboxGeocoder.Bbox = [
   -118.88065856936811,
@@ -15,19 +15,19 @@ const CENTER = [-118.35874251099995, 34.061734936928694];
 
 const saveRoutesForMap = async (
   featureCollection: GeoJSON.FeatureCollection,
-  routeIdsToDelete: string[],
+  routeIdsToDelete: string[]
 ): Promise<void> => {
-  "use server";
+  'use server';
 
-  await saveRoutes("LA", featureCollection);
-  await deleteRoutes("LA", routeIdsToDelete);
+  await saveRoutes('LA', featureCollection);
+  await deleteRoutes('LA', routeIdsToDelete);
 };
 
-const permittedRoles = new Set<Role>(["ADMIN", "CONTRIBUTOR"]);
+const permittedRoles = new Set<Role>(['ADMIN', 'CONTRIBUTOR']);
 
 export default async function SafeRoutesLA() {
   noStore();
-  const routes = await getRoutes("LA");
+  const routes = await getRoutes('LA');
   const session = await auth();
   if (!session?.user.roles.some((role) => permittedRoles.has(role.role))) {
     return (

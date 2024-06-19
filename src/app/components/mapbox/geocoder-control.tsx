@@ -1,14 +1,14 @@
-import * as React from "react";
-import { useState } from "react";
-import { useControl, Marker, MarkerProps, ControlPosition } from "react-map-gl";
-import MapboxGeocoder, { GeocoderOptions } from "@mapbox/mapbox-gl-geocoder";
+import * as React from 'react';
+import { useState } from 'react';
+import { useControl, Marker, MarkerProps, ControlPosition } from 'react-map-gl';
+import MapboxGeocoder, { GeocoderOptions } from '@mapbox/mapbox-gl-geocoder';
 
 type GeocoderControlProps = Omit<
   GeocoderOptions,
-  "accessToken" | "mapboxgl" | "marker"
+  'accessToken' | 'mapboxgl' | 'marker'
 > & {
   mapboxAccessToken: string;
-  marker?: boolean | Omit<MarkerProps, "longitude" | "latitude">;
+  marker?: boolean | Omit<MarkerProps, 'longitude' | 'latitude'>;
 
   position: ControlPosition;
 
@@ -40,28 +40,28 @@ export default function GeocoderControl(inputProps: GeocoderControlProps) {
         marker: false,
         accessToken: props.mapboxAccessToken,
       });
-      props.onLoading && ctrl.on("loading", props.onLoading);
-      props.onResults && ctrl.on("results", props.onResults);
-      ctrl.on("result", (evt) => {
+      props.onLoading && ctrl.on('loading', props.onLoading);
+      props.onResults && ctrl.on('results', props.onResults);
+      ctrl.on('result', (evt) => {
         props.onResult && props.onResult(evt);
 
         const { result } = evt;
         const location =
           result &&
           (result.center ||
-            (result.geometry?.type === "Point" && result.geometry.coordinates));
+            (result.geometry?.type === 'Point' && result.geometry.coordinates));
         if (location && props.marker) {
           setMarker(<Marker longitude={location[0]} latitude={location[1]} />);
         } else {
           setMarker(null);
         }
       });
-      props.onError && ctrl.on("error", props.onError);
+      props.onError && ctrl.on('error', props.onError);
       return ctrl;
     },
     {
       position: props.position,
-    },
+    }
   );
 
   // @ts-ignore (TS2339) private member
