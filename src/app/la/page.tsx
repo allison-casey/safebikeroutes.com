@@ -1,7 +1,7 @@
-import SafeRoutesMap from "@/app/components/safe-routes-map";
 import LAControlPanel from "./LAControlPanel";
 import { getRoutes } from "@/db/routes";
 import { unstable_noStore as noStore } from "next/cache";
+import SafeRoutesMap from "../components/safe-routes-map/client/map";
 
 const BOUNDS: MapboxGeocoder.Bbox = [
   -118.88065856936811,

@@ -14,8 +14,8 @@ import {
   useMap,
   MapProvider,
 } from "react-map-gl";
-import { legacyRouteStyles, routeStyles } from "../../route_styles";
-import GeocoderControl from "./geocoder-control";
+import { legacyRouteStyles, routeStyles } from "../../../route_styles";
+import GeocoderControl from "../geocoder-control";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import { useLocalStorage } from "@uidotdev/usehooks";
 

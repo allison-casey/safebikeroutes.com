@@ -5,7 +5,7 @@ import MapboxDraw, {
   DrawSelectionChangeEvent,
   DrawUpdateEvent,
 } from "@mapbox/mapbox-gl-draw";
-import React, { forwardRef, useContext, useEffect, useImperativeHandle, useRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { useControl } from "react-map-gl";
 
 import type { ControlPosition } from "react-map-gl";
@@ -62,6 +62,7 @@ const DrawControl = (
   useEffect(() => {
     contextValue.draw = draw
     mountedDrawsContext?.onMapMount(contextValue.draw, props.id)
+    // eslint-disable-next-line
   }, [])
 
   return null;

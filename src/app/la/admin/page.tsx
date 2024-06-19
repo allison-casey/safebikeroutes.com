@@ -1,10 +1,9 @@
-import SafeRoutesMapAdmin from "@/app/components/safe-routes-map/admin";
+import SafeRoutesMapAdmin from "@/app/components/safe-routes-map/admin/map";
 import { Role } from "@/db/enums";
 import { deleteRoutes, getRoutes, saveRoutes } from "@/db/routes";
-import { Grid, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { auth } from "@root/auth";
 import { unstable_noStore as noStore } from "next/cache";
-import { MapProvider } from "react-map-gl";
 
 const BOUNDS: MapboxGeocoder.Bbox = [
   -118.88065856936811,
