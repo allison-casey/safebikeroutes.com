@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma migrate dev && kysely-codegen --url $POSTGRES_URL && next build",
+    "build": "prisma migrate dev && kysely-codegen --url 'env(POSTGRES_URL)' && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest --watch",
