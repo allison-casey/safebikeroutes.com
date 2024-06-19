@@ -28,6 +28,7 @@ import { routeStyles } from "@/app/route_styles";
 import { useDraw } from "../../mapbox/use-draw";
 import GeocoderControl from "../../mapbox/geocoder-control";
 import DrawControl from "../../mapbox/draw-control";
+import { popDrawHistory, pushDrawHistory } from "./history";
 
 const DEFAULT_MAP_STYLE = "Streets";
 
@@ -82,22 +83,6 @@ const drawRouteStyles = [
     (style) => style.id !== "gl-draw-line-inactive",
   ),
 ].flat();
-
-const pushDrawHistory = (
-  history: GeoJSON.FeatureCollection[],
-  features: GeoJSON.FeatureCollection,
-) => {
-  return history.length >= 10
-    ? [...drop(history, 1), features]
-    : [...history, features];
-};
-
-const popDrawHistory = (
-  history: GeoJSON.FeatureCollection[],
-): [GeoJSON.FeatureCollection[], GeoJSON.FeatureCollection] => [
-    dropLast(history, 1),
-    history[history.length - 2],
-  ];
 
 const repaintDrawLayer = (
   draw: MapboxDraw,
