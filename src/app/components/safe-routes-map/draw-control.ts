@@ -5,12 +5,14 @@ import MapboxDraw, {
   DrawSelectionChangeEvent,
   DrawUpdateEvent,
 } from "@mapbox/mapbox-gl-draw";
-import { forwardRef, useImperativeHandle } from "react";
+import React, { forwardRef, useContext, useEffect, useImperativeHandle, useRef } from "react";
 import { useControl } from "react-map-gl";
 
 import type { ControlPosition } from "react-map-gl";
+import { MountedDrawsContext } from "./use-draw";
 
 type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {
+  id?: string;
   position?: ControlPosition;
   features: GeoJSON.FeatureCollection;
 
@@ -21,10 +23,18 @@ type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {
   onModeChange?: (evt: DrawModeChangeEvent) => void;
 };
 
-const DrawControl = forwardRef(function DrawControl(
+export type DrawContextValue<DrawT extends MapboxDraw = MapboxDraw> = {
+  draw: DrawT | null;
+};
+
+export const DrawContext = React.createContext<DrawContextValue | null>(null);
+
+const DrawControl = (
   props: DrawControlProps,
-  ref,
-) {
+) => {
+  const mountedDrawsContext = useContext(MountedDrawsContext);
+  const { current: contextValue } = useRef<DrawContextValue<MapboxDraw>>({ draw: null });
+
   const draw = useControl<MapboxDraw>(
     () => new MapboxDraw(props),
     ({ map }) => {
@@ -42,14 +52,19 @@ const DrawControl = forwardRef(function DrawControl(
       map.off("draw.delete", props.onDelete);
       map.off("draw.selectionchange", props.onSelectionChange);
       map.off("draw.modechange", props.onModeChange);
+      mountedDrawsContext?.onMapUnmount(props.id)
     },
     {
       position: props.position,
     },
   );
-  useImperativeHandle(ref, () => draw, [draw]);
+
+  useEffect(() => {
+    contextValue.draw = draw
+    mountedDrawsContext?.onMapMount(contextValue.draw, props.id)
+  }, [])
 
   return null;
-});
+};
 
 export default DrawControl;
