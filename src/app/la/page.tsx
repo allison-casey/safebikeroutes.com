@@ -1,7 +1,7 @@
-import LAControlPanel from "./LAControlPanel";
-import { getRoutes } from "@/db/routes";
-import { unstable_noStore as noStore } from "next/cache";
-import SafeRoutesMap from "../components/safe-routes-map/client/map";
+import LAControlPanel from './LAControlPanel';
+import { getRoutes } from '@/db/routes';
+import { unstable_noStore as noStore } from 'next/cache';
+import SafeRoutesMap from '../components/safe-routes-map/client/map';
 
 const BOUNDS: MapboxGeocoder.Bbox = [
   -118.88065856936811,
@@ -13,7 +13,7 @@ const CENTER = [-118.35874251099995, 34.061734936928694];
 
 export default async function SafeRoutesLA() {
   noStore();
-  const routes = await getRoutes("LA");
+  const routes = await getRoutes('LA');
 
   return (
     <SafeRoutesMap

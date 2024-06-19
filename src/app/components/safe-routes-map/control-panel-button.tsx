@@ -1,4 +1,4 @@
-import clsx from "clsx";
+import clsx from 'clsx';
 
 const ControlPanelButton = ({
   showControlPanel,
@@ -16,10 +16,10 @@ const ControlPanelButton = ({
       viewBox="0 0 24 24"
       fill="currentColor"
       className={clsx([
-        "w-4",
-        "h-4",
-        showControlPanel ? "rotate-90" : "-rotate-90",
-        showControlPanel ? "md:rotate-0" : "md:rotate-180",
+        'w-4',
+        'h-4',
+        showControlPanel ? 'rotate-90' : '-rotate-90',
+        showControlPanel ? 'md:rotate-0' : 'md:rotate-180',
       ])}
     >
       <path

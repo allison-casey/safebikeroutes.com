@@ -18,7 +18,7 @@ const LAControlPanel = () => (
     <p className="py-5">
       These routes are a crowdsourced effort drawn from personal experience and
       satelite imagery. If you notice anything wrong with them or would like to
-      suggest new routes to add, please check out the{" "}
+      suggest new routes to add, please check out the{' '}
       <a
         className="underline decoration-sky-600 hover:decoration-blue-400"
         href="https://forms.gle/xcFbpyW1iK7D7D598"

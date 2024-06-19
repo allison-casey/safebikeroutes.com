@@ -1,4 +1,4 @@
-import { RouteType } from "@/db/enums";
+import { RouteType } from '@/db/enums';
 
 export interface RouteStyle {
   routeType: RouteType;
@@ -7,61 +7,61 @@ export interface RouteStyle {
 
 export const routeStyles: RouteStyle[] = [
   {
-    routeType: "SIDEWALK",
+    routeType: 'SIDEWALK',
     paintLayers: [
-      { "line-width": 3 },
+      { 'line-width': 3 },
       {
-        "line-color": "yellow",
-        "line-width": 3,
-        "line-dasharray": [3, 2],
+        'line-color': 'yellow',
+        'line-width': 3,
+        'line-dasharray': [3, 2],
       },
     ],
   },
   {
-    routeType: "STREET",
+    routeType: 'STREET',
     paintLayers: [
-      { "line-width": 3, "line-color": "white" },
+      { 'line-width': 3, 'line-color': 'white' },
       {
-        "line-color": "#c2a5cf",
-        "line-width": 3,
-        "line-dasharray": [2, 1],
+        'line-color': '#c2a5cf',
+        'line-width': 3,
+        'line-dasharray': [2, 1],
       },
     ],
   },
   {
-    routeType: "LANE",
+    routeType: 'LANE',
     paintLayers: [
       {
-        "line-color": "#c2a5cf",
-        "line-width": 3,
+        'line-color': '#c2a5cf',
+        'line-width': 3,
       },
     ],
   },
   {
-    routeType: "PROTECTED",
+    routeType: 'PROTECTED',
     paintLayers: [
       {
-        "line-color": "#7b3294",
-        "line-width": 3,
+        'line-color': '#7b3294',
+        'line-width': 3,
       },
       {
-        "line-color": "white",
-        "line-width": 1,
-        "line-gap-width": 3,
+        'line-color': 'white',
+        'line-width': 1,
+        'line-gap-width': 3,
       },
     ],
   },
   {
-    routeType: "TRACK",
+    routeType: 'TRACK',
     paintLayers: [
       {
-        "line-color": "#008837",
-        "line-width": 3,
+        'line-color': '#008837',
+        'line-width': 3,
       },
       {
-        "line-color": "white",
-        "line-width": 2,
-        "line-gap-width": 3,
+        'line-color': 'white',
+        'line-width': 2,
+        'line-gap-width': 3,
       },
     ],
   },
@@ -69,17 +69,17 @@ export const routeStyles: RouteStyle[] = [
 
 export const legacyRouteStyles: RouteStyle[] = [
   {
-    routeType: "SIDEWALK",
+    routeType: 'SIDEWALK',
     paintLayers: [
       {
-        "line-color": "orange",
-        "line-width": 5,
-        "line-dasharray": [2, 1],
+        'line-color': 'orange',
+        'line-width': 5,
+        'line-dasharray': [2, 1],
       },
     ],
   },
-  { routeType: "STREET", paintLayers: [{}] },
-  { routeType: "LANE", paintLayers: [{}] },
-  { routeType: "PROTECTED", paintLayers: [{}] },
-  { routeType: "TRACK", paintLayers: [{}] },
+  { routeType: 'STREET', paintLayers: [{}] },
+  { routeType: 'LANE', paintLayers: [{}] },
+  { routeType: 'PROTECTED', paintLayers: [{}] },
+  { routeType: 'TRACK', paintLayers: [{}] },
 ];

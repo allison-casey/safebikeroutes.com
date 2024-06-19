@@ -1,6 +1,6 @@
-import Menu from "@mui/icons-material/Menu";
-import { signOut, useSession } from "next-auth/react";
-import { AppBar, Button, IconButton, Toolbar, Typography } from "@mui/material";
+import Menu from '@mui/icons-material/Menu';
+import { signOut, useSession } from 'next-auth/react';
+import { AppBar, Button, IconButton, Toolbar, Typography } from '@mui/material';
 
 export const ControlPanelToolbar = () => {
   const session = useSession();
@@ -16,7 +16,7 @@ export const ControlPanelToolbar = () => {
             await signOut();
           }}
         >
-          {session.status === "authenticated" ? "Logout" : "Login"}
+          {session.status === 'authenticated' ? 'Logout' : 'Login'}
         </Button>
       </Toolbar>
     </AppBar>
