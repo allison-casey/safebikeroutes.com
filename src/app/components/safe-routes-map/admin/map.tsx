@@ -7,7 +7,6 @@ import mapboxgl from "mapbox-gl";
 import { ReactElement, useState } from "react";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import Map, { GeolocateControl, MapProps, MapProvider, useMap } from "react-map-gl";
-import GeocoderControl from "../geocoder-control";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import { drop, dropLast } from "remeda";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
@@ -22,12 +21,13 @@ import {
   TextField,
 } from "@mui/material";
 import { Region, RouteType } from "@/db/enums";
-import { useDraw } from "./use-draw";
 import { ControlPanelToolbar } from "../control-panel-toolbar";
 import ControlPanelButton from "../control-panel-button";
 import StyleSelector, { MAP_STYLES } from "../style-selector";
-import DrawControl from "./draw-control";
 import { routeStyles } from "@/app/route_styles";
+import { useDraw } from "../../mapbox/use-draw";
+import GeocoderControl from "../../mapbox/geocoder-control";
+import DrawControl from "../../mapbox/draw-control";
 
 const DEFAULT_MAP_STYLE = "Streets";
 
