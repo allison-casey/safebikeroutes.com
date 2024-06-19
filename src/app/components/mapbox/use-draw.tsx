@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { useState, useCallback, useMemo, useContext } from 'react';
+import * as React from "react";
+import { useState, useCallback, useMemo, useContext } from "react";
 
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import { DrawContext } from './draw-control';
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import { DrawContext } from "./draw-control";
 
 type MountedDrawsContextValue = {
   draws: { [id: string]: MapboxDraw };
@@ -10,14 +10,17 @@ type MountedDrawsContextValue = {
   onMapUnmount: (id?: string) => void;
 };
 
-export const MountedDrawsContext = React.createContext<MountedDrawsContextValue | null>(null);
+export const MountedDrawsContext =
+  React.createContext<MountedDrawsContextValue | null>(null);
 
-export const DrawProvider: React.FC<{ children?: React.ReactNode }> = props => {
+export const DrawProvider: React.FC<{ children?: React.ReactNode }> = (
+  props,
+) => {
   const [draws, setDraws] = useState<{ [id: string]: MapboxDraw }>({});
 
-  const onMapMount = useCallback((draw: MapboxDraw, id: string = 'default') => {
-    setDraws(currDraws => {
-      if (id === 'current') {
+  const onMapMount = useCallback((draw: MapboxDraw, id: string = "default") => {
+    setDraws((currDraws) => {
+      if (id === "current") {
         throw new Error("'current' cannot be used as draw instance id");
       }
       if (currDraws[id]) {
@@ -27,8 +30,8 @@ export const DrawProvider: React.FC<{ children?: React.ReactNode }> = props => {
     });
   }, []);
 
-  const onMapUnmount = useCallback((id: string = 'default') => {
-    setDraws(currDraws => {
+  const onMapUnmount = useCallback((id: string = "default") => {
+    setDraws((currDraws) => {
       if (currDraws[id]) {
         const nextDraws = { ...currDraws };
         delete nextDraws[id];
@@ -43,7 +46,7 @@ export const DrawProvider: React.FC<{ children?: React.ReactNode }> = props => {
       value={{
         draws,
         onMapMount,
-        onMapUnmount
+        onMapUnmount,
       }}
     >
       {props.children}

@@ -68,7 +68,7 @@ export const saveRoutes = async (
       }),
     )
     .execute();
-  return result
+  return result;
 };
 
 export const deleteRoutes = async (

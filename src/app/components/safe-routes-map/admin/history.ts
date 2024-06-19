@@ -12,6 +12,6 @@ export const pushDrawHistory = (
 export const popDrawHistory = (
   history: GeoJSON.FeatureCollection[],
 ): [GeoJSON.FeatureCollection[], GeoJSON.FeatureCollection] => [
-    dropLast(history, 1),
-    history[history.length - 2],
-  ];
+  dropLast(history, 1),
+  history[history.length - 2],
+];

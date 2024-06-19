@@ -6,9 +6,13 @@ import { Controller, useForm } from "react-hook-form";
 import mapboxgl from "mapbox-gl";
 import { ReactElement, useState } from "react";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
-import Map, { GeolocateControl, MapProps, MapProvider, useMap } from "react-map-gl";
+import Map, {
+  GeolocateControl,
+  MapProps,
+  MapProvider,
+  useMap,
+} from "react-map-gl";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
-import { drop, dropLast } from "remeda";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import {
   Box,
@@ -20,7 +24,6 @@ import {
   Snackbar,
   TextField,
 } from "@mui/material";
-import { Region, RouteType } from "@/db/enums";
 import { ControlPanelToolbar } from "../control-panel-toolbar";
 import ControlPanelButton from "../control-panel-button";
 import StyleSelector, { MAP_STYLES } from "../style-selector";
@@ -29,14 +32,9 @@ import { useDraw } from "../../mapbox/use-draw";
 import GeocoderControl from "../../mapbox/geocoder-control";
 import DrawControl from "../../mapbox/draw-control";
 import { popDrawHistory, pushDrawHistory } from "./history";
+import { IRouteProperties } from "@/types/map";
 
 const DEFAULT_MAP_STYLE = "Streets";
-
-interface IRouteProperties {
-  route_type: RouteType;
-  region: Region;
-  name?: string;
-}
 
 interface IUpdateRoutesHandler {
   (
@@ -210,12 +208,12 @@ const ControlPanel = ({
         <div>
           {selectedFeatures
             ? selectedFeatures.map((feature) => (
-              <RouteEditor
-                key={feature.id}
-                feature={feature}
-                updateRouteProperty={updateFeatureProperty}
-              />
-            ))
+                <RouteEditor
+                  key={feature.id}
+                  feature={feature}
+                  updateRouteProperty={updateFeatureProperty}
+                />
+              ))
             : null}
         </div>
       </div>
@@ -235,8 +233,8 @@ const SafeRoutesMapAdmin = ({
   if (!token) {
     throw new Error("ACCESS_TOKEN is undefined");
   }
-  const { default: map } = useMap()
-  const { default: draw } = useDraw()
+  const { default: map } = useMap();
+  const { default: draw } = useDraw();
 
   const [selectedFeatures, setSelectedFeatures] = useState<GeoJSON.Feature[]>(
     [],
@@ -246,14 +244,12 @@ const SafeRoutesMapAdmin = ({
   const [history, setHistory] = useState<GeoJSON.FeatureCollection[]>([routes]);
 
   const onUpdate = (event: MapboxDraw.DrawUpdateEvent) => {
-    setFeaturesToUpdate((features) => ([
+    setFeaturesToUpdate((features) => [
       ...features,
-      ...event.features.map(ft => ft.id as string)
-    ]));
+      ...event.features.map((ft) => ft.id as string),
+    ]);
     setHistory((history) =>
-      draw
-        ? pushDrawHistory(history, draw.getAll())
-        : history,
+      draw ? pushDrawHistory(history, draw.getAll()) : history,
     );
   };
 
@@ -269,12 +265,10 @@ const SafeRoutesMapAdmin = ({
       draw.setFeatureProperty(feature.id!.toString(), key, value);
       const data = draw.getAll();
       setHistory((history) =>
-        draw
-          ? pushDrawHistory(history, draw.getAll())
-          : history,
+        draw ? pushDrawHistory(history, draw.getAll()) : history,
       );
       repaintDrawLayer(draw, data);
-      setFeaturesToUpdate(features => ([...features, feature.id as string]))
+      setFeaturesToUpdate((features) => [...features, feature.id as string]);
       setSelectedFeatures([]);
     }
   };
@@ -360,11 +354,13 @@ const SafeRoutesMapAdmin = ({
               undoDisabled={history.length === 1}
               onSaveHandler={async () => {
                 if (draw) {
-                  const features = draw.getAll()
+                  const features = draw.getAll();
                   await saveRoutesHandler(
                     {
                       type: "FeatureCollection",
-                      features: features.features.filter(ft => featuresToUpdate.includes(ft.id as string))
+                      features: features.features.filter((ft) =>
+                        featuresToUpdate.includes(ft.id as string),
+                      ),
                     },
                     deletedRouteIds,
                   );
@@ -387,7 +383,6 @@ const SafeRoutesMapAdmin = ({
       </div>
     </MapProvider>
   );
-
 };
 
 export default SafeRoutesMapAdmin;
