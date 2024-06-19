@@ -18,6 +18,7 @@ const saveRoutesForMap = async (
   routeIdsToDelete: string[],
 ): Promise<void> => {
   "use server";
+
   await saveRoutes("LA", featureCollection);
   await deleteRoutes("LA", routeIdsToDelete);
 };
