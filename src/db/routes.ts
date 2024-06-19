@@ -48,7 +48,7 @@ export const saveRoutes = async (
     return [];
   }
 
-  return await db
+  const result = await db
     .insertInto("route")
     .values(
       featureCollection.features.map((feature) => ({
@@ -68,6 +68,7 @@ export const saveRoutes = async (
       }),
     )
     .execute();
+  return result
 };
 
 export const deleteRoutes = async (

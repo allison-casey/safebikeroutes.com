@@ -95,9 +95,9 @@ const pushDrawHistory = (
 const popDrawHistory = (
   history: GeoJSON.FeatureCollection[],
 ): [GeoJSON.FeatureCollection[], GeoJSON.FeatureCollection] => [
-  dropLast(history, 1),
-  history[history.length - 2],
-];
+    dropLast(history, 1),
+    history[history.length - 2],
+  ];
 
 const repaintDrawLayer = (
   draw: MapboxDraw,
@@ -226,12 +226,12 @@ const ControlPanel = ({
         <div>
           {selectedFeatures
             ? selectedFeatures.map((feature) => (
-                <RouteEditor
-                  key={feature.id}
-                  feature={feature}
-                  updateRouteProperty={updateFeatureProperty}
-                />
-              ))
+              <RouteEditor
+                key={feature.id}
+                feature={feature}
+                updateRouteProperty={updateFeatureProperty}
+              />
+            ))
             : null}
         </div>
       </div>
@@ -257,16 +257,14 @@ const SafeRoutesMapAdmin = ({
     [],
   );
   const [deletedRouteIds, setDeletedRouteIds] = useState<string[]>([]);
-  const [featuresToUpdate, setFeaturesToUpdate] = useState<{
-    [key: string]: GeoJSON.Feature;
-  }>({});
+  const [featuresToUpdate, setFeaturesToUpdate] = useState<string[]>([]);
   const [history, setHistory] = useState<GeoJSON.FeatureCollection[]>([routes]);
 
   const onUpdate = (event: MapboxDraw.DrawUpdateEvent) => {
-    setFeaturesToUpdate((features) => ({
+    setFeaturesToUpdate((features) => ([
       ...features,
-      ...indexBy(event.features, (ft) => ft.id),
-    }));
+      ...event.features.map(ft => ft.id as string)
+    ]));
     setHistory((history) =>
       drawRef.current
         ? pushDrawHistory(history, drawRef.current.getAll())
@@ -292,6 +290,7 @@ const SafeRoutesMapAdmin = ({
           : history,
       );
       repaintDrawLayer(drawRef.current, data);
+      setFeaturesToUpdate(features => ([...features, feature.id as string]))
       setSelectedFeatures([]);
     }
   };
@@ -379,15 +378,16 @@ const SafeRoutesMapAdmin = ({
             undoDisabled={history.length === 1}
             onSaveHandler={async () => {
               if (drawRef.current) {
+                const features = drawRef.current.getAll()
                 await saveRoutesHandler(
                   {
                     type: "FeatureCollection",
-                    features: Object.values(featuresToUpdate),
+                    features: features.features.filter(ft => featuresToUpdate.includes(ft.id as string))
                   },
                   deletedRouteIds,
                 );
                 setDeletedRouteIds([]);
-                setFeaturesToUpdate({});
+                setFeaturesToUpdate([]);
               }
             }}
             undoHandler={() => {
