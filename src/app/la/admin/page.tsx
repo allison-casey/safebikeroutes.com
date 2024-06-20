@@ -43,7 +43,6 @@ export default async function SafeRoutesLA() {
     <SafeRoutesMapAdmin
       token={process.env.ACCESS_TOKEN}
       routes={routes}
-      controlPanelContent={<div>hello world</div>}
       saveRoutesHandler={saveRoutesForMap}
       initialViewState={{
         longitude: CENTER[0],
