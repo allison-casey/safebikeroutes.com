@@ -26,7 +26,7 @@ import {
 } from '@mui/material';
 import { ControlPanelToolbar } from '../control-panel-toolbar';
 import ControlPanelButton from '../control-panel-button';
-import StyleSelector, { MAP_STYLES } from '../style-selector';
+import StyleSelector, { MAP_STYLES, Styles } from '../style-selector';
 import { routeStyles } from '@/app/route_styles';
 import { useDraw } from '../../mapbox/use-draw';
 import GeocoderControl from '../../mapbox/geocoder-control';
@@ -325,7 +325,7 @@ const SafeRoutesMapAdmin = ({
           </Map>
           <StyleSelector
             onClick={(title) => setCurrentStyle(title)}
-            currentlySelectedStyle={currentStyle}
+            currentlySelectedStyle={currentStyle as Styles}
           />
           <ControlPanelButton
             showControlPanel={showControlPanel}
