@@ -1,6 +1,7 @@
 import { getRoutes } from '@/db/routes';
 import { unstable_noStore as noStore } from 'next/cache';
 import { SafeBikeRoutesClient } from './client-map';
+import LAControlPanel from '../LAControlPanel';
 
 const BOUNDS: MapboxGeocoder.Bbox = [
   -118.88065856936811,
@@ -18,6 +19,7 @@ export default async function TestPage() {
     <SafeBikeRoutesClient
       mapboxAccessToken={process.env.ACCESS_TOKEN!}
       routes={routes}
+      panelContents={<LAControlPanel />}
       initialViewState={{
         longitude: CENTER[0],
         latitude: CENTER[1],

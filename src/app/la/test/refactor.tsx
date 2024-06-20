@@ -109,7 +109,12 @@ export const MapPanel = ({
       variant="persistent"
       className="pointer-events-auto"
     >
-      <Box sx={{ ...(isMobile ? { height: 300 } : { width: 400 }) }}>
+      <Box
+        sx={{
+          overflowY: 'scroll',
+          ...(isMobile ? { height: 300 } : { width: 400 }),
+        }}
+      >
         {children}
       </Box>
     </Drawer>

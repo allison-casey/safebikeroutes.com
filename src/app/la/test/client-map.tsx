@@ -31,6 +31,7 @@ export type SafeRoutesMapProps = Omit<MapProps, 'mapLib' | 'mapStyle'> & {
   mapboxAccessToken: string;
   routes: GeoJSON.FeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;
+  panelContents: React.ReactNode;
 };
 
 export const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
@@ -54,10 +55,10 @@ export const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
     .map(({ routeType, paintLayers }) =>
       paintLayers.map((paintLayer, index) => (
         <Layer
-          key={`saferoutesla-${routeType}-${index}`}
-          id={`saferoutesla-${routeType}-${index}`}
+          key={`saferoutes-${routeType}-${index}`}
+          id={`saferoutes-${routeType}-${index}`}
           type="line"
-          source="saferoutesla"
+          source="saferoutes"
           filter={['==', 'route_type', routeType]}
           paint={paintLayer}
           beforeId="road-label"
@@ -91,7 +92,7 @@ export const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
         }}
         {...props}
       >
-        <Source id="saferoutesla" type="geojson" data={props.routes}>
+        <Source id="saferoutes" type="geojson" data={props.routes}>
           {...layers}
         </Source>
         <GeocoderControl
@@ -108,7 +109,7 @@ export const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
         />
       </SafeRoutesMap>
       <MapSurfaceContainer>
-        <MapPanel open={drawerOpen}>hello world</MapPanel>
+        <MapPanel open={drawerOpen}>{props.panelContents}</MapPanel>
         <MapSurface open={drawerOpen}>
           <StyleSelector
             onClick={(title) => setCurrentStyle(title)}
