@@ -8,6 +8,8 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import { useLocalStorage } from '@uidotdev/usehooks';
+import clsx from 'clsx';
 import mapboxgl from 'mapbox-gl';
 import { useState } from 'react';
 import Map, { MapProps } from 'react-map-gl';
@@ -19,6 +21,27 @@ const BOUNDS: MapboxGeocoder.Bbox = [
   34.4356118682199, // Northeast coordinates
 ];
 const CENTER = [-118.35874251099995, 34.061734936928694];
+
+type Styles = 'Streets' | 'Satellite Streets';
+type WatchState =
+  | 'OFF'
+  | 'ACTIVE_LOCK'
+  | 'WAITING_ACTIVE'
+  | 'ACTIVE_ERROR'
+  | 'BACKGROUND'
+  | 'BACKGROUND_ERROR';
+
+const DEFAULT_MAP_STYLE: Styles = 'Streets';
+const MAP_STYLES: { title: Styles; style: string }[] = [
+  {
+    title: 'Streets',
+    style: 'mapbox://styles/mapbox/streets-v12',
+  },
+  {
+    title: 'Satellite Streets',
+    style: 'mapbox://styles/mapbox/satellite-streets-v12',
+  },
+];
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   open?: boolean;
@@ -52,11 +75,13 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   };
 });
 
-const MapSurfaceContainer = ({ children }: { children?: React.ReactNode }) => (
-  <Box sx={{ display: 'flex' }}>{children}</Box>
-);
+export const MapSurfaceContainer = ({
+  children,
+}: {
+  children?: React.ReactNode;
+}) => <Box sx={{ display: 'flex', pointerEvents: 'none' }}>{children}</Box>;
 
-const MapSurface = ({
+export const MapSurface = ({
   open,
   children,
 }: {
@@ -68,7 +93,7 @@ const MapSurface = ({
   </div>
 );
 
-const MapPanel = ({
+export const MapPanel = ({
   children,
   open,
 }: {
@@ -82,6 +107,7 @@ const MapPanel = ({
       open={open}
       anchor={isMobile ? 'bottom' : 'right'}
       variant="persistent"
+      className="pointer-events-auto"
     >
       <Box sx={{ ...(isMobile ? { height: 300 } : { width: 400 }) }}>
         {children}
@@ -90,10 +116,40 @@ const MapPanel = ({
   );
 };
 
-const MapPanelButton = ({ onClick }: { onClick: () => void }) => (
-  <Button onClick={onClick} className="absolute left-0 bottom-0 mb-10">
-    toggle panel
-  </Button>
+export const MapPanelButton = ({
+  open,
+  onClick,
+}: {
+  open: boolean;
+  onClick: () => void;
+}) => (
+  <div
+    onClick={onClick}
+    className="pointer-events-auto absolute  right-[calc(50%-1rem)] bottom-0 sm:right-2 mb-2 sm:mb-10 sm:bottom-0 z-20 px-4 py-2 rounded-lg bg-white drop-shadow-md"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="black"
+      className={clsx([
+        'w-4',
+        'h-4',
+        open ? 'rotate-90' : '-rotate-90',
+        open ? 'sm:rotate-0' : 'sm:rotate-180',
+      ])}
+    >
+      <path
+        fillRule="evenodd"
+        d="M13.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L11.69 12 4.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
+        clipRule="evenodd"
+      />
+      <path
+        fillRule="evenodd"
+        d="M19.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 1 1-1.06-1.06L17.69 12l-6.97-6.97a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
+        clipRule="evenodd"
+      />
+    </svg>
+  </div>
 );
 
 export type SafeRoutesMapProps = Omit<
@@ -105,29 +161,31 @@ export type SafeRoutesMapProps = Omit<
   geocoderBbox: MapboxGeocoder.Bbox;
 };
 
-const SafeRoutesMap = ({ children, ...props }: SafeRoutesMapProps) => (
+export const SafeRoutesMap = ({ children, ...props }: MapProps) => (
   <div className="w-dvw h-dvh absolute left-0 bottom-0 z-0">
     <Map
-      mapboxAccessToken={props.token}
-      mapLib={mapboxgl}
-      mapStyle="mapbox://styles/mapbox/streets-v9"
       {...props}
+      mapLib={mapboxgl}
+      style={{ width: '100dvw', height: '100dvh', ...props.style }}
     >
       {children}
     </Map>
   </div>
 );
 
-export const MapSkeleton = (props: SafeRoutesMapProps) => {
+export const MapSkeleton = (props: MapProps) => {
   const [drawerOpen, setDrawerOpen] = useState(true);
 
   return (
     <>
-      <SafeRoutesMap {...props} />
+      <SafeRoutesMap mapLib={mapboxgl} {...props} />
       <MapSurfaceContainer>
-        <MapPanel open={drawerOpen}>Hello Panel</MapPanel>
+        <MapPanel open={drawerOpen} />
         <MapSurface open={drawerOpen}>
-          <MapPanelButton onClick={() => setDrawerOpen(!drawerOpen)} />
+          <MapPanelButton
+            open={drawerOpen}
+            onClick={() => setDrawerOpen(!drawerOpen)}
+          />
         </MapSurface>
       </MapSurfaceContainer>
     </>

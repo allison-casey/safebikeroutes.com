@@ -1,6 +1,8 @@
 import clsx from 'clsx';
 
-export const MAP_STYLES = [
+export const DEFAULT_MAP_STYLE: Styles = 'Streets';
+export type Styles = 'Streets' | 'Satellite Streets';
+export const MAP_STYLES: { title: Styles; style: string }[] = [
   {
     title: 'Streets',
     style: 'mapbox://styles/mapbox/streets-v12',
@@ -15,10 +17,10 @@ const StyleSelector = ({
   currentlySelectedStyle,
   onClick,
 }: {
-  currentlySelectedStyle: string;
-  onClick: (title: string) => any;
+  currentlySelectedStyle: Styles;
+  onClick: (title: Styles) => any;
 }) => (
-  <div className="absolute flex left-2 bottom-0 mb-12 z-20 rounded-lg drop-shadow-md">
+  <div className="pointer-events-auto absolute flex left-2 bottom-0 mb-12 z-20 rounded-lg drop-shadow-md">
     {MAP_STYLES.map(({ title }) => (
       <div
         onClick={() => onClick(title)}

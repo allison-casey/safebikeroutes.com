@@ -204,7 +204,7 @@ const SafeRoutesMap = ({
             ) : null}
             <GeocoderControl
               mapboxAccessToken={token}
-              position="top-right"
+              position="top-left"
               bbox={geocoderBbox}
             />
             <GeolocateControl
