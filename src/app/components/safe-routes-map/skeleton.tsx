@@ -1,47 +1,10 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  Drawer,
-  styled,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material';
-import { useLocalStorage } from '@uidotdev/usehooks';
+import { Box, Drawer, styled, useMediaQuery, useTheme } from '@mui/material';
 import clsx from 'clsx';
 import mapboxgl from 'mapbox-gl';
 import { useState } from 'react';
 import Map, { MapProps } from 'react-map-gl';
-
-const BOUNDS: MapboxGeocoder.Bbox = [
-  -118.88065856936811,
-  33.63722119725411, // Southwest coordinates
-  -117.83375850298786,
-  34.4356118682199, // Northeast coordinates
-];
-const CENTER = [-118.35874251099995, 34.061734936928694];
-
-type Styles = 'Streets' | 'Satellite Streets';
-type WatchState =
-  | 'OFF'
-  | 'ACTIVE_LOCK'
-  | 'WAITING_ACTIVE'
-  | 'ACTIVE_ERROR'
-  | 'BACKGROUND'
-  | 'BACKGROUND_ERROR';
-
-const DEFAULT_MAP_STYLE: Styles = 'Streets';
-const MAP_STYLES: { title: Styles; style: string }[] = [
-  {
-    title: 'Streets',
-    style: 'mapbox://styles/mapbox/streets-v12',
-  },
-  {
-    title: 'Satellite Streets',
-    style: 'mapbox://styles/mapbox/satellite-streets-v12',
-  },
-];
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   open?: boolean;
