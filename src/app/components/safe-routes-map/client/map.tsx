@@ -35,7 +35,7 @@ export type SafeRoutesMapProps = Omit<MapProps, 'mapLib' | 'mapStyle'> & {
 };
 
 export const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useLocalStorage('display-panel', true);
   const [currentStyle, setCurrentStyle] = useLocalStorage<Styles>(
     'map-style',
     DEFAULT_MAP_STYLE
