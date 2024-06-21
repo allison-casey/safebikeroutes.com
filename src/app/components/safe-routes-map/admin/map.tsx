@@ -238,14 +238,14 @@ const SafeRoutesMapAdmin = ({
   const [featuresToUpdate, setFeaturesToUpdate] = useState<string[]>([]);
   const [history, setHistory] = useState<GeoJSON.FeatureCollection[]>([routes]);
 
-  const onUpdate = (event: MapboxDraw.DrawUpdateEvent) => {
+  const onUpdate = (draw: MapboxDraw, event: MapboxDraw.DrawUpdateEvent) => {
     setFeaturesToUpdate((features) => [
       ...features,
       ...event.features.map((ft) => ft.id as string),
     ]);
-    setHistory((history) =>
-      draw ? pushDrawHistory(history, draw.getAll()) : history
-    );
+    setHistory((history) => {
+      return draw ? pushDrawHistory(history, draw.getAll()) : history;
+    });
   };
 
   const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
@@ -297,13 +297,13 @@ const SafeRoutesMapAdmin = ({
             line_string: true,
             trash: true,
           }}
-          onUpdate={(evt) => onUpdate(evt)}
-          onCreate={(evt) => {
+          onUpdate={onUpdate}
+          onCreate={(draw, evt) => {
             for (const feature of evt.features) {
               updateFeatureProperty(feature, 'route_type', 'STREET');
             }
           }}
-          onDelete={(evt) => {
+          onDelete={(draw, evt) => {
             setDeletedRouteIds((ids) => [
               ...ids,
               ...evt.features
@@ -311,7 +311,7 @@ const SafeRoutesMapAdmin = ({
                 .filter((id) => !!id),
             ]);
           }}
-          onSelectionChange={(evt) => {
+          onSelectionChange={(draw, evt) => {
             setSelectedFeatures(evt.features);
           }}
         />

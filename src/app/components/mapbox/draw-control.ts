@@ -16,11 +16,11 @@ type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {
   position?: ControlPosition;
   features: GeoJSON.FeatureCollection;
 
-  onCreate?: (evt: DrawCreateEvent) => void;
-  onUpdate?: (evt: DrawUpdateEvent) => void;
-  onDelete?: (evt: DrawDeleteEvent) => void;
-  onSelectionChange?: (evt: DrawSelectionChangeEvent) => void;
-  onModeChange?: (evt: DrawModeChangeEvent) => void;
+  onCreate?: (draw: MapboxDraw, evt: DrawCreateEvent) => void;
+  onUpdate?: (draw: MapboxDraw, evt: DrawUpdateEvent) => void;
+  onDelete?: (draw: MapboxDraw, evt: DrawDeleteEvent) => void;
+  onSelectionChange?: (draw: MapboxDraw, evt: DrawSelectionChangeEvent) => void;
+  onModeChange?: (draw: MapboxDraw, evt: DrawModeChangeEvent) => void;
 };
 
 export type DrawContextValue<DrawT extends MapboxDraw = MapboxDraw> = {
@@ -34,36 +34,48 @@ const DrawControl = (props: DrawControlProps) => {
   const { current: contextValue } = useRef<DrawContextValue<MapboxDraw>>({
     draw: null,
   });
+  let onCreate: ((evt: DrawCreateEvent) => void) | undefined = undefined;
+  let onUpdate: ((evt: DrawUpdateEvent) => void) | undefined = undefined;
+  let onDelete: ((evt: DrawDeleteEvent) => void) | undefined = undefined;
+  let onSelectionChange: ((evt: DrawSelectionChangeEvent) => void) | undefined =
+    undefined;
+  let onModeChange: ((evt: DrawModeChangeEvent) => void) | undefined =
+    undefined;
 
   const draw = useControl<MapboxDraw>(
     () => new MapboxDraw(props),
     ({ map }) => {
-      props.onCreate && map.on('draw.create', props.onCreate);
-      props.onUpdate && map.on('draw.update', props.onUpdate);
-      props.onDelete && map.on('draw.delete', props.onDelete);
+      contextValue.draw = draw;
+      mountedDrawsContext?.onMapMount(contextValue.draw, props.id);
+
+      onCreate = (evt: DrawCreateEvent) => props.onCreate?.(draw, evt);
+      onUpdate = (evt: DrawUpdateEvent) => props.onUpdate?.(draw, evt);
+      onDelete = (evt: DrawDeleteEvent) => props.onDelete?.(draw, evt);
+      onSelectionChange = (evt: DrawSelectionChangeEvent) =>
+        props.onSelectionChange?.(draw, evt);
+      const onModeChange = (evt: DrawModeChangeEvent) =>
+        props.onModeChange?.(draw, evt);
+
+      props.onCreate && map.on('draw.create', onCreate);
+      props.onUpdate && map.on('draw.update', onUpdate);
+      props.onDelete && map.on('draw.delete', onDelete);
       props.onSelectionChange &&
-        map.on('draw.selectionchange', props.onSelectionChange);
-      props.onModeChange && map.on('draw.modechange', props.onModeChange);
+        map.on('draw.selectionchange', onSelectionChange);
+      props.onModeChange && map.on('draw.modechange', onModeChange);
       map.on('load', () => draw.add(props.features));
     },
     ({ map }) => {
-      map.off('draw.create', props.onCreate);
-      map.off('draw.update', props.onUpdate);
-      map.off('draw.delete', props.onDelete);
-      map.off('draw.selectionchange', props.onSelectionChange);
-      map.off('draw.modechange', props.onModeChange);
+      map.off('draw.create', onCreate);
+      map.off('draw.update', onUpdate);
+      map.off('draw.delete', onDelete);
+      map.off('draw.selectionchange', onSelectionChange);
+      map.off('draw.modechange', onModeChange);
       mountedDrawsContext?.onMapUnmount(props.id);
     },
     {
       position: props.position,
     }
   );
-
-  useEffect(() => {
-    contextValue.draw = draw;
-    mountedDrawsContext?.onMapMount(contextValue.draw, props.id);
-    // eslint-disable-next-line
-  }, []);
 
   return null;
 };
