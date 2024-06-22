@@ -18,6 +18,7 @@ import StyleSelector, {
 } from '@/app/components/safe-routes-map/style-selector';
 import { routeStyles } from '@/app/route_styles';
 import GeocoderControl from '@/app/components/mapbox/geocoder-control';
+import dynamic from 'next/dynamic';
 
 type WatchState =
   | 'OFF'
@@ -34,7 +35,7 @@ export type SafeRoutesMapProps = Omit<MapProps, 'mapLib' | 'mapStyle'> & {
   panelContents: React.ReactNode;
 };
 
-export const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
+const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
   const [drawerOpen, setDrawerOpen] = useLocalStorage('display-panel', true);
   const [currentStyle, setCurrentStyle] = useLocalStorage<Styles>(
     'map-style',
@@ -124,3 +125,7 @@ export const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
     </>
   );
 };
+
+export default dynamic(() => Promise.resolve(SafeBikeRoutesClient), {
+  ssr: false,
+});
