@@ -1,6 +1,6 @@
 import { getRoutes } from '@/db/routes';
 import { unstable_noStore as noStore } from 'next/cache';
-import { SafeBikeRoutesClient } from '@/app/components/safe-routes-map/client/map';
+import SafeBikeRoutesClient from '@/app/components/safe-routes-map/client/map';
 import Description from './description.mdx';
 
 const BOUNDS: MapboxGeocoder.Bbox = [
