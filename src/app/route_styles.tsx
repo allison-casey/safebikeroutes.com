@@ -44,11 +44,6 @@ export const routeStyles: RouteStyle[] = [
         'line-color': '#7b3294',
         'line-width': 3,
       },
-      {
-        'line-color': 'white',
-        'line-width': 1,
-        'line-gap-width': 3,
-      },
     ],
   },
   {
@@ -57,11 +52,6 @@ export const routeStyles: RouteStyle[] = [
       {
         'line-color': '#008837',
         'line-width': 3,
-      },
-      {
-        'line-color': 'white',
-        'line-width': 2,
-        'line-gap-width': 3,
       },
     ],
   },
