@@ -54,7 +54,7 @@ export const DrawProvider: React.FC<{ children?: React.ReactNode }> = (
   );
 };
 
-export type DrawCollection<DrawT extends MapboxDraw> = {
+type DrawCollection<DrawT extends MapboxDraw> = {
   [id: string]: DrawT | undefined;
   current?: DrawT;
 };

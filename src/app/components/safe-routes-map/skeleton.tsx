@@ -3,7 +3,6 @@
 import { Box, Drawer, styled, useMediaQuery, useTheme } from '@mui/material';
 import clsx from 'clsx';
 import mapboxgl from 'mapbox-gl';
-import { useState } from 'react';
 import Map, { MapProps } from 'react-map-gl';
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
@@ -120,7 +119,7 @@ export const MapPanelButton = ({
   </div>
 );
 
-export type SafeRoutesMapProps = Omit<
+type SafeRoutesMapProps = Omit<
   MapProps,
   'mapboxAccessToken' | 'mapLib' | 'mapStyle'
 > & {
@@ -140,22 +139,3 @@ export const SafeRoutesMap = ({ children, ...props }: MapProps) => (
     </Map>
   </div>
 );
-
-export const MapSkeleton = (props: MapProps) => {
-  const [drawerOpen, setDrawerOpen] = useState(true);
-
-  return (
-    <>
-      <SafeRoutesMap mapLib={mapboxgl} {...props} />
-      <MapSurfaceContainer>
-        <MapPanel open={drawerOpen} />
-        <MapSurface open={drawerOpen}>
-          <MapPanelButton
-            open={drawerOpen}
-            onClick={() => setDrawerOpen(!drawerOpen)}
-          />
-        </MapSurface>
-      </MapSurfaceContainer>
-    </>
-  );
-};

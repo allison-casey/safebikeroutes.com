@@ -51,7 +51,7 @@ interface IUpdateRouteProperty {
   ): void;
 }
 
-export type SafeRoutesMapProps = Omit<
+type SafeRoutesMapProps = Omit<
   MapProps,
   'mapboxAccessToken' | 'mapLib' | 'mapStyle'
 > & {

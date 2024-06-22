@@ -28,7 +28,7 @@ type WatchState =
   | 'BACKGROUND'
   | 'BACKGROUND_ERROR';
 
-export type SafeRoutesMapProps = Omit<MapProps, 'mapLib' | 'mapStyle'> & {
+type SafeRoutesMapProps = Omit<MapProps, 'mapLib' | 'mapStyle'> & {
   mapboxAccessToken: string;
   routes: GeoJSON.FeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;

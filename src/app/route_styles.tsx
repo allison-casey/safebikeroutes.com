@@ -1,6 +1,6 @@
 import { RouteType } from '@/db/enums';
 
-export interface RouteStyle {
+interface RouteStyle {
   routeType: RouteType;
   paintLayers: object[];
 }
@@ -55,21 +55,4 @@ export const routeStyles: RouteStyle[] = [
       },
     ],
   },
-];
-
-export const legacyRouteStyles: RouteStyle[] = [
-  {
-    routeType: 'SIDEWALK',
-    paintLayers: [
-      {
-        'line-color': 'orange',
-        'line-width': 5,
-        'line-dasharray': [2, 1],
-      },
-    ],
-  },
-  { routeType: 'STREET', paintLayers: [{}] },
-  { routeType: 'LANE', paintLayers: [{}] },
-  { routeType: 'PROTECTED', paintLayers: [{}] },
-  { routeType: 'TRACK', paintLayers: [{}] },
 ];

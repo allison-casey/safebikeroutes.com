@@ -23,7 +23,7 @@ type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {
   onModeChange?: (draw: MapboxDraw, evt: DrawModeChangeEvent) => void;
 };
 
-export type DrawContextValue<DrawT extends MapboxDraw = MapboxDraw> = {
+type DrawContextValue<DrawT extends MapboxDraw = MapboxDraw> = {
   draw: DrawT | null;
 };
 
