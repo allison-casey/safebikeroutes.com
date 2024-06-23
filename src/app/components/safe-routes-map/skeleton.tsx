@@ -1,6 +1,18 @@
 'use client';
+import MenuIcon from '@mui/icons-material/Menu';
 
-import { Box, Drawer, styled, useMediaQuery, useTheme } from '@mui/material';
+import {
+  AppBar,
+  Box,
+  Button,
+  Drawer,
+  IconButton,
+  Toolbar,
+  Typography,
+  styled,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import clsx from 'clsx';
 import mapboxgl from 'mapbox-gl';
 import Map, { MapProps } from 'react-map-gl';
@@ -53,6 +65,28 @@ export const MapSurface = ({
   <div className="z-10 relative">
     <Main open={open}>{children}</Main>
   </div>
+);
+
+export const MapToolBar = () => (
+  <Box sx={{ flexGrow: 1 }}>
+    <AppBar position="static">
+      <Toolbar>
+        <IconButton
+          size="large"
+          edge="start"
+          color="inherit"
+          aria-label="menu"
+          sx={{ mr: 2 }}
+        >
+          <MenuIcon />
+        </IconButton>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          Safe Bike Routes
+        </Typography>
+        <Button color="inherit">Login</Button>
+      </Toolbar>
+    </AppBar>
+  </Box>
 );
 
 export const MapPanel = ({
@@ -118,15 +152,6 @@ export const MapPanelButton = ({
     </svg>
   </div>
 );
-
-type SafeRoutesMapProps = Omit<
-  MapProps,
-  'mapboxAccessToken' | 'mapLib' | 'mapStyle'
-> & {
-  token?: string;
-  routes: GeoJSON.FeatureCollection;
-  geocoderBbox: MapboxGeocoder.Bbox;
-};
 
 export const SafeRoutesMap = ({ children, ...props }: MapProps) => (
   <div className="w-dvw h-dvh absolute left-0 bottom-0 z-0">

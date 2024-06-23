@@ -2,6 +2,8 @@ import { getRoutes } from '@/db/routes';
 import { unstable_noStore as noStore } from 'next/cache';
 import SafeBikeRoutesClient from '@/app/components/safe-routes-map/client/map';
 import Description from './description.mdx';
+import { MapToolBar } from '../components/safe-routes-map/skeleton';
+import { Grid } from '@mui/material';
 
 const BOUNDS: MapboxGeocoder.Bbox = [
   -118.88065856936811,
@@ -19,7 +21,12 @@ export default async function SafeRoutesLA() {
     <SafeBikeRoutesClient
       mapboxAccessToken={process.env.ACCESS_TOKEN!}
       routes={routes}
-      panelContents={<Description />}
+      panelContents={
+        <Grid container>
+          <MapToolBar />
+          <Description />
+        </Grid>
+      }
       initialViewState={{
         longitude: CENTER[0],
         latitude: CENTER[1],
