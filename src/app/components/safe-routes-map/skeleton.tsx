@@ -1,13 +1,17 @@
 'use client';
-import MenuIcon from '@mui/icons-material/Menu';
 
+import { canViewAdminPage } from '@/permissions';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import MenuIcon from '@mui/icons-material/Menu';
 import {
   AppBar,
+  Avatar,
   Box,
   Button,
   Drawer,
   IconButton,
   Toolbar,
+  Tooltip,
   Typography,
   styled,
   useMediaQuery,
@@ -15,6 +19,8 @@ import {
 } from '@mui/material';
 import clsx from 'clsx';
 import mapboxgl from 'mapbox-gl';
+import { signIn, signOut, useSession } from 'next-auth/react';
+import { usePathname, useRouter } from 'next/navigation';
 import Map, { MapProps } from 'react-map-gl';
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
@@ -67,27 +73,58 @@ export const MapSurface = ({
   </div>
 );
 
-export const MapToolBar = () => (
-  <Box sx={{ flexGrow: 1 }}>
-    <AppBar position="static">
-      <Toolbar>
-        <IconButton
-          size="large"
-          edge="start"
-          color="inherit"
-          aria-label="menu"
-          sx={{ mr: 2 }}
-        >
-          <MenuIcon />
-        </IconButton>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Safe Bike Routes
-        </Typography>
-        <Button color="inherit">Login</Button>
-      </Toolbar>
-    </AppBar>
-  </Box>
-);
+export const MapToolBar = () => {
+  const session = useSession();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  return (
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            sx={{ mr: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Safe Bike Routes
+          </Typography>
+          {session.status === 'authenticated' ? (
+            <Tooltip title="Open settings">
+              <IconButton
+                onClick={() => signOut()}
+                sx={{ p: 0 }}
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                color="inherit"
+              >
+                {session.data.user.image ? (
+                  <Avatar
+                    alt={session.data.user.name || 'User'}
+                    src={session.data.user.image}
+                  />
+                ) : (
+                  <AccountCircle />
+                )}
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <Button color="inherit" onClick={() => signIn()}>
+              Login
+            </Button>
+          )}
+        </Toolbar>
+      </AppBar>
+    </Box>
+  );
+};
 
 export const MapPanel = ({
   children,
