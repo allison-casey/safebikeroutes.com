@@ -1,4 +1,4 @@
-import { RouteType } from '@/db/enums';
+import { RouteType } from "@/db/enums";
 
 interface RouteStyle {
   routeType: RouteType;
@@ -7,51 +7,51 @@ interface RouteStyle {
 
 export const routeStyles: RouteStyle[] = [
   {
-    routeType: 'SIDEWALK',
+    routeType: "SIDEWALK",
     paintLayers: [
-      { 'line-width': 3 },
+      { "line-width": 3 },
       {
-        'line-color': 'yellow',
-        'line-width': 3,
-        'line-dasharray': [3, 2],
+        "line-color": "yellow",
+        "line-width": 3,
+        "line-dasharray": [3, 2],
       },
     ],
   },
   {
-    routeType: 'STREET',
+    routeType: "STREET",
     paintLayers: [
-      { 'line-width': 3, 'line-color': 'white' },
+      { "line-width": 3, "line-color": "white" },
       {
-        'line-color': '#c2a5cf',
-        'line-width': 3,
-        'line-dasharray': [2, 1],
+        "line-color": "#c2a5cf",
+        "line-width": 3,
+        "line-dasharray": [2, 1],
       },
     ],
   },
   {
-    routeType: 'LANE',
+    routeType: "LANE",
     paintLayers: [
       {
-        'line-color': '#c2a5cf',
-        'line-width': 3,
+        "line-color": "#c2a5cf",
+        "line-width": 3,
       },
     ],
   },
   {
-    routeType: 'PROTECTED',
+    routeType: "PROTECTED",
     paintLayers: [
       {
-        'line-color': '#7b3294',
-        'line-width': 3,
+        "line-color": "#7b3294",
+        "line-width": 3,
       },
     ],
   },
   {
-    routeType: 'TRACK',
+    routeType: "TRACK",
     paintLayers: [
       {
-        'line-color': '#008837',
-        'line-width': 3,
+        "line-color": "#008837",
+        "line-width": 3,
       },
     ],
   },

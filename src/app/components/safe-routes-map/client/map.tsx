@@ -1,34 +1,34 @@
-'use client';
+"use client";
 
-import { useCallback, useState } from 'react';
-import { GeolocateControl, Layer, MapProps, Source } from 'react-map-gl';
+import { useCallback, useState } from "react";
+import { GeolocateControl, Layer, MapProps, Source } from "react-map-gl";
 import {
   MapPanel,
   MapPanelButton,
   MapSurface,
   MapSurfaceContainer,
   SafeRoutesMap,
-} from '@/app/components/safe-routes-map/skeleton';
-import mapboxgl, { GeolocateControl as IGeolocateControl } from 'mapbox-gl';
-import { useLocalStorage } from '@uidotdev/usehooks';
+} from "@/app/components/safe-routes-map/skeleton";
+import mapboxgl, { GeolocateControl as IGeolocateControl } from "mapbox-gl";
+import { useLocalStorage } from "@uidotdev/usehooks";
 import StyleSelector, {
   DEFAULT_MAP_STYLE,
   MAP_STYLES,
   Styles,
-} from '@/app/components/safe-routes-map/style-selector';
-import { routeStyles } from '@/app/route_styles';
-import GeocoderControl from '@/app/components/mapbox/geocoder-control';
-import dynamic from 'next/dynamic';
+} from "@/app/components/safe-routes-map/style-selector";
+import { routeStyles } from "@/app/route_styles";
+import GeocoderControl from "@/app/components/mapbox/geocoder-control";
+import dynamic from "next/dynamic";
 
 type WatchState =
-  | 'OFF'
-  | 'ACTIVE_LOCK'
-  | 'WAITING_ACTIVE'
-  | 'ACTIVE_ERROR'
-  | 'BACKGROUND'
-  | 'BACKGROUND_ERROR';
+  | "OFF"
+  | "ACTIVE_LOCK"
+  | "WAITING_ACTIVE"
+  | "ACTIVE_ERROR"
+  | "BACKGROUND"
+  | "BACKGROUND_ERROR";
 
-type SafeRoutesMapProps = Omit<MapProps, 'mapLib' | 'mapStyle'> & {
+type SafeRoutesMapProps = Omit<MapProps, "mapLib" | "mapStyle"> & {
   mapboxAccessToken: string;
   routes: GeoJSON.FeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;
@@ -36,20 +36,20 @@ type SafeRoutesMapProps = Omit<MapProps, 'mapLib' | 'mapStyle'> & {
 };
 
 const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
-  const [drawerOpen, setDrawerOpen] = useLocalStorage('display-panel', true);
+  const [drawerOpen, setDrawerOpen] = useLocalStorage("display-panel", true);
   const [currentStyle, setCurrentStyle] = useLocalStorage<Styles>(
-    'map-style',
-    DEFAULT_MAP_STYLE
+    "map-style",
+    DEFAULT_MAP_STYLE,
   );
   const [geolocationEnabled, setGeolocationEnabled] = useLocalStorage(
-    'geolocation-enabled',
-    false
+    "geolocation-enabled",
+    false,
   );
 
   const [geolocater, setGelocater] = useState<IGeolocateControl | null>(null);
   const geolocateRef = useCallback(
     (node: IGeolocateControl) => setGelocater(node),
-    []
+    [],
   );
 
   const layers = routeStyles
@@ -60,11 +60,11 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
           id={`saferoutes-${routeType}-${index}`}
           type="line"
           source="saferoutes"
-          filter={['==', 'route_type', routeType]}
+          filter={["==", "route_type", routeType]}
           paint={paintLayer}
           beforeId="road-label"
         />
-      ))
+      )),
     )
     .flat();
 
@@ -78,14 +78,14 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
             if (geolocationEnabled) {
               geolocater.trigger();
             }
-            geolocater.on('trackuserlocationstart', () => {
+            geolocater.on("trackuserlocationstart", () => {
               setGeolocationEnabled(true);
             });
-            geolocater.on('trackuserlocationend', () => {
+            geolocater.on("trackuserlocationend", () => {
               // NOTE: accessing internal property so have to do this
               // janky typescript shenanigans
               const watchState: WatchState = (geolocater as any)._watchState;
-              if (watchState === 'OFF') {
+              if (watchState === "OFF") {
                 setGeolocationEnabled(false);
               }
             });

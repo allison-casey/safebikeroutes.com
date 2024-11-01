@@ -7019,10 +7019,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.40046, 33.88015, 0],
-          [-118.400426, 33.895879, 0]
-        ],
+        "coordinates": [[-118.40046, 33.88015, 0], [-118.400426, 33.895879, 0]],
         "type": "LineString"
       }
     },
@@ -7117,10 +7114,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.396104, 34.07526, 0],
-          [-118.38368, 34.075295, 0]
-        ],
+        "coordinates": [[-118.396104, 34.07526, 0], [-118.38368, 34.075295, 0]],
         "type": "LineString"
       }
     },
@@ -7257,10 +7251,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.33634, 34.09617, 0],
-          [-118.33629, 34.08711, 0]
-        ],
+        "coordinates": [[-118.33634, 34.09617, 0], [-118.33629, 34.08711, 0]],
         "type": "LineString"
       }
     },
@@ -7538,10 +7529,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.440712, 34.034211, 0],
-          [-118.45196, 34.04724, 0]
-        ],
+        "coordinates": [[-118.440712, 34.034211, 0], [-118.45196, 34.04724, 0]],
         "type": "LineString"
       }
     },
@@ -7584,10 +7572,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.45473, 34.0082, 0],
-          [-118.444362, 33.994651, 0]
-        ],
+        "coordinates": [[-118.45473, 34.0082, 0], [-118.444362, 33.994651, 0]],
         "type": "LineString"
       }
     },
@@ -7612,10 +7597,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.38958, 34.04959, 0],
-          [-118.38952, 34.052511, 0]
-        ],
+        "coordinates": [[-118.38958, 34.04959, 0], [-118.38952, 34.052511, 0]],
         "type": "LineString"
       }
     },
@@ -7652,10 +7634,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.353195, 34.070411, 0],
-          [-118.35325, 34.08714, 0]
-        ],
+        "coordinates": [[-118.353195, 34.070411, 0], [-118.35325, 34.08714, 0]],
         "type": "LineString"
       }
     },
@@ -7751,10 +7730,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.32373, 34.09621, 0],
-          [-118.323735, 34.099811, 0]
-        ],
+        "coordinates": [[-118.32373, 34.09621, 0], [-118.323735, 34.099811, 0]],
         "type": "LineString"
       }
     },
@@ -8090,10 +8066,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.374536, 34.050389, 0],
-          [-118.37544, 34.04696, 0]
-        ],
+        "coordinates": [[-118.374536, 34.050389, 0], [-118.37544, 34.04696, 0]],
         "type": "LineString"
       }
     },
@@ -8184,10 +8157,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.37034, 34.09637, 0],
-          [-118.37028, 34.08709, 0]
-        ],
+        "coordinates": [[-118.37034, 34.09637, 0], [-118.37028, 34.08709, 0]],
         "type": "LineString"
       }
     },
@@ -8207,10 +8177,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.35925, 34.05207, 0],
-          [-118.362586, 34.05274, 0]
-        ],
+        "coordinates": [[-118.35925, 34.05207, 0], [-118.362586, 34.05274, 0]],
         "type": "LineString"
       }
     },
@@ -8231,10 +8198,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.44321, 34.05249, 0],
-          [-118.43324, 34.04075, 0]
-        ],
+        "coordinates": [[-118.44321, 34.05249, 0], [-118.43324, 34.04075, 0]],
         "type": "LineString"
       }
     },
@@ -8388,10 +8352,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.50439, 34.019615, 0],
-          [-118.47701, 34.041737, 0]
-        ],
+        "coordinates": [[-118.50439, 34.019615, 0], [-118.47701, 34.041737, 0]],
         "type": "LineString"
       }
     },
@@ -8817,10 +8778,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.3374, 34.024024, 0],
-          [-118.337411, 34.029466, 0]
-        ],
+        "coordinates": [[-118.3374, 34.024024, 0], [-118.337411, 34.029466, 0]],
         "type": "LineString"
       }
     },
@@ -9110,10 +9068,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.471588, 34.006156, 0],
-          [-118.4598, 34.01279, 0]
-        ],
+        "coordinates": [[-118.471588, 34.006156, 0], [-118.4598, 34.01279, 0]],
         "type": "LineString"
       }
     },
@@ -9121,10 +9076,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.46976, 34.01529, 0],
-          [-118.46451, 34.010128, 0]
-        ],
+        "coordinates": [[-118.46976, 34.01529, 0], [-118.46451, 34.010128, 0]],
         "type": "LineString"
       }
     },
@@ -9473,10 +9425,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.282345, 34.01835, 0],
-          [-118.27442, 34.030786, 0]
-        ],
+        "coordinates": [[-118.282345, 34.01835, 0], [-118.27442, 34.030786, 0]],
         "type": "LineString"
       }
     },
@@ -9524,10 +9473,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.4742, 34.01697, 0],
-          [-118.472784, 34.017734, 0]
-        ],
+        "coordinates": [[-118.4742, 34.01697, 0], [-118.472784, 34.017734, 0]],
         "type": "LineString"
       }
     },
@@ -9616,10 +9562,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.453865, 34.03271, 0],
-          [-118.45268, 34.03151, 0]
-        ],
+        "coordinates": [[-118.453865, 34.03271, 0], [-118.45268, 34.03151, 0]],
         "type": "LineString"
       }
     },
@@ -9705,10 +9648,7 @@
       "type": "Feature",
       "properties": { "routeType": "street" },
       "geometry": {
-        "coordinates": [
-          [-118.37833, 34.0221, 0],
-          [-118.377219, 34.021971, 0]
-        ],
+        "coordinates": [[-118.37833, 34.0221, 0], [-118.377219, 34.021971, 0]],
         "type": "LineString"
       }
     },

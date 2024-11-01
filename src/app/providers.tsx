@@ -1,7 +1,7 @@
-'use client';
-import { SessionProvider } from 'next-auth/react';
-import { MapProvider } from 'react-map-gl';
-import { DrawProvider } from './components/mapbox/use-draw';
+"use client";
+import { SessionProvider } from "next-auth/react";
+import { MapProvider } from "react-map-gl";
+import { DrawProvider } from "./components/mapbox/use-draw";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (

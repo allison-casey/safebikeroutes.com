@@ -1,9 +1,9 @@
-import { getRoutes } from '@/db/routes';
-import { unstable_noStore as noStore } from 'next/cache';
-import SafeBikeRoutesClient from '@/app/components/safe-routes-map/client/map';
-import Description from './description.mdx';
-import { MapToolBar } from '../components/safe-routes-map/skeleton';
-import { Grid } from '@mui/material';
+import { getRoutes } from "@/db/routes";
+import { unstable_noStore as noStore } from "next/cache";
+import SafeBikeRoutesClient from "@/app/components/safe-routes-map/client/map";
+import Description from "./description.mdx";
+import { MapToolBar } from "../components/safe-routes-map/skeleton";
+import { Grid } from "@mui/material";
 
 const BOUNDS: MapboxGeocoder.Bbox = [
   -118.88065856936811,
@@ -15,7 +15,7 @@ const CENTER = [-118.35874251099995, 34.061734936928694];
 
 export default async function SafeRoutesLA() {
   noStore();
-  const routes = await getRoutes('LA');
+  const routes = await getRoutes("LA");
 
   return (
     <SafeBikeRoutesClient

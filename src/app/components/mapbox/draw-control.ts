@@ -4,12 +4,12 @@ import MapboxDraw, {
   DrawModeChangeEvent,
   DrawSelectionChangeEvent,
   DrawUpdateEvent,
-} from '@mapbox/mapbox-gl-draw';
-import React, { useContext, useEffect, useRef } from 'react';
-import { useControl } from 'react-map-gl';
+} from "@mapbox/mapbox-gl-draw";
+import React, { useContext, useEffect, useRef } from "react";
+import { useControl } from "react-map-gl";
 
-import type { ControlPosition } from 'react-map-gl';
-import { MountedDrawsContext } from './use-draw';
+import type { ControlPosition } from "react-map-gl";
+import { MountedDrawsContext } from "./use-draw";
 
 type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {
   id?: string;
@@ -56,25 +56,25 @@ const DrawControl = (props: DrawControlProps) => {
       const onModeChange = (evt: DrawModeChangeEvent) =>
         props.onModeChange?.(draw, evt);
 
-      props.onCreate && map.on('draw.create', onCreate);
-      props.onUpdate && map.on('draw.update', onUpdate);
-      props.onDelete && map.on('draw.delete', onDelete);
+      props.onCreate && map.on("draw.create", onCreate);
+      props.onUpdate && map.on("draw.update", onUpdate);
+      props.onDelete && map.on("draw.delete", onDelete);
       props.onSelectionChange &&
-        map.on('draw.selectionchange', onSelectionChange);
-      props.onModeChange && map.on('draw.modechange', onModeChange);
-      map.on('load', () => draw.add(props.features));
+        map.on("draw.selectionchange", onSelectionChange);
+      props.onModeChange && map.on("draw.modechange", onModeChange);
+      map.on("load", () => draw.add(props.features));
     },
     ({ map }) => {
-      map.off('draw.create', onCreate);
-      map.off('draw.update', onUpdate);
-      map.off('draw.delete', onDelete);
-      map.off('draw.selectionchange', onSelectionChange);
-      map.off('draw.modechange', onModeChange);
+      map.off("draw.create", onCreate);
+      map.off("draw.update", onUpdate);
+      map.off("draw.delete", onDelete);
+      map.off("draw.selectionchange", onSelectionChange);
+      map.off("draw.modechange", onModeChange);
       mountedDrawsContext?.onMapUnmount(props.id);
     },
     {
       position: props.position,
-    }
+    },
   );
 
   return null;

@@ -1,15 +1,15 @@
-import clsx from 'clsx';
+import clsx from "clsx";
 
-export const DEFAULT_MAP_STYLE: Styles = 'Streets';
-export type Styles = 'Streets' | 'Satellite Streets';
+export const DEFAULT_MAP_STYLE: Styles = "Streets";
+export type Styles = "Streets" | "Satellite Streets";
 export const MAP_STYLES: { title: Styles; style: string }[] = [
   {
-    title: 'Streets',
-    style: 'mapbox://styles/mapbox/streets-v12',
+    title: "Streets",
+    style: "mapbox://styles/mapbox/streets-v12",
   },
   {
-    title: 'Satellite Streets',
-    style: 'mapbox://styles/mapbox/satellite-streets-v12',
+    title: "Satellite Streets",
+    style: "mapbox://styles/mapbox/satellite-streets-v12",
   },
 ] as const;
 
@@ -26,15 +26,15 @@ const StyleSelector = ({
         onClick={() => onClick(title)}
         key={title}
         className={clsx([
-          title === currentlySelectedStyle ? 'bg-blue-500' : 'bg-white',
-          title === currentlySelectedStyle ? 'text-white' : 'text-gray-500',
-          'first:rounded-l',
-          'last:rounded-r',
-          'py-1',
-          'px-2',
-          'text-s',
-          'font',
-          'cursor-pointer',
+          title === currentlySelectedStyle ? "bg-blue-500" : "bg-white",
+          title === currentlySelectedStyle ? "text-white" : "text-gray-500",
+          "first:rounded-l",
+          "last:rounded-r",
+          "py-1",
+          "px-2",
+          "text-s",
+          "font",
+          "cursor-pointer",
         ])}
       >
         {title}
