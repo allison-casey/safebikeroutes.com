@@ -1,11 +1,11 @@
 import MapboxDraw, {
-  DrawCreateEvent,
-  DrawDeleteEvent,
-  DrawModeChangeEvent,
-  DrawSelectionChangeEvent,
-  DrawUpdateEvent,
+  type DrawCreateEvent,
+  type DrawDeleteEvent,
+  type DrawModeChangeEvent,
+  type DrawSelectionChangeEvent,
+  type DrawUpdateEvent,
 } from "@mapbox/mapbox-gl-draw";
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useRef } from "react";
 import { useControl } from "react-map-gl";
 
 import type { ControlPosition } from "react-map-gl";
@@ -53,7 +53,7 @@ const DrawControl = (props: DrawControlProps) => {
       onDelete = (evt: DrawDeleteEvent) => props.onDelete?.(draw, evt);
       onSelectionChange = (evt: DrawSelectionChangeEvent) =>
         props.onSelectionChange?.(draw, evt);
-      const onModeChange = (evt: DrawModeChangeEvent) =>
+      onModeChange = (evt: DrawModeChangeEvent) =>
         props.onModeChange?.(draw, evt);
 
       props.onCreate && map.on("draw.create", onCreate);

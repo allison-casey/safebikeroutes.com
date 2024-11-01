@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useState, useCallback, useMemo, useContext } from "react";
 
-import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import type MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { DrawContext } from "./draw-control";
 
 type MountedDrawsContextValue = {
@@ -18,7 +18,7 @@ export const DrawProvider: React.FC<{ children?: React.ReactNode }> = (
 ) => {
   const [draws, setDraws] = useState<{ [id: string]: MapboxDraw }>({});
 
-  const onMapMount = useCallback((draw: MapboxDraw, id: string = "default") => {
+  const onMapMount = useCallback((draw: MapboxDraw, id = "default") => {
     setDraws((currDraws) => {
       if (id === "current") {
         throw new Error("'current' cannot be used as draw instance id");
@@ -30,7 +30,7 @@ export const DrawProvider: React.FC<{ children?: React.ReactNode }> = (
     });
   }, []);
 
-  const onMapUnmount = useCallback((id: string = "default") => {
+  const onMapUnmount = useCallback((id = "default") => {
     setDraws((currDraws) => {
       if (currDraws[id]) {
         const nextDraws = { ...currDraws };

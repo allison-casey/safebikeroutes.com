@@ -12,6 +12,7 @@
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
+
     "ignore": [".next/", ".direnv/"]
   },
   "organizeImports": {
@@ -19,6 +20,7 @@
   },
   "linter": {
     "enabled": true,
+    "ignore": [".next/", ".direnv/"],
     "rules": {
       "recommended": true,
       "a11y": {

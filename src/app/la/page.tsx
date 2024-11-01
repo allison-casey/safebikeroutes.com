@@ -17,9 +17,13 @@ export default async function SafeRoutesLA() {
   noStore();
   const routes = await getRoutes("LA");
 
+  if (!process.env.ACCESS_TOKEN) {
+    throw Error("ACCESS_TOKEN not set");
+  }
+
   return (
     <SafeBikeRoutesClient
-      mapboxAccessToken={process.env.ACCESS_TOKEN!}
+      mapboxAccessToken={process.env.ACCESS_TOKEN}
       routes={routes}
       panelContents={
         <Grid container>

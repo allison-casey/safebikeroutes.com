@@ -18,7 +18,7 @@ const StyleSelector = ({
   onClick,
 }: {
   currentlySelectedStyle: Styles;
-  onClick: (title: Styles) => any;
+  onClick: (title: Styles) => void;
 }) => (
   <div className="pointer-events-auto absolute flex left-2 bottom-0 mb-12 z-20 rounded-lg drop-shadow-md">
     {MAP_STYLES.map(({ title }) => (

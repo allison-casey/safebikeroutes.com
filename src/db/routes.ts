@@ -1,7 +1,7 @@
 import { db } from "./client";
-import { RawBuilder, sql } from "kysely";
-import { DB } from "kysely-codegen";
-import { Region } from "./enums";
+import { type RawBuilder, sql } from "kysely";
+import type { DB } from "kysely-codegen";
+import type { Region } from "./enums";
 
 export const asGeoJSON = <TE extends keyof DB & string>(
   value: TE,
@@ -81,7 +81,6 @@ export const deleteRoutes = async (
       .where("id", "in", ids)
       .executeTakeFirst();
     return Number(numDeletedRows);
-  } else {
-    return 0;
   }
+  return 0;
 };

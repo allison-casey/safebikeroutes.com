@@ -298,12 +298,12 @@ const SafeRoutesMapAdmin = ({
             trash: true,
           }}
           onUpdate={onUpdate}
-          onCreate={(_draw, evt) => {
+          onCreate={(draw, evt) => {
             for (const feature of evt.features) {
               updateFeatureProperty(feature, "route_type", "STREET");
             }
           }}
-          onDelete={(_draw, evt) => {
+          onDelete={(draw, evt) => {
             setDeletedRouteIds((ids) => [
               ...ids,
               ...evt.features
@@ -311,7 +311,7 @@ const SafeRoutesMapAdmin = ({
                 .filter((id) => !!id),
             ]);
           }}
-          onSelectionChange={(_draw, evt) => {
+          onSelectionChange={(draw, evt) => {
             setSelectedFeatures(evt.features);
           }}
         />

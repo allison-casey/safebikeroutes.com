@@ -1,16 +1,18 @@
-import { RouteType } from "@/db/enums";
+import type { RouteType } from "@/db/enums";
+import type { LinePaint } from "mapbox-gl";
 
 interface RouteStyle {
   routeType: RouteType;
-  paintLayers: object[];
+  paintLayers: (LinePaint & { id: string })[];
 }
 
 export const routeStyles: RouteStyle[] = [
   {
     routeType: "SIDEWALK",
     paintLayers: [
-      { "line-width": 3 },
+      { id: "background", "line-width": 3 },
       {
+        id: "foreground",
         "line-color": "yellow",
         "line-width": 3,
         "line-dasharray": [3, 2],
@@ -20,8 +22,9 @@ export const routeStyles: RouteStyle[] = [
   {
     routeType: "STREET",
     paintLayers: [
-      { "line-width": 3, "line-color": "white" },
+      { id: "background", "line-width": 3, "line-color": "white" },
       {
+        id: "foreground",
         "line-color": "#c2a5cf",
         "line-width": 3,
         "line-dasharray": [2, 1],
@@ -32,6 +35,7 @@ export const routeStyles: RouteStyle[] = [
     routeType: "LANE",
     paintLayers: [
       {
+        id: "background",
         "line-color": "#c2a5cf",
         "line-width": 3,
       },
@@ -41,6 +45,7 @@ export const routeStyles: RouteStyle[] = [
     routeType: "PROTECTED",
     paintLayers: [
       {
+        id: "background",
         "line-color": "#7b3294",
         "line-width": 3,
       },
@@ -50,6 +55,7 @@ export const routeStyles: RouteStyle[] = [
     routeType: "TRACK",
     paintLayers: [
       {
+        id: "background",
         "line-color": "#008837",
         "line-width": 3,
       },

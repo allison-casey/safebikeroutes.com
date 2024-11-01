@@ -1,6 +1,5 @@
-import Menu from "@mui/icons-material/Menu";
 import { signOut, useSession } from "next-auth/react";
-import { AppBar, Button, IconButton, Toolbar, Typography } from "@mui/material";
+import { AppBar, Button, Toolbar, Typography } from "@mui/material";
 
 export const ControlPanelToolbar = () => {
   const session = useSession();

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { GeolocateControl, Layer, MapProps, Source } from "react-map-gl";
+import { GeolocateControl, Layer, type MapProps, Source } from "react-map-gl";
 import {
   MapPanel,
   MapPanelButton,
@@ -9,12 +9,14 @@ import {
   MapSurfaceContainer,
   SafeRoutesMap,
 } from "@/app/components/safe-routes-map/skeleton";
-import mapboxgl, { GeolocateControl as IGeolocateControl } from "mapbox-gl";
+import mapboxgl, {
+  type GeolocateControl as IGeolocateControl,
+} from "mapbox-gl";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import StyleSelector, {
   DEFAULT_MAP_STYLE,
   MAP_STYLES,
-  Styles,
+  type Styles,
 } from "@/app/components/safe-routes-map/style-selector";
 import { routeStyles } from "@/app/route_styles";
 import GeocoderControl from "@/app/components/mapbox/geocoder-control";
@@ -52,21 +54,19 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
     [],
   );
 
-  const layers = routeStyles
-    .map(({ routeType, paintLayers }) =>
-      paintLayers.map((paintLayer, index) => (
-        <Layer
-          key={`saferoutes-${routeType}-${index}`}
-          id={`saferoutes-${routeType}-${index}`}
-          type="line"
-          source="saferoutes"
-          filter={["==", "route_type", routeType]}
-          paint={paintLayer}
-          beforeId="road-label"
-        />
-      )),
-    )
-    .flat();
+  const layers = routeStyles.flatMap(({ routeType, paintLayers }) =>
+    paintLayers.map((paintLayer, index) => (
+      <Layer
+        key={`saferoutes-${routeType}-${paintLayer.id}`}
+        id={`saferoutes-${routeType}-${index}`}
+        type="line"
+        source="saferoutes"
+        filter={["==", "route_type", routeType]}
+        paint={paintLayer}
+        beforeId="road-label"
+      />
+    )),
+  );
 
   return (
     <>
@@ -84,7 +84,9 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
             geolocater.on("trackuserlocationend", () => {
               // NOTE: accessing internal property so have to do this
               // janky typescript shenanigans
-              const watchState: WatchState = (geolocater as any)._watchState;
+              const watchState: WatchState = (
+                geolocater as unknown as { _watchState: WatchState }
+              )._watchState;
               if (watchState === "OFF") {
                 setGeolocationEnabled(false);
               }

@@ -1,5 +1,5 @@
-import { Session } from "next-auth";
-import { Region, Role } from "./db/enums";
+import type { Session } from "next-auth";
+import type { Region, Role } from "./db/enums";
 
 const permittedRoles = new Set<Role>(["ADMIN", "CONTRIBUTOR"]);
 

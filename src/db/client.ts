@@ -1,4 +1,4 @@
-import { DB } from "kysely-codegen";
+import type { DB } from "kysely-codegen";
 import { Pool, neonConfig } from "@neondatabase/serverless";
 import { Kysely, PostgresDialect } from "kysely";
 import ws from "ws";

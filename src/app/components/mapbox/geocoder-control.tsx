@@ -1,7 +1,14 @@
-import * as React from "react";
+import type * as React from "react";
 import { useState } from "react";
-import { useControl, Marker, MarkerProps, ControlPosition } from "react-map-gl";
-import MapboxGeocoder, { GeocoderOptions } from "@mapbox/mapbox-gl-geocoder";
+import {
+  useControl,
+  Marker,
+  type MarkerProps,
+  type ControlPosition,
+} from "react-map-gl";
+import MapboxGeocoder, {
+  type GeocoderOptions,
+} from "@mapbox/mapbox-gl-geocoder";
 
 type GeocoderControlProps = Omit<
   GeocoderOptions,
@@ -31,7 +38,7 @@ const defaultProps = {
 /* eslint-disable complexity,max-statements */
 export default function GeocoderControl(inputProps: GeocoderControlProps) {
   const props = { ...defaultProps, ...inputProps };
-  const [marker, setMarker] = useState<any>(null);
+  const [marker, setMarker] = useState<React.JSX.Element | null>(null);
 
   const geocoder = useControl<MapboxGeocoder>(
     () => {
@@ -43,7 +50,7 @@ export default function GeocoderControl(inputProps: GeocoderControlProps) {
       props.onLoading && ctrl.on("loading", props.onLoading);
       props.onResults && ctrl.on("results", props.onResults);
       ctrl.on("result", (evt) => {
-        props.onResult && props.onResult(evt);
+        props.onResult?.(evt);
 
         const { result } = evt;
         const location =

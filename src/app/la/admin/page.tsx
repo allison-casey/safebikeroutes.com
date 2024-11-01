@@ -1,5 +1,5 @@
 import SafeRoutesMapAdmin from "@/app/components/safe-routes-map/admin/map";
-import { Role } from "@/db/enums";
+import type { Role } from "@/db/enums";
 import { deleteRoutes, getRoutes, saveRoutes } from "@/db/routes";
 import { Typography } from "@mui/material";
 import { auth } from "@root/auth";
