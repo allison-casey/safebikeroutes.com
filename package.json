@@ -9,9 +9,9 @@
     "lint": "next lint",
     "lint:exports": "npx ts-unused-exports tsconfig.json --excludePathsFromReport='.next' --searchNamespaces --showLineNumber",
     "biome": "biome lint",
-    "format": "biome format",
+    "format": "biome format --write",
     "test": "jest --watch",
-    "migrate": "",
+    "migrate": "prisma migrate dev && kysely-codegen --url 'env(POSTGRES_URL)'",
     "prepare": "husky"
   },
   "lint-staged": {
