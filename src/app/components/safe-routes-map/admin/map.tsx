@@ -18,7 +18,6 @@ import {
   Snackbar,
   TextField,
 } from "@mui/material";
-import { ControlPanelToolbar } from "../control-panel-toolbar";
 import StyleSelector, { MAP_STYLES, type Styles } from "../style-selector";
 import { routeStyles } from "@/app/route_styles";
 import { useDraw } from "../../mapbox/use-draw";
@@ -31,8 +30,10 @@ import {
   MapPanelButton,
   MapSurface,
   MapSurfaceContainer,
+  MapToolBar,
   SafeRoutesMap,
 } from "../skeleton";
+import { Region } from "@/db/enums";
 
 const DEFAULT_MAP_STYLE = "Streets";
 
@@ -171,7 +172,7 @@ const ControlPanel = ({
         onClose={() => setShowSnackbar(false)}
         message="Map Saved."
       />
-      <ControlPanelToolbar />
+      <MapToolBar region={Region.LA} />
       <div className="grid grid-rows grid-rows-1 p-5">
         <Grid container direction="row" justifyContent="space-around">
           <Grid item>

@@ -4,6 +4,7 @@ import SafeBikeRoutesClient from "@/app/components/safe-routes-map/client/map";
 import Description from "./description.mdx";
 import { MapToolBar } from "../components/safe-routes-map/skeleton";
 import { Grid } from "@mui/material";
+import { Region } from "@/db/enums";
 
 const BOUNDS: MapboxGeocoder.Bbox = [
   -118.88065856936811,
@@ -27,7 +28,7 @@ export default async function SafeRoutesLA() {
       routes={routes}
       panelContents={
         <Grid container>
-          <MapToolBar />
+          <MapToolBar region={Region.LA} />
           <Description />
         </Grid>
       }

@@ -1,6 +1,7 @@
 "use client";
+import type { Region } from "@/db/enums";
+import { canViewAdminPage } from "@/permissions";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import MenuIcon from "@mui/icons-material/Menu";
 import {
   AppBar,
   Avatar,
@@ -8,6 +9,8 @@ import {
   Button,
   Drawer,
   IconButton,
+  Menu,
+  MenuItem,
   Toolbar,
   Tooltip,
   Typography,
@@ -18,6 +21,8 @@ import {
 import clsx from "clsx";
 import mapboxgl from "mapbox-gl";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { redirect, usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 import ReactMap from "react-map-gl";
 import type { MapProps } from "react-map-gl";
 
@@ -71,54 +76,70 @@ export const MapSurface = ({
   </div>
 );
 
-export const MapToolBar = () => {
-  const session = useSession();
+export const MapToolBar = ({ region }: { region: Region }) => {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const profileDropdownOpen = Boolean(anchorEl);
+  const handleProfileClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleProfileClose = () => {
+    setAnchorEl(null);
+  };
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Safe Bike Routes
-          </Typography>
-          {session.status === "authenticated" ? (
-            <Tooltip title="Open settings">
-              <IconButton
-                onClick={() => signOut()}
-                sx={{ p: 0 }}
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                color="inherit"
-              >
-                {session.data.user.image ? (
-                  <Avatar
-                    alt={session.data.user.name || "User"}
-                    src={session.data.user.image}
-                  />
-                ) : (
-                  <AccountCircle />
-                )}
-              </IconButton>
-            </Tooltip>
-          ) : (
-            <Button color="inherit" onClick={() => signIn()}>
-              Login
-            </Button>
-          )}
-        </Toolbar>
-      </AppBar>
-    </Box>
+    <>
+      <Menu
+        open={profileDropdownOpen}
+        onClose={handleProfileClose}
+        anchorEl={anchorEl}
+      >
+        <MenuItem onClick={() => signOut()}>Logout</MenuItem>
+        {session && canViewAdminPage(session, region) && (
+          <MenuItem onClick={() => router.push(`${pathname}/admin`)}>
+            Open Admin Page
+          </MenuItem>
+        )}
+      </Menu>
+      <Box sx={{ flexGrow: 1 }}>
+        <AppBar position="static">
+          <Toolbar>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              Safe Bike Routes
+            </Typography>
+            {status === "authenticated" ? (
+              <Tooltip title="Open Options">
+                <IconButton
+                  onClick={handleProfileClick}
+                  sx={{ p: 0 }}
+                  size="large"
+                  aria-label="account of current user"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="true"
+                  color="inherit"
+                >
+                  {session.user.image ? (
+                    <Avatar
+                      alt={session.user.name || "User"}
+                      src={session.user.image}
+                    />
+                  ) : (
+                    <AccountCircle />
+                  )}
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Button color="inherit" onClick={() => signIn()}>
+                Login
+              </Button>
+            )}
+          </Toolbar>
+        </AppBar>
+      </Box>
+    </>
   );
 };
 
