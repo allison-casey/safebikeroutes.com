@@ -82,7 +82,10 @@ export const MapToolBar = ({ region }: { region: Region }) => {
   const pathname = usePathname();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
   const profileDropdownOpen = Boolean(anchorEl);
+  const isOnAdminPage = pathname.endsWith("/admin");
+
   const handleProfileClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -98,9 +101,18 @@ export const MapToolBar = ({ region }: { region: Region }) => {
         anchorEl={anchorEl}
       >
         <MenuItem onClick={() => signOut()}>Logout</MenuItem>
-        {session && canViewAdminPage(session, region) && (
+        {!isOnAdminPage && session && canViewAdminPage(session, region) && (
           <MenuItem onClick={() => router.push(`${pathname}/admin`)}>
             Open Admin Page
+          </MenuItem>
+        )}
+        {isOnAdminPage && (
+          <MenuItem
+            onClick={() =>
+              router.push(pathname.substring(0, pathname.lastIndexOf("/")))
+            }
+          >
+            Open Region Page
           </MenuItem>
         )}
       </Menu>
