@@ -6,6 +6,7 @@ import {
   MapPanelButton,
   MapSurface,
   MapSurfaceContainer,
+  MapToolBar,
   SafeRoutesMap,
 } from "@/app/components/safe-routes-map/skeleton";
 import StyleSelector, {
@@ -118,7 +119,10 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
         />
       </SafeRoutesMap>
       <MapSurfaceContainer>
-        <MapPanel open={drawerOpen}>{props.panelContents}</MapPanel>
+        <MapPanel open={drawerOpen}>
+          <MapToolBar />
+          {props.panelContents}
+        </MapPanel>
         <MapSurface open={drawerOpen}>
           <StyleSelector
             onClick={(title) => setCurrentStyle(title)}
