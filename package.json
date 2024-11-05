@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "lint:exports": "npx ts-unused-exports tsconfig.json --excludePathsFromReport='.next' --searchNamespaces --showLineNumber",
-    "biome": "biome lint",
-    "format": "biome format --write",
+    "biome": "biome lint --write",
+    "format": "biome format --write && biome check --write",
     "test": "jest --watch",
     "migrate": "prisma migrate dev && kysely-codegen --url 'env(POSTGRES_URL)'",
     "prepare": "husky"

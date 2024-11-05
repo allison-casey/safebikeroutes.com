@@ -22,11 +22,10 @@ import clsx from "clsx";
 import mapboxgl from "mapbox-gl";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import ReactMap from "react-map-gl";
 import type { MapProps } from "react-map-gl";
 import {
-  SafeRoutesMapContext,
   useSafeRoutesMapContext,
 } from "./safe-routes-map-context";
 

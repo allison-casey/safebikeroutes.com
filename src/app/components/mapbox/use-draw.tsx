@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useCallback, useMemo, useContext } from "react";
+import { useCallback, useContext, useMemo, useState } from "react";
 
 import type MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { DrawContext } from "./draw-control";
