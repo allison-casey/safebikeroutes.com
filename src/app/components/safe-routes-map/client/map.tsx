@@ -21,6 +21,8 @@ import StyleSelector, {
 import { routeStyles } from "@/app/route_styles";
 import GeocoderControl from "@/app/components/mapbox/geocoder-control";
 import dynamic from "next/dynamic";
+import { SafeRoutesMapContext } from "../safe-routes-map-context";
+import type { Region } from "@/db/enums";
 
 type WatchState =
   | "OFF"
@@ -32,6 +34,8 @@ type WatchState =
 
 type SafeRoutesMapProps = Omit<MapProps, "mapLib" | "mapStyle"> & {
   mapboxAccessToken: string;
+  region: Region;
+  regionLabel: string;
   routes: GeoJSON.FeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;
   panelContents: React.ReactNode;
@@ -69,7 +73,9 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
   );
 
   return (
-    <>
+    <SafeRoutesMapContext.Provider
+      value={{ region: props.region, regionLabel: props.regionLabel }}
+    >
       <SafeRoutesMap
         mapLib={mapboxgl}
         mapStyle={MAP_STYLES.find((d) => d.title === currentStyle)?.style}
@@ -124,7 +130,7 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
           />
         </MapSurface>
       </MapSurfaceContainer>
-    </>
+    </SafeRoutesMapContext.Provider>
   );
 };
 

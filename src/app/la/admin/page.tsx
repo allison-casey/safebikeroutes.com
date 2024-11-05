@@ -42,6 +42,8 @@ export default async function SafeRoutesLA() {
   return (
     <SafeRoutesMapAdmin
       token={process.env.ACCESS_TOKEN}
+      region="LA"
+      regionLabel="Los Angeles"
       routes={routes}
       saveRoutesHandler={saveRoutesForMap}
       initialViewState={{

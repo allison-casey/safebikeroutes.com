@@ -1,5 +1,5 @@
 "use client";
-import type { Region } from "@/db/enums";
+
 import { canViewAdminPage } from "@/permissions";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import {
@@ -21,10 +21,14 @@ import {
 import clsx from "clsx";
 import mapboxgl from "mapbox-gl";
 import { signIn, signOut, useSession } from "next-auth/react";
-import { redirect, usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useContext, useState } from "react";
 import ReactMap from "react-map-gl";
 import type { MapProps } from "react-map-gl";
+import {
+  SafeRoutesMapContext,
+  useSafeRoutesMapContext,
+} from "./safe-routes-map-context";
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
   open?: boolean;
@@ -76,8 +80,9 @@ export const MapSurface = ({
   </div>
 );
 
-export const MapToolBar = ({ region }: { region: Region }) => {
+export const MapToolBar = () => {
   const { data: session, status } = useSession();
+  const { region, regionLabel } = useSafeRoutesMapContext();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -103,7 +108,7 @@ export const MapToolBar = ({ region }: { region: Region }) => {
         <MenuItem onClick={() => signOut()}>Logout</MenuItem>
         {!isOnAdminPage && session && canViewAdminPage(session, region) && (
           <MenuItem onClick={() => router.push(`${pathname}/admin`)}>
-            Open Admin Page
+            Open Region Admin Page
           </MenuItem>
         )}
         {isOnAdminPage && (
@@ -120,7 +125,7 @@ export const MapToolBar = ({ region }: { region: Region }) => {
         <AppBar position="static">
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Safe Bike Routes
+              Safe Bike Routes: {regionLabel}
             </Typography>
             {status === "authenticated" ? (
               <Tooltip title="Open Options">

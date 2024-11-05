@@ -33,7 +33,8 @@ import {
   MapToolBar,
   SafeRoutesMap,
 } from "../skeleton";
-import { Region } from "@/db/enums";
+import type { Region } from "@/db/enums";
+import { SafeRoutesMapContext } from "../safe-routes-map-context";
 
 const DEFAULT_MAP_STYLE = "Streets";
 
@@ -56,6 +57,8 @@ type SafeRoutesMapProps = Omit<
   "mapboxAccessToken" | "mapLib" | "mapStyle"
 > & {
   token?: string;
+  region: Region;
+  regionLabel: string;
   routes: GeoJSON.FeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;
   saveRoutesHandler: IUpdateRoutesHandler;
@@ -172,7 +175,7 @@ const ControlPanel = ({
         onClose={() => setShowSnackbar(false)}
         message="Map Saved."
       />
-      <MapToolBar region={Region.LA} />
+      <MapToolBar />
       <div className="grid grid-rows grid-rows-1 p-5">
         <Grid container direction="row" justifyContent="space-around">
           <Grid item>
@@ -222,6 +225,8 @@ const ControlPanel = ({
 
 const SafeRoutesMapAdmin = ({
   token,
+  region,
+  regionLabel,
   routes,
   saveRoutesHandler,
   geocoderBbox,
@@ -270,96 +275,98 @@ const SafeRoutesMapAdmin = ({
   };
 
   return (
-    <MapProvider>
-      <SafeRoutesMap
-        mapboxAccessToken={token}
-        mapLib={mapboxgl}
-        mapStyle={MAP_STYLES.find((d) => d.title === currentStyle)?.style}
-        {...mapboxProps}
-      >
-        <GeocoderControl
+    <SafeRoutesMapContext.Provider value={{ region, regionLabel }}>
+      <MapProvider>
+        <SafeRoutesMap
           mapboxAccessToken={token}
-          position="top-left"
-          bbox={geocoderBbox}
-        />
-        <GeolocateControl
-          trackUserLocation
-          showUserHeading
-          positionOptions={{ enableHighAccuracy: true }}
-          position="top-left"
-        />
-        <DrawControl
-          userProperties
-          position="top-left"
-          displayControlsDefault={false}
-          styles={drawRouteStyles}
-          features={routes}
-          controls={{
-            line_string: true,
-            trash: true,
-          }}
-          onUpdate={onUpdate}
-          onCreate={(_draw, evt) => {
-            for (const feature of evt.features) {
-              updateFeatureProperty(feature, "route_type", "STREET");
-            }
-          }}
-          onDelete={(_draw, evt) => {
-            setDeletedRouteIds((ids) => [
-              ...ids,
-              ...evt.features
-                .map((feature) => feature.id as string)
-                .filter((id) => !!id),
-            ]);
-          }}
-          onSelectionChange={(_draw, evt) => {
-            setSelectedFeatures(evt.features);
-          }}
-        />
-      </SafeRoutesMap>
-      <MapSurfaceContainer>
-        <MapPanel open={showControlPanel}>
-          <ControlPanel
-            undoDisabled={history.length === 1}
-            onSaveHandler={async () => {
-              if (draw) {
-                const features = draw.getAll();
-                await saveRoutesHandler(
-                  {
-                    type: "FeatureCollection",
-                    features: features.features.filter((ft) =>
-                      featuresToUpdate.includes(ft.id as string),
-                    ),
-                  },
-                  deletedRouteIds,
-                );
-                setDeletedRouteIds([]);
-                setFeaturesToUpdate([]);
+          mapLib={mapboxgl}
+          mapStyle={MAP_STYLES.find((d) => d.title === currentStyle)?.style}
+          {...mapboxProps}
+        >
+          <GeocoderControl
+            mapboxAccessToken={token}
+            position="top-left"
+            bbox={geocoderBbox}
+          />
+          <GeolocateControl
+            trackUserLocation
+            showUserHeading
+            positionOptions={{ enableHighAccuracy: true }}
+            position="top-left"
+          />
+          <DrawControl
+            userProperties
+            position="top-left"
+            displayControlsDefault={false}
+            styles={drawRouteStyles}
+            features={routes}
+            controls={{
+              line_string: true,
+              trash: true,
+            }}
+            onUpdate={onUpdate}
+            onCreate={(_draw, evt) => {
+              for (const feature of evt.features) {
+                updateFeatureProperty(feature, "route_type", "STREET");
               }
             }}
-            undoHandler={() => {
-              if (draw) {
-                const [newHistory, state] = popDrawHistory(history);
-                repaintDrawLayer(draw, state);
-                setHistory(newHistory);
-              }
+            onDelete={(_draw, evt) => {
+              setDeletedRouteIds((ids) => [
+                ...ids,
+                ...evt.features
+                  .map((feature) => feature.id as string)
+                  .filter((id) => !!id),
+              ]);
             }}
-            selectedFeatures={selectedFeatures}
-            updateFeatureProperty={updateFeatureProperty}
+            onSelectionChange={(_draw, evt) => {
+              setSelectedFeatures(evt.features);
+            }}
           />
-        </MapPanel>
-        <MapSurface open={showControlPanel}>
-          <StyleSelector
-            onClick={(title) => setCurrentStyle(title)}
-            currentlySelectedStyle={currentStyle as Styles}
-          />
-          <MapPanelButton
-            open={showControlPanel}
-            onClick={() => toggleControlPanel(!showControlPanel)}
-          />
-        </MapSurface>
-      </MapSurfaceContainer>
-    </MapProvider>
+        </SafeRoutesMap>
+        <MapSurfaceContainer>
+          <MapPanel open={showControlPanel}>
+            <ControlPanel
+              undoDisabled={history.length === 1}
+              onSaveHandler={async () => {
+                if (draw) {
+                  const features = draw.getAll();
+                  await saveRoutesHandler(
+                    {
+                      type: "FeatureCollection",
+                      features: features.features.filter((ft) =>
+                        featuresToUpdate.includes(ft.id as string),
+                      ),
+                    },
+                    deletedRouteIds,
+                  );
+                  setDeletedRouteIds([]);
+                  setFeaturesToUpdate([]);
+                }
+              }}
+              undoHandler={() => {
+                if (draw) {
+                  const [newHistory, state] = popDrawHistory(history);
+                  repaintDrawLayer(draw, state);
+                  setHistory(newHistory);
+                }
+              }}
+              selectedFeatures={selectedFeatures}
+              updateFeatureProperty={updateFeatureProperty}
+            />
+          </MapPanel>
+          <MapSurface open={showControlPanel}>
+            <StyleSelector
+              onClick={(title) => setCurrentStyle(title)}
+              currentlySelectedStyle={currentStyle as Styles}
+            />
+            <MapPanelButton
+              open={showControlPanel}
+              onClick={() => toggleControlPanel(!showControlPanel)}
+            />
+          </MapSurface>
+        </MapSurfaceContainer>
+      </MapProvider>
+    </SafeRoutesMapContext.Provider>
   );
 };
 
