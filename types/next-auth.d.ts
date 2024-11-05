@@ -1,4 +1,4 @@
-import { UserRoles } from "@/db/types";
+import type { UserRoles } from "@/db/types";
 import NextAuth from "next-auth";
 
 declare module "@auth/core/types" {

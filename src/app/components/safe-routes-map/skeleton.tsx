@@ -1,32 +1,56 @@
-'use client';
+"use client";
 
-import { Box, Drawer, styled, useMediaQuery, useTheme } from '@mui/material';
-import clsx from 'clsx';
-import mapboxgl from 'mapbox-gl';
-import { useState } from 'react';
-import Map, { MapProps } from 'react-map-gl';
+import { canViewAdminPage } from "@/permissions";
+import AccountCircle from "@mui/icons-material/AccountCircle";
+import {
+  AppBar,
+  Avatar,
+  Box,
+  Button,
+  Drawer,
+  IconButton,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Tooltip,
+  Typography,
+  styled,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import clsx from "clsx";
+import mapboxgl from "mapbox-gl";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
+import { useContext, useState } from "react";
+import ReactMap from "react-map-gl";
+import type { MapProps } from "react-map-gl";
+import {
+  SafeRoutesMapContext,
+  useSafeRoutesMapContext,
+} from "./safe-routes-map-context";
 
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
+const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
   open?: boolean;
 }>(({ theme, open }) => {
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return {
     flexGrow: 1,
-    transition: theme.transitions.create(['height', 'width'], {
+    transition: theme.transitions.create(["height", "width"], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-    height: '100dvh',
-    width: '100dvw',
+    height: "100dvh",
+    width: "100dvw",
     ...(open && {
-      transition: theme.transitions.create(['height', 'width'], {
+      transition: theme.transitions.create(["height", "width"], {
         easing: theme.transitions.easing.easeOut,
         duration: theme.transitions.duration.enteringScreen,
       }),
       ...(isMobile
-        ? { height: `calc(100dvh - 300px)` }
-        : { width: `calc(100dvw - 400px)` }),
+        ? { height: "calc(100dvh - 300px)" }
+        : { width: "calc(100dvw - 400px)" }),
     }),
     /**
      * This is necessary to enable the selection of content. In the DOM, the stacking order is determined
@@ -34,7 +58,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
      * those that appear earlier. Since the Drawer comes after the Main content, this adjustment ensures
      * proper interaction with the underlying content.
      */
-    position: 'relative',
+    position: "relative",
   };
 });
 
@@ -42,7 +66,7 @@ export const MapSurfaceContainer = ({
   children,
 }: {
   children?: React.ReactNode;
-}) => <Box sx={{ display: 'flex', pointerEvents: 'none' }}>{children}</Box>;
+}) => <Box sx={{ display: "flex", pointerEvents: "none" }}>{children}</Box>;
 
 export const MapSurface = ({
   open,
@@ -56,6 +80,86 @@ export const MapSurface = ({
   </div>
 );
 
+export const MapToolBar = () => {
+  const { data: session, status } = useSession();
+  const { region, regionLabel } = useSafeRoutesMapContext();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const profileDropdownOpen = Boolean(anchorEl);
+  const isOnAdminPage = pathname.endsWith("/admin");
+
+  const handleProfileClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleProfileClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <>
+      <Menu
+        open={profileDropdownOpen}
+        onClose={handleProfileClose}
+        anchorEl={anchorEl}
+      >
+        <MenuItem onClick={() => signOut()}>Logout</MenuItem>
+        {!isOnAdminPage && session && canViewAdminPage(session, region) && (
+          <MenuItem onClick={() => router.push(`${pathname}/admin`)}>
+            Open Region Admin Page
+          </MenuItem>
+        )}
+        {isOnAdminPage && (
+          <MenuItem
+            onClick={() =>
+              router.push(pathname.substring(0, pathname.lastIndexOf("/")))
+            }
+          >
+            Open Region Page
+          </MenuItem>
+        )}
+      </Menu>
+      <Box sx={{ flexGrow: 1 }}>
+        <AppBar position="static">
+          <Toolbar>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              Safe Bike Routes: {regionLabel}
+            </Typography>
+            {status === "authenticated" ? (
+              <Tooltip title="Open Options">
+                <IconButton
+                  onClick={handleProfileClick}
+                  sx={{ p: 0 }}
+                  size="large"
+                  aria-label="account of current user"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="true"
+                  color="inherit"
+                >
+                  {session.user.image ? (
+                    <Avatar
+                      alt={session.user.name || "User"}
+                      src={session.user.image}
+                    />
+                  ) : (
+                    <AccountCircle />
+                  )}
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Button color="inherit" onClick={() => signIn()}>
+                Login
+              </Button>
+            )}
+          </Toolbar>
+        </AppBar>
+      </Box>
+    </>
+  );
+};
+
 export const MapPanel = ({
   children,
   open,
@@ -64,17 +168,17 @@ export const MapPanel = ({
   children?: React.ReactNode;
 }) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   return (
     <Drawer
       open={open}
-      anchor={isMobile ? 'bottom' : 'right'}
+      anchor={isMobile ? "bottom" : "right"}
       variant="persistent"
       className="pointer-events-auto"
     >
       <Box
         sx={{
-          overflowY: 'scroll',
+          overflowY: "scroll",
           ...(isMobile ? { height: 300 } : { width: 400 }),
         }}
       >
@@ -100,12 +204,13 @@ export const MapPanelButton = ({
       viewBox="0 0 24 24"
       fill="black"
       className={clsx([
-        'w-4',
-        'h-4',
-        open ? 'rotate-90' : '-rotate-90',
-        open ? 'sm:rotate-0' : 'sm:rotate-180',
+        "w-4",
+        "h-4",
+        open ? "rotate-90" : "-rotate-90",
+        open ? "sm:rotate-0" : "sm:rotate-180",
       ])}
     >
+      <title>Toggle Side Panel Arrow</title>
       <path
         fillRule="evenodd"
         d="M13.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L11.69 12 4.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
@@ -120,42 +225,14 @@ export const MapPanelButton = ({
   </div>
 );
 
-export type SafeRoutesMapProps = Omit<
-  MapProps,
-  'mapboxAccessToken' | 'mapLib' | 'mapStyle'
-> & {
-  token?: string;
-  routes: GeoJSON.FeatureCollection;
-  geocoderBbox: MapboxGeocoder.Bbox;
-};
-
 export const SafeRoutesMap = ({ children, ...props }: MapProps) => (
   <div className="w-dvw h-dvh absolute left-0 bottom-0 z-0">
-    <Map
+    <ReactMap
       {...props}
       mapLib={mapboxgl}
-      style={{ width: '100dvw', height: '100dvh', ...props.style }}
+      style={{ width: "100dvw", height: "100dvh", ...props.style }}
     >
       {children}
-    </Map>
+    </ReactMap>
   </div>
 );
-
-export const MapSkeleton = (props: MapProps) => {
-  const [drawerOpen, setDrawerOpen] = useState(true);
-
-  return (
-    <>
-      <SafeRoutesMap mapLib={mapboxgl} {...props} />
-      <MapSurfaceContainer>
-        <MapPanel open={drawerOpen} />
-        <MapSurface open={drawerOpen}>
-          <MapPanelButton
-            open={drawerOpen}
-            onClick={() => setDrawerOpen(!drawerOpen)}
-          />
-        </MapSurface>
-      </MapSurfaceContainer>
-    </>
-  );
-};

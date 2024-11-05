@@ -1,14 +1,14 @@
-import { db } from './client';
-import { RawBuilder, sql } from 'kysely';
-import { DB } from 'kysely-codegen';
-import { Region } from './enums';
+import { db } from "./client";
+import { type RawBuilder, sql } from "kysely";
+import type { DB } from "kysely-codegen";
+import type { Region } from "./enums";
 
 export const asGeoJSON = <TE extends keyof DB & string>(
-  value: TE
+  value: TE,
 ): RawBuilder<TE> => sql`CAST(ST_AsGeoJSON(${sql.ref(value)}) as JSON)`;
 
 export const getRoutes = async (
-  region: Region
+  region: Region,
 ): Promise<GeoJSON.FeatureCollection> => {
   const results = await sql<{ geojson: GeoJSON.FeatureCollection }>`
     SELECT jsonb_build_object(
@@ -42,30 +42,30 @@ export const getRoutes = async (
 
 export const saveRoutes = async (
   region: Region,
-  featureCollection: GeoJSON.FeatureCollection
+  featureCollection: GeoJSON.FeatureCollection,
 ) => {
   if (featureCollection.features.length === 0) {
     return [];
   }
 
   const result = await db
-    .insertInto('route')
+    .insertInto("route")
     .values(
       featureCollection.features.map((feature) => ({
         id: feature.id as string,
         region: region,
-        route_type: feature.properties?.route_type || 'STREET',
+        route_type: feature.properties?.route_type || "STREET",
         name: feature.properties?.name,
         geometry: sql<string>`ST_GeomFromGeoJSON(${feature.geometry})`,
-      }))
+      })),
     )
     .returningAll()
     .onConflict((oc) =>
-      oc.column('id').doUpdateSet({
-        name: (eb) => eb.ref('excluded.name'),
-        route_type: (eb) => eb.ref('excluded.route_type'),
-        geometry: (eb) => eb.ref('excluded.geometry'),
-      })
+      oc.column("id").doUpdateSet({
+        name: (eb) => eb.ref("excluded.name"),
+        route_type: (eb) => eb.ref("excluded.route_type"),
+        geometry: (eb) => eb.ref("excluded.geometry"),
+      }),
     )
     .execute();
   return result;
@@ -73,15 +73,14 @@ export const saveRoutes = async (
 
 export const deleteRoutes = async (
   _region: Region,
-  ids: string[]
+  ids: string[],
 ): Promise<number> => {
   if (ids.length) {
     const { numDeletedRows } = await db
-      .deleteFrom('route')
-      .where('id', 'in', ids)
+      .deleteFrom("route")
+      .where("id", "in", ids)
       .executeTakeFirst();
     return Number(numDeletedRows);
-  } else {
-    return 0;
   }
+  return 0;
 };

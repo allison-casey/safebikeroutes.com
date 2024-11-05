@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import UndoIcon from '@mui/icons-material/Undo';
-import SaveIcon from '@mui/icons-material/Save';
-import { Controller, useForm } from 'react-hook-form';
-import mapboxgl from 'mapbox-gl';
-import { useState } from 'react';
-import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
-import { GeolocateControl, MapProps, MapProvider } from 'react-map-gl';
-import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import UndoIcon from "@mui/icons-material/Undo";
+import SaveIcon from "@mui/icons-material/Save";
+import { Controller, useForm } from "react-hook-form";
+import mapboxgl from "mapbox-gl";
+import { useState } from "react";
+import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
+import { GeolocateControl, type MapProps, MapProvider } from "react-map-gl";
+import type MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import {
   Button,
   Select,
@@ -17,45 +17,48 @@ import {
   MenuItem,
   Snackbar,
   TextField,
-} from '@mui/material';
-import { ControlPanelToolbar } from '../control-panel-toolbar';
-import StyleSelector, { MAP_STYLES, Styles } from '../style-selector';
-import { routeStyles } from '@/app/route_styles';
-import { useDraw } from '../../mapbox/use-draw';
-import GeocoderControl from '../../mapbox/geocoder-control';
-import DrawControl from '../../mapbox/draw-control';
-import { popDrawHistory, pushDrawHistory } from './history';
-import { IRouteProperties } from '@/types/map';
+} from "@mui/material";
+import StyleSelector, { MAP_STYLES, type Styles } from "../style-selector";
+import { routeStyles } from "@/app/route_styles";
+import { useDraw } from "../../mapbox/use-draw";
+import GeocoderControl from "../../mapbox/geocoder-control";
+import DrawControl from "../../mapbox/draw-control";
+import { popDrawHistory, pushDrawHistory } from "./history";
+import type { IRouteProperties } from "@/types/map";
 import {
   MapPanel,
   MapPanelButton,
   MapSurface,
   MapSurfaceContainer,
+  MapToolBar,
   SafeRoutesMap,
-} from '../skeleton';
+} from "../skeleton";
+import type { Region } from "@/db/enums";
+import { SafeRoutesMapContext } from "../safe-routes-map-context";
 
-const DEFAULT_MAP_STYLE = 'Streets';
+const DEFAULT_MAP_STYLE = "Streets";
 
-interface IUpdateRoutesHandler {
-  (
-    features: GeoJSON.FeatureCollection,
-    routeIdsToDelete: string[]
-  ): Promise<void>;
-}
+type IUpdateRoutesHandler = (
+  features: GeoJSON.FeatureCollection,
+  routeIdsToDelete: string[],
+) => Promise<void>;
 
-interface IUpdateRouteProperty {
-  <K extends keyof IRouteProperties, V extends Required<IRouteProperties>[K]>(
-    feature: GeoJSON.Feature,
-    key: K,
-    value: V
-  ): void;
-}
+type IUpdateRouteProperty = <
+  K extends keyof IRouteProperties,
+  V extends Required<IRouteProperties>[K],
+>(
+  feature: GeoJSON.Feature,
+  key: K,
+  value: V,
+) => void;
 
-export type SafeRoutesMapProps = Omit<
+type SafeRoutesMapProps = Omit<
   MapProps,
-  'mapboxAccessToken' | 'mapLib' | 'mapStyle'
+  "mapboxAccessToken" | "mapLib" | "mapStyle"
 > & {
   token?: string;
+  region: Region;
+  regionLabel: string;
   routes: GeoJSON.FeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;
   saveRoutesHandler: IUpdateRoutesHandler;
@@ -65,24 +68,24 @@ const drawRouteStyles = [
   ...routeStyles.map(({ routeType, paintLayers }) =>
     paintLayers.map((layer, index) => ({
       id: `saferoutesla-${routeType}-${index}`,
-      type: 'line',
+      type: "line",
       filter: [
-        'all',
-        ['==', '$type', 'LineString'],
-        ['!=', 'mode', 'static'],
-        ['==', 'user_route_type', routeType],
+        "all",
+        ["==", "$type", "LineString"],
+        ["!=", "mode", "static"],
+        ["==", "user_route_type", routeType],
       ],
       paint: layer,
-    }))
+    })),
   ),
   ...MapboxDraw.lib.theme.filter(
-    (style) => style.id !== 'gl-draw-line-inactive'
+    (style) => style.id !== "gl-draw-line-inactive",
   ),
 ].flat();
 
 const repaintDrawLayer = (
   draw: MapboxDraw,
-  features: GeoJSON.FeatureCollection
+  features: GeoJSON.FeatureCollection,
 ) => {
   draw.deleteAll();
   draw.add(features);
@@ -105,14 +108,14 @@ const RouteEditor = ({
 }) => {
   const { handleSubmit, control } = useForm<IRouteProperties>({
     defaultValues: {
-      name: feature.properties?.name || '',
-      route_type: feature.properties?.route_type || 'STREET',
+      name: feature.properties?.name || "",
+      route_type: feature.properties?.route_type || "STREET",
     },
   });
 
   const onSubmit = (data: IRouteProperties) => {
-    updateRouteProperty(feature, 'route_type', data.route_type);
-    data.name && updateRouteProperty(feature, 'name', data.name);
+    updateRouteProperty(feature, "route_type", data.route_type);
+    data.name && updateRouteProperty(feature, "name", data.name);
   };
 
   return (
@@ -128,7 +131,7 @@ const RouteEditor = ({
                 fullWidth
                 onChange={onChange}
                 value={value}
-              />{' '}
+              />{" "}
             </Grid>
           )}
         />
@@ -138,11 +141,11 @@ const RouteEditor = ({
           render={({ field: { onChange, value } }) => (
             <Grid item>
               <Select onChange={onChange} value={value} fullWidth>
-                <MenuItem value={'SIDEWALK'}>Sidewalk</MenuItem>
-                <MenuItem value={'STREET'}>Street</MenuItem>
-                <MenuItem value={'LANE'}>Lane</MenuItem>
-                <MenuItem value={'PROTECTED'}>Protected</MenuItem>
-                <MenuItem value={'TRACK'}>Track</MenuItem>
+                <MenuItem value={"SIDEWALK"}>Sidewalk</MenuItem>
+                <MenuItem value={"STREET"}>Street</MenuItem>
+                <MenuItem value={"LANE"}>Lane</MenuItem>
+                <MenuItem value={"PROTECTED"}>Protected</MenuItem>
+                <MenuItem value={"TRACK"}>Track</MenuItem>
               </Select>
             </Grid>
           )}
@@ -166,13 +169,13 @@ const ControlPanel = ({
   return (
     <>
       <Snackbar
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         autoHideDuration={3000}
         open={showSnackbar}
         onClose={() => setShowSnackbar(false)}
         message="Map Saved."
       />
-      <ControlPanelToolbar />
+      <MapToolBar />
       <div className="grid grid-rows grid-rows-1 p-5">
         <Grid container direction="row" justifyContent="space-around">
           <Grid item>
@@ -222,18 +225,20 @@ const ControlPanel = ({
 
 const SafeRoutesMapAdmin = ({
   token,
+  region,
+  regionLabel,
   routes,
   saveRoutesHandler,
   geocoderBbox,
   ...mapboxProps
 }: SafeRoutesMapProps) => {
   if (!token) {
-    throw new Error('ACCESS_TOKEN is undefined');
+    throw new Error("ACCESS_TOKEN is undefined");
   }
   const { default: draw } = useDraw();
 
   const [selectedFeatures, setSelectedFeatures] = useState<GeoJSON.Feature[]>(
-    []
+    [],
   );
   const [deletedRouteIds, setDeletedRouteIds] = useState<string[]>([]);
   const [featuresToUpdate, setFeaturesToUpdate] = useState<string[]>([]);
@@ -255,13 +260,13 @@ const SafeRoutesMapAdmin = ({
   const updateFeatureProperty: IUpdateRouteProperty = (
     feature: GeoJSON.Feature,
     key,
-    value
+    value,
   ) => {
-    if (draw) {
-      draw.setFeatureProperty(feature.id!.toString(), key, value);
+    if (draw && feature.id) {
+      draw.setFeatureProperty(feature.id.toString(), key, value);
       const data = draw.getAll();
       setHistory((history) =>
-        draw ? pushDrawHistory(history, draw.getAll()) : history
+        draw ? pushDrawHistory(history, draw.getAll()) : history,
       );
       repaintDrawLayer(draw, data);
       setFeaturesToUpdate((features) => [...features, feature.id as string]);
@@ -270,96 +275,98 @@ const SafeRoutesMapAdmin = ({
   };
 
   return (
-    <MapProvider>
-      <SafeRoutesMap
-        mapboxAccessToken={token}
-        mapLib={mapboxgl}
-        mapStyle={MAP_STYLES.find((d) => d.title === currentStyle)?.style}
-        {...mapboxProps}
-      >
-        <GeocoderControl
+    <SafeRoutesMapContext.Provider value={{ region, regionLabel }}>
+      <MapProvider>
+        <SafeRoutesMap
           mapboxAccessToken={token}
-          position="top-left"
-          bbox={geocoderBbox}
-        />
-        <GeolocateControl
-          trackUserLocation
-          showUserHeading
-          positionOptions={{ enableHighAccuracy: true }}
-          position="top-left"
-        />
-        <DrawControl
-          userProperties
-          position="top-left"
-          displayControlsDefault={false}
-          styles={drawRouteStyles}
-          features={routes}
-          controls={{
-            line_string: true,
-            trash: true,
-          }}
-          onUpdate={onUpdate}
-          onCreate={(draw, evt) => {
-            for (const feature of evt.features) {
-              updateFeatureProperty(feature, 'route_type', 'STREET');
-            }
-          }}
-          onDelete={(draw, evt) => {
-            setDeletedRouteIds((ids) => [
-              ...ids,
-              ...evt.features
-                .map((feature) => feature.id as string)
-                .filter((id) => !!id),
-            ]);
-          }}
-          onSelectionChange={(draw, evt) => {
-            setSelectedFeatures(evt.features);
-          }}
-        />
-      </SafeRoutesMap>
-      <MapSurfaceContainer>
-        <MapPanel open={showControlPanel}>
-          <ControlPanel
-            undoDisabled={history.length === 1}
-            onSaveHandler={async () => {
-              if (draw) {
-                const features = draw.getAll();
-                await saveRoutesHandler(
-                  {
-                    type: 'FeatureCollection',
-                    features: features.features.filter((ft) =>
-                      featuresToUpdate.includes(ft.id as string)
-                    ),
-                  },
-                  deletedRouteIds
-                );
-                setDeletedRouteIds([]);
-                setFeaturesToUpdate([]);
+          mapLib={mapboxgl}
+          mapStyle={MAP_STYLES.find((d) => d.title === currentStyle)?.style}
+          {...mapboxProps}
+        >
+          <GeocoderControl
+            mapboxAccessToken={token}
+            position="top-left"
+            bbox={geocoderBbox}
+          />
+          <GeolocateControl
+            trackUserLocation
+            showUserHeading
+            positionOptions={{ enableHighAccuracy: true }}
+            position="top-left"
+          />
+          <DrawControl
+            userProperties
+            position="top-left"
+            displayControlsDefault={false}
+            styles={drawRouteStyles}
+            features={routes}
+            controls={{
+              line_string: true,
+              trash: true,
+            }}
+            onUpdate={onUpdate}
+            onCreate={(_draw, evt) => {
+              for (const feature of evt.features) {
+                updateFeatureProperty(feature, "route_type", "STREET");
               }
             }}
-            undoHandler={() => {
-              if (draw) {
-                const [newHistory, state] = popDrawHistory(history);
-                repaintDrawLayer(draw, state);
-                setHistory(newHistory);
-              }
+            onDelete={(_draw, evt) => {
+              setDeletedRouteIds((ids) => [
+                ...ids,
+                ...evt.features
+                  .map((feature) => feature.id as string)
+                  .filter((id) => !!id),
+              ]);
             }}
-            selectedFeatures={selectedFeatures}
-            updateFeatureProperty={updateFeatureProperty}
+            onSelectionChange={(_draw, evt) => {
+              setSelectedFeatures(evt.features);
+            }}
           />
-        </MapPanel>
-        <MapSurface open={showControlPanel}>
-          <StyleSelector
-            onClick={(title) => setCurrentStyle(title)}
-            currentlySelectedStyle={currentStyle as Styles}
-          />
-          <MapPanelButton
-            open={showControlPanel}
-            onClick={() => toggleControlPanel(!showControlPanel)}
-          />
-        </MapSurface>
-      </MapSurfaceContainer>
-    </MapProvider>
+        </SafeRoutesMap>
+        <MapSurfaceContainer>
+          <MapPanel open={showControlPanel}>
+            <ControlPanel
+              undoDisabled={history.length === 1}
+              onSaveHandler={async () => {
+                if (draw) {
+                  const features = draw.getAll();
+                  await saveRoutesHandler(
+                    {
+                      type: "FeatureCollection",
+                      features: features.features.filter((ft) =>
+                        featuresToUpdate.includes(ft.id as string),
+                      ),
+                    },
+                    deletedRouteIds,
+                  );
+                  setDeletedRouteIds([]);
+                  setFeaturesToUpdate([]);
+                }
+              }}
+              undoHandler={() => {
+                if (draw) {
+                  const [newHistory, state] = popDrawHistory(history);
+                  repaintDrawLayer(draw, state);
+                  setHistory(newHistory);
+                }
+              }}
+              selectedFeatures={selectedFeatures}
+              updateFeatureProperty={updateFeatureProperty}
+            />
+          </MapPanel>
+          <MapSurface open={showControlPanel}>
+            <StyleSelector
+              onClick={(title) => setCurrentStyle(title)}
+              currentlySelectedStyle={currentStyle as Styles}
+            />
+            <MapPanelButton
+              open={showControlPanel}
+              onClick={() => toggleControlPanel(!showControlPanel)}
+            />
+          </MapSurface>
+        </MapSurfaceContainer>
+      </MapProvider>
+    </SafeRoutesMapContext.Provider>
   );
 };
 
