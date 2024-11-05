@@ -15,7 +15,8 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{css}": ["npx stylelint --fix"]
+    "*.{css}": ["npx stylelint --fix"],
+    "*.{ts,tsx}": ["npm run format", "npm run biome"]
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.2.0",

@@ -24,7 +24,6 @@ export const MapToolBar = () => {
   const { region, regionLabel } = useSafeRoutesMapContext();
   const router = useRouter();
   const pathname = usePathname();
-
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const profileDropdownOpen = Boolean(anchorEl);
@@ -39,6 +38,7 @@ export const MapToolBar = () => {
 
   return (
     <>
+      {/* Profile Menu Dropdown  */}
       <Menu
         open={profileDropdownOpen}
         onClose={handleProfileClose}
@@ -60,6 +60,7 @@ export const MapToolBar = () => {
           </MenuItem>
         )}
       </Menu>
+      {/* Nav Bar */}
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
           <Toolbar>
