@@ -1,16 +1,17 @@
-import type { Region, RouteType } from "@/db/enums";
+import type { Route } from "@/db/types";
+import type { Selectable } from "kysely";
 
-export interface IRouteProperties {
-  route_type: RouteType;
-  region: Region;
-  name?: string;
-}
+export type ISafeRoutesProperties = Pick<
+  Selectable<Route>,
+  "name" | "region" | "route_type"
+>;
 
-export interface IRouteFeature
-  extends GeoJSON.Feature<GeoJSON.Geometry, IRouteProperties> {
-  id: string;
-}
+type ISafeRoutesFeaure = GeoJSON.Feature<
+  GeoJSON.LineString,
+  ISafeRoutesProperties
+> & { id: string };
 
-export interface IRouteFeatureCollection extends GeoJSON.FeatureCollection {
-  features: IRouteFeature[];
+export interface ISafeRoutesFeatureCollection {
+  type: "FeatureCollection";
+  features: ISafeRoutesFeaure[];
 }

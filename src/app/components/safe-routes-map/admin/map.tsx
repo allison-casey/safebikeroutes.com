@@ -8,7 +8,7 @@ import { Controller, useForm } from "react-hook-form";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { routeStyles } from "@/app/route_styles";
 import type { Region } from "@/db/enums";
-import type { IRouteProperties } from "@/types/map";
+import type { ISafeRoutesProperties } from "@/types/map";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import type MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import {
@@ -44,8 +44,8 @@ type IUpdateRoutesHandler = (
 ) => Promise<void>;
 
 type IUpdateRouteProperty = <
-  K extends keyof IRouteProperties,
-  V extends Required<IRouteProperties>[K],
+  K extends keyof ISafeRoutesProperties,
+  V extends Required<ISafeRoutesProperties>[K],
 >(
   feature: GeoJSON.Feature,
   key: K,
@@ -106,14 +106,14 @@ const RouteEditor = ({
   feature: GeoJSON.Feature;
   updateRouteProperty: IUpdateRouteProperty;
 }) => {
-  const { handleSubmit, control } = useForm<IRouteProperties>({
+  const { handleSubmit, control } = useForm<ISafeRoutesProperties>({
     defaultValues: {
       name: feature.properties?.name || "",
       route_type: feature.properties?.route_type || "STREET",
     },
   });
 
-  const onSubmit = (data: IRouteProperties) => {
+  const onSubmit = (data: ISafeRoutesProperties) => {
     updateRouteProperty(feature, "route_type", data.route_type);
     data.name && updateRouteProperty(feature, "name", data.name);
   };

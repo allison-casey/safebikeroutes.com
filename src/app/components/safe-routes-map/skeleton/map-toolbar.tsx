@@ -67,7 +67,7 @@ export const MapToolBar = () => {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Safe Bike Routes: {regionLabel}
             </Typography>
-            {status === "authenticated" ? (
+            {session?.user && status === "authenticated" ? (
               <Tooltip title="Open Options">
                 <IconButton
                   onClick={handleProfileClick}
