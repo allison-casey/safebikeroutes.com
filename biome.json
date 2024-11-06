@@ -12,17 +12,20 @@
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
-
     "ignore": [".next/", ".direnv/"]
   },
   "organizeImports": {
-    "enabled": true
+    "enabled": true,
+    "ignore": [".next/", ".direnv/"]
   },
   "linter": {
     "enabled": true,
     "ignore": [".next/", ".direnv/"],
     "rules": {
       "recommended": true,
+      "correctness": {
+        "noUnusedImports": { "level": "error" }
+      },
       "a11y": {
         "useKeyWithClickEvents": "off"
       }

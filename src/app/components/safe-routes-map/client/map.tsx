@@ -1,28 +1,29 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { GeolocateControl, Layer, type MapProps, Source } from "react-map-gl";
+import GeocoderControl from "@/app/components/mapbox/geocoder-control";
 import {
   MapPanel,
   MapPanelButton,
   MapSurface,
   MapSurfaceContainer,
+  MapToolBar,
   SafeRoutesMap,
 } from "@/app/components/safe-routes-map/skeleton";
-import mapboxgl, {
-  type GeolocateControl as IGeolocateControl,
-} from "mapbox-gl";
-import { useLocalStorage } from "@uidotdev/usehooks";
 import StyleSelector, {
   DEFAULT_MAP_STYLE,
   MAP_STYLES,
   type Styles,
 } from "@/app/components/safe-routes-map/style-selector";
 import { routeStyles } from "@/app/route_styles";
-import GeocoderControl from "@/app/components/mapbox/geocoder-control";
-import dynamic from "next/dynamic";
-import { SafeRoutesMapContext } from "../safe-routes-map-context";
 import type { Region } from "@/db/enums";
+import { useLocalStorage } from "@uidotdev/usehooks";
+import mapboxgl, {
+  type GeolocateControl as IGeolocateControl,
+} from "mapbox-gl";
+import dynamic from "next/dynamic";
+import { useCallback, useState } from "react";
+import { GeolocateControl, Layer, type MapProps, Source } from "react-map-gl";
+import { SafeRoutesMapContext } from "../safe-routes-map-context";
 
 type WatchState =
   | "OFF"
@@ -118,7 +119,10 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
         />
       </SafeRoutesMap>
       <MapSurfaceContainer>
-        <MapPanel open={drawerOpen}>{props.panelContents}</MapPanel>
+        <MapPanel open={drawerOpen}>
+          <MapToolBar />
+          {props.panelContents}
+        </MapPanel>
         <MapSurface open={drawerOpen}>
           <StyleSelector
             onClick={(title) => setCurrentStyle(title)}

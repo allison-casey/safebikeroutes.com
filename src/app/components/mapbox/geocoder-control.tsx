@@ -1,14 +1,14 @@
-import type * as React from "react";
-import { useState } from "react";
-import {
-  useControl,
-  Marker,
-  type MarkerProps,
-  type ControlPosition,
-} from "react-map-gl";
 import MapboxGeocoder, {
   type GeocoderOptions,
 } from "@mapbox/mapbox-gl-geocoder";
+import type * as React from "react";
+import { useState } from "react";
+import {
+  type ControlPosition,
+  Marker,
+  type MarkerProps,
+  useControl,
+} from "react-map-gl";
 
 type GeocoderControlProps = Omit<
   GeocoderOptions,

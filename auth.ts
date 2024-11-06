@@ -1,7 +1,7 @@
+import { db, pool } from "@/db/client";
+import PostgresAdapter from "@auth/pg-adapter";
 import NextAuth from "next-auth";
 import github from "next-auth/providers/github";
-import PostgresAdapter from "@auth/pg-adapter";
-import { db, pool } from "@/db/client";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [github],

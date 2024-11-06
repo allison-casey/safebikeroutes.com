@@ -4,7 +4,7 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   : ColumnType<T, T | undefined, T>;
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
-import type { Region, RouteType, Role } from "./enums";
+import type { Region, Role, RouteType } from "./enums";
 
 export type Account = {
   id: Generated<string>;
