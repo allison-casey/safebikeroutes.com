@@ -1,5 +1,5 @@
-import { signOut, useSession } from "next-auth/react";
 import { AppBar, Button, Toolbar, Typography } from "@mui/material";
+import { signOut, useSession } from "next-auth/react";
 
 export const ControlPanelToolbar = () => {
   const session = useSession();

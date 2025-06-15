@@ -1,6 +1,6 @@
-import { db } from "./client";
 import { type RawBuilder, sql } from "kysely";
 import type { DB } from "kysely-codegen";
+import { db } from "./client";
 import type { Region } from "./enums";
 
 export const asGeoJSON = <TE extends keyof DB & string>(
