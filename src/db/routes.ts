@@ -1,11 +1,10 @@
-import { type RawBuilder, sql } from "kysely";
-import type { DB } from "kysely-codegen";
+import { type RawBuilder, sql, type Expression, type Simplify } from "kysely";
 import { db } from "./client";
 import type { Region } from "./enums";
 
-export const asGeoJSON = <TE extends keyof DB & string>(
-  value: TE,
-): RawBuilder<TE> => sql`CAST(ST_AsGeoJSON(${sql.ref(value)}) as JSON)`;
+export const geoJSONObjectFrom = <O>(
+  expr: Expression<O>,
+): RawBuilder<Simplify<O>> => sql`CAST(ST_AsGeoJSON(${expr}) as JSONB)`;
 
 export const getRoutes = async (
   region: Region,
@@ -25,17 +24,6 @@ export const getRoutes = async (
       FROM (SELECT * FROM route) inputs
     ) features;
   `.execute(db);
-
-  // const {
-  //   rows: [{ feature_collection }],
-  // } = await sql<{ feature_collection: GeoJSON.FeatureCollection }>`
-  //    SELECT json_build_object(
-  //    'type', 'FeatureCollection',
-  //    'features', coalesce(json_agg(ST_AsGeoJSON(r.*)::json), '[]'::json)
-  //    ) AS feature_collection
-  //    FROM route r
-  //    WHERE region = ${region}::"Region"
-  // `.execute(db);
 
   return results.rows[0].geojson;
 };
