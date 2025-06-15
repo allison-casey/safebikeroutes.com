@@ -1,4 +1,10 @@
-import { type RawBuilder, sql, type Expression, type Simplify } from "kysely";
+import type {
+  IRouteFeature,
+  IRouteFeatureCollection,
+  IRouteProperties,
+} from "@/types/map";
+import { type Expression, type RawBuilder, type Simplify, sql } from "kysely";
+import { jsonBuildObject } from "kysely/helpers/postgres";
 import { db } from "./client";
 import type { Region } from "./enums";
 
@@ -8,24 +14,36 @@ export const geoJSONObjectFrom = <O>(
 
 export const getRoutes = async (
   region: Region,
-): Promise<GeoJSON.FeatureCollection> => {
-  const results = await sql<{ geojson: GeoJSON.FeatureCollection }>`
-    SELECT jsonb_build_object(
-        'type',     'FeatureCollection',
-        'features', jsonb_agg(features.feature)
-    ) as geojson
-    FROM (
-      SELECT jsonb_build_object(
-        'type',       'Feature',
-        'id',         id,
-        'geometry',   ST_AsGeoJSON(geometry)::jsonb,
-        'properties', to_jsonb(inputs) - 'id' - 'geometry'
-      ) AS feature
-      FROM (SELECT * FROM route) inputs
-    ) features;
-  `.execute(db);
+): Promise<IRouteFeatureCollection> => {
+  const result = await db
+    .selectFrom([
+      db
+        .selectFrom([
+          db
+            .selectFrom("route")
+            .selectAll()
+            .where("region", "=", region)
+            .as("inputs"),
+        ])
+        .select((eb) => [
+          jsonBuildObject({
+            type: sql<string>`'Feature'`,
+            id: eb.ref("inputs.id"),
+            geometry: geoJSONObjectFrom(eb.ref("geometry")),
+            properties: sql<IRouteProperties>`to_jsonb(inputs) - 'id' - 'geometry'`,
+          }).as("feature"),
+        ])
+        .as("features"),
+    ])
+    .select(() => [
+      jsonBuildObject({
+        type: sql<"FeatureCollection">`'FeatureCollection'`,
+        features: sql<IRouteFeature[]>`jsonb_agg(features.feature)`,
+      }).as("geojson"),
+    ])
+    .executeTakeFirstOrThrow();
 
-  return results.rows[0].geojson;
+  return result.geojson;
 };
 
 export const saveRoutes = async (

@@ -12,11 +12,11 @@
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
-
     "ignore": [".next/", ".direnv/"]
   },
   "organizeImports": {
-    "enabled": true
+    "enabled": true,
+    "ignore": [".next/", ".direnv/"]
   },
   "linter": {
     "enabled": true,

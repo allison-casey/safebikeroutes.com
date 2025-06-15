@@ -3,11 +3,11 @@ import type { Region, RouteType } from "@/db/enums";
 export interface IRouteProperties {
   route_type: RouteType;
   region: Region;
-  name?: string;
+  name: string | null;
 }
 
 export interface IRouteFeature
-  extends GeoJSON.Feature<GeoJSON.Geometry, IRouteProperties> {
+  extends GeoJSON.Feature<GeoJSON.LineString, IRouteProperties> {
   id: string;
 }
 

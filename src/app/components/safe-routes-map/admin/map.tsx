@@ -8,7 +8,7 @@ import { Controller, useForm } from "react-hook-form";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { routeStyles } from "@/app/route_styles";
 import type { Region } from "@/db/enums";
-import type { IRouteProperties } from "@/types/map";
+import type { IRouteFeatureCollection, IRouteProperties } from "@/types/map";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import type MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import {
@@ -59,7 +59,7 @@ type SafeRoutesMapProps = Omit<
   token?: string;
   region: Region;
   regionLabel: string;
-  routes: GeoJSON.FeatureCollection;
+  routes: IRouteFeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;
   saveRoutesHandler: IUpdateRoutesHandler;
 };
