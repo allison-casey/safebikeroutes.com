@@ -12,6 +12,7 @@ export const geoJSONObjectFrom = <O>(
   expr: Expression<O>,
 ): RawBuilder<Simplify<O>> => sql`CAST(ST_AsGeoJSON(${expr}) as JSONB)`;
 
+// TODO: simplify this
 export const getRoutes = async (
   region: Region,
 ): Promise<IRouteFeatureCollection> => {
@@ -48,7 +49,7 @@ export const getRoutes = async (
 
 export const saveRoutes = async (
   region: Region,
-  featureCollection: GeoJSON.FeatureCollection,
+  featureCollection: IRouteFeatureCollection,
 ) => {
   if (featureCollection.features.length === 0) {
     return [];

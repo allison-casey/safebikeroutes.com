@@ -1,10 +1,12 @@
+import type { IRouteFeature } from "@/types/map";
 import { sql } from "kysely";
 import { db } from "../client";
 import { deleteRoutes, getRoutes, saveRoutes } from "../routes";
 
-const aRoute: GeoJSON.Feature = {
+const aRoute: IRouteFeature = {
+  id: "123",
   type: "Feature",
-  properties: { route_type: "STREET" },
+  properties: { route_type: "STREET", region: "LA", name: null },
   geometry: {
     coordinates: [
       [-118.36179, 34.05481],
@@ -17,9 +19,10 @@ const aRoute: GeoJSON.Feature = {
   },
 };
 
-const anotherRoute: GeoJSON.Feature = {
+const anotherRoute: IRouteFeature = {
+  id: "123",
   type: "Feature",
-  properties: { route_type: "SIDEWALK" },
+  properties: { route_type: "SIDEWALK", region: "LA", name: null },
   geometry: {
     coordinates: [
       [-118.300259, 33.969369],
@@ -90,7 +93,7 @@ describe(saveRoutes, () => {
         {
           type: "Feature",
           id: savedRoute.id,
-          properties: { route_type: "PROTECTED" },
+          properties: { route_type: "PROTECTED", region: "LA", name: null },
           geometry: aRoute.geometry,
         },
       ],
