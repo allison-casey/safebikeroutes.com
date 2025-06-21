@@ -144,7 +144,7 @@ const RouteEditor = ({
           name="name"
           control={control}
           render={({ field: { onChange, value } }) => (
-            <Grid item>
+            <Grid>
               <TextField
                 label="Route Name"
                 fullWidth
@@ -158,7 +158,7 @@ const RouteEditor = ({
           name="route_type"
           control={control}
           render={({ field: { onChange, value } }) => (
-            <Grid item>
+            <Grid>
               <Select onChange={onChange} value={value} fullWidth>
                 <MenuItem value={"SIDEWALK"}>Sidewalk</MenuItem>
                 <MenuItem value={"STREET"}>Street</MenuItem>
@@ -197,7 +197,7 @@ const ControlPanel = ({
       <MapToolBar />
       <div className="grid grid-rows grid-rows-1 p-5">
         <Grid container direction="row" justifyContent="space-around">
-          <Grid item>
+          <Grid>
             <IconButton
               size="large"
               edge="start"
@@ -210,7 +210,7 @@ const ControlPanel = ({
               <UndoIcon />
             </IconButton>
           </Grid>
-          <Grid item>
+          <Grid>
             <IconButton
               size="large"
               edge="start"
