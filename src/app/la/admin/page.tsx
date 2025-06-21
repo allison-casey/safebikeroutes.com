@@ -1,6 +1,7 @@
 import SafeRoutesMapAdmin from "@/app/components/safe-routes-map/admin/map";
 import type { Role } from "@/db/enums";
 import { deleteRoutes, getRoutes, saveRoutes } from "@/db/routes";
+import type { IRouteFeatureCollection } from "@/types/map";
 import { Typography } from "@mui/material";
 import { auth } from "@root/auth";
 import { unstable_noStore as noStore } from "next/cache";
@@ -14,7 +15,7 @@ const BOUNDS: MapboxGeocoder.Bbox = [
 const CENTER = [-118.35874251099995, 34.061734936928694];
 
 const saveRoutesForMap = async (
-  featureCollection: GeoJSON.FeatureCollection,
+  featureCollection: IRouteFeatureCollection,
   routeIdsToDelete: string[],
 ): Promise<void> => {
   "use server";

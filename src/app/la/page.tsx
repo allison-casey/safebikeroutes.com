@@ -1,9 +1,9 @@
-import { getRoutes } from "@/db/routes";
-import { unstable_noStore as noStore } from "next/cache";
 import SafeBikeRoutesClient from "@/app/components/safe-routes-map/client/map";
-import Description from "./description.mdx";
-import { MapToolBar } from "../components/safe-routes-map/skeleton";
+import { getRoutes } from "@/db/routes";
 import { Grid } from "@mui/material";
+import { unstable_noStore as noStore } from "next/cache";
+import { MapToolBar } from "../components/safe-routes-map/skeleton";
+import Description from "./description.mdx";
 
 const BOUNDS: MapboxGeocoder.Bbox = [
   -118.88065856936811,

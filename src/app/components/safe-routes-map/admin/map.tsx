@@ -1,30 +1,34 @@
 "use client";
 
-import UndoIcon from "@mui/icons-material/Undo";
 import SaveIcon from "@mui/icons-material/Save";
-import { Controller, useForm } from "react-hook-form";
+import UndoIcon from "@mui/icons-material/Undo";
 import mapboxgl from "mapbox-gl";
 import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
-import { GeolocateControl, type MapProps, MapProvider } from "react-map-gl";
-import type MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
+import { routeStyles } from "@/app/route_styles";
+import type { Region } from "@/db/enums";
+import type {
+  IRouteFeature,
+  IRouteFeatureCollection,
+  IRouteProperties,
+} from "@/types/map";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import type MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import {
   Button,
-  Select,
   Grid,
   IconButton,
   MenuItem,
+  Select,
   Snackbar,
   TextField,
 } from "@mui/material";
-import StyleSelector, { MAP_STYLES, type Styles } from "../style-selector";
-import { routeStyles } from "@/app/route_styles";
-import { useDraw } from "../../mapbox/use-draw";
-import GeocoderControl from "../../mapbox/geocoder-control";
+import { GeolocateControl, type MapProps, MapProvider } from "react-map-gl";
 import DrawControl from "../../mapbox/draw-control";
-import { popDrawHistory, pushDrawHistory } from "./history";
-import type { IRouteProperties } from "@/types/map";
+import GeocoderControl from "../../mapbox/geocoder-control";
+import { useDraw } from "../../mapbox/use-draw";
+import { SafeRoutesMapContext } from "../safe-routes-map-context";
 import {
   MapPanel,
   MapPanelButton,
@@ -33,13 +37,28 @@ import {
   MapToolBar,
   SafeRoutesMap,
 } from "../skeleton";
-import type { Region } from "@/db/enums";
-import { SafeRoutesMapContext } from "../safe-routes-map-context";
+import StyleSelector, { MAP_STYLES, type Styles } from "../style-selector";
+import { popDrawHistory, pushDrawHistory } from "./history";
 
 const DEFAULT_MAP_STYLE = "Streets";
 
+const geoJSONFeatureToRouteFeature = (
+  region: Region,
+  feature: GeoJSON.Feature<GeoJSON.LineString>,
+): IRouteFeature => ({
+  type: "Feature",
+  bbox: feature.bbox,
+  geometry: feature.geometry,
+  id: feature.id as string, // mapbox always generates a UUID `id` string
+  properties: {
+    route_type: feature.properties?.route_type ?? "STREET",
+    region: region,
+    name: feature.properties?.name ?? null,
+  },
+});
+
 type IUpdateRoutesHandler = (
-  features: GeoJSON.FeatureCollection,
+  features: IRouteFeatureCollection,
   routeIdsToDelete: string[],
 ) => Promise<void>;
 
@@ -59,7 +78,7 @@ type SafeRoutesMapProps = Omit<
   token?: string;
   region: Region;
   regionLabel: string;
-  routes: GeoJSON.FeatureCollection;
+  routes: IRouteFeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;
   saveRoutesHandler: IUpdateRoutesHandler;
 };
@@ -333,9 +352,19 @@ const SafeRoutesMapAdmin = ({
                   await saveRoutesHandler(
                     {
                       type: "FeatureCollection",
-                      features: features.features.filter((ft) =>
-                        featuresToUpdate.includes(ft.id as string),
-                      ),
+                      features: features.features
+                        .filter(
+                          (
+                            feature,
+                          ): feature is GeoJSON.Feature<GeoJSON.LineString> =>
+                            feature.geometry.type === "LineString",
+                        )
+                        .filter((feature) =>
+                          featuresToUpdate.includes(feature.id as string),
+                        )
+                        .map((feature) =>
+                          geoJSONFeatureToRouteFeature(region, feature),
+                        ),
                     },
                     deletedRouteIds,
                   );

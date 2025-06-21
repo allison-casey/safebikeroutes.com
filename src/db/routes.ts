@@ -1,48 +1,55 @@
+import type {
+  IRouteFeature,
+  IRouteFeatureCollection,
+  IRouteProperties,
+} from "@/types/map";
+import { type Expression, type RawBuilder, type Simplify, sql } from "kysely";
+import { jsonBuildObject } from "kysely/helpers/postgres";
 import { db } from "./client";
-import { type RawBuilder, sql } from "kysely";
-import type { DB } from "kysely-codegen";
 import type { Region } from "./enums";
 
-export const asGeoJSON = <TE extends keyof DB & string>(
-  value: TE,
-): RawBuilder<TE> => sql`CAST(ST_AsGeoJSON(${sql.ref(value)}) as JSON)`;
+export const geoJSONObjectFrom = <O>(
+  expr: Expression<O>,
+): RawBuilder<Simplify<O>> => sql`CAST(ST_AsGeoJSON(${expr}) as JSONB)`;
 
+// TODO: simplify this
 export const getRoutes = async (
   region: Region,
-): Promise<GeoJSON.FeatureCollection> => {
-  const results = await sql<{ geojson: GeoJSON.FeatureCollection }>`
-    SELECT jsonb_build_object(
-        'type',     'FeatureCollection',
-        'features', jsonb_agg(features.feature)
-    ) as geojson
-    FROM (
-      SELECT jsonb_build_object(
-        'type',       'Feature',
-        'id',         id,
-        'geometry',   ST_AsGeoJSON(geometry)::jsonb,
-        'properties', to_jsonb(inputs) - 'id' - 'geometry'
-      ) AS feature
-      FROM (SELECT * FROM route) inputs
-    ) features;
-  `.execute(db);
+): Promise<IRouteFeatureCollection> => {
+  const result = await db
+    .selectFrom([
+      db
+        .selectFrom([
+          db
+            .selectFrom("route")
+            .selectAll()
+            .where("region", "=", region)
+            .as("inputs"),
+        ])
+        .select((eb) => [
+          jsonBuildObject({
+            type: sql<string>`'Feature'`,
+            id: eb.ref("inputs.id"),
+            geometry: geoJSONObjectFrom(eb.ref("geometry")),
+            properties: sql<IRouteProperties>`to_jsonb(inputs) - 'id' - 'geometry'`,
+          }).as("feature"),
+        ])
+        .as("features"),
+    ])
+    .select(() => [
+      jsonBuildObject({
+        type: sql<"FeatureCollection">`'FeatureCollection'`,
+        features: sql<IRouteFeature[]>`jsonb_agg(features.feature)`,
+      }).as("geojson"),
+    ])
+    .executeTakeFirstOrThrow();
 
-  // const {
-  //   rows: [{ feature_collection }],
-  // } = await sql<{ feature_collection: GeoJSON.FeatureCollection }>`
-  //    SELECT json_build_object(
-  //    'type', 'FeatureCollection',
-  //    'features', coalesce(json_agg(ST_AsGeoJSON(r.*)::json), '[]'::json)
-  //    ) AS feature_collection
-  //    FROM route r
-  //    WHERE region = ${region}::"Region"
-  // `.execute(db);
-
-  return results.rows[0].geojson;
+  return result.geojson;
 };
 
 export const saveRoutes = async (
   region: Region,
-  featureCollection: GeoJSON.FeatureCollection,
+  featureCollection: IRouteFeatureCollection,
 ) => {
   if (featureCollection.features.length === 0) {
     return [];
