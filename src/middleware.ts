@@ -7,7 +7,7 @@ export const config = {
 export default auth((req) => {
   const isLoggedIn = !!req.auth?.user;
   const isOnAdminPanel = req.nextUrl.pathname.endsWith("/admin");
-  if (isOnAdminPanel && !isLoggedIn) {
-    return Response.redirect(new URL("/api/auth/signin", req.nextUrl.origin));
-  }
+  // if (isOnAdminPanel && !isLoggedIn) {
+  //   return Response.redirect(new URL("/api/auth/signin", req.nextUrl.origin));
+  // }
 });
