@@ -17,9 +17,7 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{css}": [
-      "npx stylelint --fix"
-    ]
+    "*.{css}": ["npx stylelint --fix"]
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.2.0",

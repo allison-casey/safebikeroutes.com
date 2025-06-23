@@ -1,20 +1,14 @@
 "use client";
 
-import * as R from "remeda";
 import SaveIcon from "@mui/icons-material/Save";
 import UndoIcon from "@mui/icons-material/Undo";
 import mapboxgl from "mapbox-gl";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
-import { routeStyles } from "@/app/route_styles";
+import { drawControlRouteStyles } from "@/app/route_styles";
 import type { Region } from "@/db/enums";
-import type {
-  IRouteFeature,
-  IRouteFeatureCollection,
-  IRouteProperties,
-} from "@/types/map";
-import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import type { IRouteFeatureCollection, IRouteProperties } from "@/types/map";
 import type MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import {
   Button,
@@ -41,28 +35,14 @@ import {
 } from "../skeleton";
 import StyleSelector, { MAP_STYLES, type Styles } from "../style-selector";
 import {
-  createRouteAdminStore,
   RouteAdminContext,
+  createRouteAdminStore,
   useRouteAdminContext,
 } from "./state";
 import { useDrawControls } from "./use-draw-controls";
+import { geoJSONFeatureToRouteFeature } from "./utils";
 
 const DEFAULT_MAP_STYLE: Styles = "Streets";
-
-const geoJSONFeatureToRouteFeature = (
-  region: Region,
-  feature: GeoJSON.Feature<GeoJSON.LineString>,
-): IRouteFeature => ({
-  type: "Feature",
-  bbox: feature.bbox,
-  geometry: feature.geometry,
-  id: feature.id as string, // mapbox always generates a UUID `id` string
-  properties: {
-    route_type: feature.properties?.route_type ?? "STREET",
-    region: region,
-    name: feature.properties?.name ?? null,
-  },
-});
 
 type IUpdateRoutesHandler = (
   features: IRouteFeatureCollection,
@@ -80,25 +60,6 @@ type SafeRoutesMapProps = Omit<
   geocoderBbox: MapboxGeocoder.Bbox;
   saveRoutesHandler: IUpdateRoutesHandler;
 };
-
-const drawRouteStyles = [
-  ...routeStyles.map(({ routeType, paintLayers }) =>
-    paintLayers.map((layer, index) => ({
-      id: `saferoutesla-${routeType}-${index}`,
-      type: "line",
-      filter: [
-        "all",
-        ["==", "$type", "LineString"],
-        ["!=", "mode", "static"],
-        ["==", "user_route_type", routeType],
-      ],
-      paint: layer,
-    })),
-  ),
-  ...MapboxDraw.lib.theme.filter(
-    (style) => style.id !== "gl-draw-line-inactive",
-  ),
-].flat();
 
 interface ControlPanelProps {
   selectedFeatures: GeoJSON.Feature[];
@@ -275,7 +236,7 @@ const SafeRoutesMapAdminInner = ({
             userProperties
             position="top-left"
             displayControlsDefault={false}
-            styles={drawRouteStyles}
+            styles={drawControlRouteStyles}
             features={routes}
             controls={{
               line_string: true,

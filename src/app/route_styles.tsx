@@ -1,4 +1,5 @@
 import type { RouteType } from "@/db/enums";
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import type { LinePaint } from "mapbox-gl";
 
 interface RouteStyle {
@@ -62,3 +63,22 @@ export const routeStyles: RouteStyle[] = [
     ],
   },
 ];
+
+export const drawControlRouteStyles = [
+  ...routeStyles.map(({ routeType, paintLayers }) =>
+    paintLayers.map((layer, index) => ({
+      id: `saferoutesla-${routeType}-${index}`,
+      type: "line",
+      filter: [
+        "all",
+        ["==", "$type", "LineString"],
+        ["!=", "mode", "static"],
+        ["==", "user_route_type", routeType],
+      ],
+      paint: layer,
+    })),
+  ),
+  ...MapboxDraw.lib.theme.filter(
+    (style) => style.id !== "gl-draw-line-inactive",
+  ),
+].flat();

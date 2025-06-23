@@ -1,11 +1,11 @@
 "use client";
 
-import { createStore, useStore } from "zustand";
+import type { IRouteFeatureCollection } from "@/types/map";
 import { createContext, useContext } from "react";
 import * as R from "remeda";
-import type { IRouteFeatureCollection } from "@/types/map";
-import { getFeaturesByType } from "./utils";
+import { createStore, useStore } from "zustand";
 import { popDrawHistory, pushDrawHistory } from "./history";
+import { getFeaturesByType } from "./utils";
 
 const toFeatureCollection = (
   routes: Record<string, GeoJSON.Feature<GeoJSON.LineString>>,

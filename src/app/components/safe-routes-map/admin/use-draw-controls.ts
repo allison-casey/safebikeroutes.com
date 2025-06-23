@@ -56,7 +56,7 @@ export const useDrawControls = () => {
 
   // MapboxDraw Handlers
   const onSelectionChange = (
-    draw: MapboxDraw,
+    _draw: MapboxDraw,
     event: MapboxDraw.DrawSelectionChangeEvent,
   ) => {
     selectFeatures(event.features);
@@ -70,11 +70,11 @@ export const useDrawControls = () => {
     }
   };
 
-  const onUpdate = (draw: MapboxDraw, event: MapboxDraw.DrawUpdateEvent) => {
+  const onUpdate = (_draw: MapboxDraw, event: MapboxDraw.DrawUpdateEvent) => {
     updateFeatures(event.features);
   };
 
-  const onDelete = (draw: MapboxDraw, event: MapboxDraw.DrawDeleteEvent) => {
+  const onDelete = (_draw: MapboxDraw, event: MapboxDraw.DrawDeleteEvent) => {
     deleteFeatures(event.features);
     selectFeatures([]);
   };
