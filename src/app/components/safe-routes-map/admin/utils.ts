@@ -7,3 +7,11 @@ type FeaturesByType<TGeom extends GeoJSON.Geometry = GeoJSON.Geometry> = {
 export const getFeaturesByType = (
   features: GeoJSON.Feature[],
 ): FeaturesByType => R.groupBy(features, (f) => f.geometry.type);
+
+export const repaintDrawLayer = (
+  draw: MapboxDraw,
+  features: GeoJSON.FeatureCollection,
+) => {
+  draw.deleteAll();
+  draw.add(features);
+};

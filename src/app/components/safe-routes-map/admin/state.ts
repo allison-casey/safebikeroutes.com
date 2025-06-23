@@ -5,6 +5,14 @@ import { createContext, useContext } from "react";
 import * as R from "remeda";
 import type { IRouteFeatureCollection } from "@/types/map";
 import { getFeaturesByType } from "./utils";
+import { popDrawHistory, pushDrawHistory } from "./history";
+
+const toFeatureCollection = (
+  routes: Record<string, GeoJSON.Feature<GeoJSON.LineString>>,
+): GeoJSON.FeatureCollection => ({
+  type: "FeatureCollection",
+  features: Object.values(routes),
+});
 
 interface RouteAdminProps {
   routes: IRouteFeatureCollection;
@@ -22,12 +30,17 @@ interface RouteAdminState {
 
   //// History State
   history: GeoJSON.FeatureCollection[];
+  canPopHistory: () => boolean;
 
   // Functions
   selectFeatures: (features: GeoJSON.Feature[]) => void;
   createFeatures: (features: GeoJSON.Feature[]) => void;
   deleteFeatures: (features: GeoJSON.Feature[]) => void;
   updateFeatures: (features: GeoJSON.Feature[]) => void;
+
+  popHistory: (
+    onPopHistory: (features: GeoJSON.FeatureCollection) => void,
+  ) => void;
 
   handleSubmit: (handler: (features: GeoJSON.Feature[]) => void) => void;
 }
@@ -53,25 +66,32 @@ export const createRouteAdminStore = (initProps: RouteAdminProps) => {
     createFeatures: (features) =>
       set((state) => {
         const featuresByType = getFeaturesByType(features);
+        const newRoutes = {
+          ...state.routes,
+          ...R.indexBy(featuresByType.LineString ?? [], (f) => f.id as string),
+        };
         return {
-          routes: {
-            ...state.routes,
-            ...R.indexBy(
-              featuresByType.LineString ?? [],
-              (f) => f.id as string,
-            ),
-          },
+          history: pushDrawHistory(
+            state.history,
+            toFeatureCollection(newRoutes),
+          ),
+          routes: newRoutes,
         };
       }),
     deleteFeatures: (features) =>
       set((state) => {
         const featuresByType = getFeaturesByType(features);
+        const newRoutes = R.omit(
+          state.routes,
+          featuresByType.LineString?.map((f) => f.id as string) ?? [],
+        );
 
         return {
-          routes: R.omit(
-            state.routes,
-            featuresByType.LineString?.map((f) => f.id as string) ?? [],
+          history: pushDrawHistory(
+            state.history,
+            toFeatureCollection(newRoutes),
           ),
+          routes: newRoutes,
           deletedRouteIDs: new Set([
             ...state.deletedRouteIDs,
             ...features.map((f) => f.id as string),
@@ -81,20 +101,38 @@ export const createRouteAdminStore = (initProps: RouteAdminProps) => {
     updateFeatures: (features) =>
       set((state) => {
         const featuresByType = getFeaturesByType(features);
+        const newRoutes = {
+          ...state.routes,
+          ...R.indexBy(featuresByType.LineString ?? [], (f) => f.id as string),
+        };
         return {
-          routes: {
-            ...state.routes,
-            ...R.indexBy(
-              featuresByType.LineString ?? [],
-              (f) => f.id as string,
-            ),
-          },
+          history: pushDrawHistory(
+            state.history,
+            toFeatureCollection(newRoutes),
+          ),
+          routes: newRoutes,
           featureIDsToUpdate: new Set([
             ...state.featureIDsToUpdate,
             ...features.map((f) => f.id as string),
           ]),
         };
       }),
+
+    canPopHistory: () => get().history.length > 1,
+    popHistory: (onPopHistory) => {
+      // TODO: figure out how to deal with deleted ids getting undone by history change
+      const [newHistory, newState] = popDrawHistory(get().history);
+      const featuresByType = getFeaturesByType(newState.features);
+      onPopHistory(newState);
+      set(() => ({
+        routes: R.indexBy(
+          featuresByType.LineString ?? [],
+          (f) => f.id as string,
+        ),
+        history: newHistory,
+      }));
+    },
+
     handleSubmit: (handler) => {
       const features = get().routes;
       handler(Object.values(features));

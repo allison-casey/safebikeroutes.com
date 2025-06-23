@@ -23,6 +23,7 @@ import {
   MenuItem,
   Select,
   Snackbar,
+  Stack,
   TextField,
 } from "@mui/material";
 import { GeolocateControl, type MapProps, MapProvider } from "react-map-gl";
@@ -39,7 +40,6 @@ import {
   SafeRoutesMap,
 } from "../skeleton";
 import StyleSelector, { MAP_STYLES, type Styles } from "../style-selector";
-import { popDrawHistory, pushDrawHistory } from "./history";
 import {
   createRouteAdminStore,
   RouteAdminContext,
@@ -47,7 +47,7 @@ import {
 } from "./state";
 import { useDrawControls } from "./use-draw-controls";
 
-const DEFAULT_MAP_STYLE = "Streets";
+const DEFAULT_MAP_STYLE: Styles = "Streets";
 
 const geoJSONFeatureToRouteFeature = (
   region: Region,
@@ -100,18 +100,7 @@ const drawRouteStyles = [
   ),
 ].flat();
 
-const repaintDrawLayer = (
-  draw: MapboxDraw,
-  features: GeoJSON.FeatureCollection,
-) => {
-  draw.deleteAll();
-  draw.add(features);
-};
-
 interface ControlPanelProps {
-  undoDisabled: boolean;
-  undoHandler: () => void;
-  onSaveHandler: () => void;
   selectedFeatures: GeoJSON.Feature[];
   onFeaturePropertiesSave: (
     feature: GeoJSON.Feature,
@@ -176,9 +165,6 @@ const RouteEditor = ({
 };
 
 const ControlPanel = ({
-  undoDisabled,
-  undoHandler,
-  onSaveHandler,
   selectedFeatures,
   onFeaturePropertiesSave,
 }: ControlPanelProps) => {
@@ -194,36 +180,6 @@ const ControlPanel = ({
       />
       <MapToolBar />
       <div className="grid grid-rows grid-rows-1 p-5">
-        <Grid container direction="row" justifyContent="space-around">
-          <Grid>
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              sx={{ mr: 2 }}
-              disabled={undoDisabled}
-              onClick={undoHandler}
-            >
-              <UndoIcon />
-            </IconButton>
-          </Grid>
-          <Grid>
-            <IconButton
-              size="large"
-              edge="start"
-              color="primary"
-              aria-label="menu"
-              sx={{ mr: 2 }}
-              onClick={() => {
-                onSaveHandler();
-                setShowSnackbar(true);
-              }}
-            >
-              <SaveIcon />
-            </IconButton>
-          </Grid>
-        </Grid>
         <div>
           {selectedFeatures
             ? selectedFeatures.map((feature) => (
@@ -237,6 +193,30 @@ const ControlPanel = ({
         </div>
       </div>
     </>
+  );
+};
+
+const RouteToolbar = (props: {
+  draw: MapboxDraw;
+  onSave: () => void;
+  onUndo: (draw: MapboxDraw) => void;
+}) => {
+  const canPopHistory = useRouteAdminContext((s) => s.canPopHistory());
+  return (
+    <Stack className="border-solid divide-solid pointer-events-auto absolute  right-[calc(50%-1rem)] top-0 sm:right-2 mt-2 sm:mt-10 sm:top-0 z-20 px-1 py-1 rounded-lg bg-white drop-shadow-md">
+      <IconButton size="small" color="primary" aria-label="menu">
+        <SaveIcon fontSize="small" />
+      </IconButton>
+      <IconButton
+        size="small"
+        color="inherit"
+        aria-label="menu"
+        disabled={!canPopHistory}
+        onClick={() => props.onUndo(props.draw)}
+      >
+        <UndoIcon fontSize="small" />
+      </IconButton>
+    </Stack>
   );
 };
 
@@ -261,15 +241,14 @@ const SafeRoutesMapAdminInner = ({
 
   const {
     mergeFeatureProperties,
-    setFeatureProperty,
     onSelectionChange,
     onCreate,
     onUpdate,
     onDelete,
+    undo,
   } = useDrawControls();
 
-  const [history, setHistory] = useState<GeoJSON.FeatureCollection[]>([routes]);
-  const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
+  const [currentStyle, setCurrentStyle] = useState<Styles>(DEFAULT_MAP_STYLE);
   const [showControlPanel, toggleControlPanel] = useState(true);
 
   return (
@@ -311,34 +290,6 @@ const SafeRoutesMapAdminInner = ({
         <MapSurfaceContainer>
           <MapPanel open={showControlPanel}>
             <ControlPanel
-              undoDisabled={history.length === 1}
-              onSaveHandler={async () => {
-                handleSubmit(async (features) => {
-                  await saveRoutesHandler(
-                    {
-                      type: "FeatureCollection",
-                      features: features
-                        .filter(
-                          (
-                            feature,
-                          ): feature is GeoJSON.Feature<GeoJSON.LineString> =>
-                            feature.geometry.type === "LineString",
-                        )
-                        .map((feature) =>
-                          geoJSONFeatureToRouteFeature(region, feature),
-                        ),
-                    },
-                    [...deletedRouteIds],
-                  );
-                });
-              }}
-              undoHandler={() => {
-                if (draw) {
-                  const [newHistory, state] = popDrawHistory(history);
-                  repaintDrawLayer(draw, state);
-                  setHistory(newHistory);
-                }
-              }}
               selectedFeatures={selectedFeatures}
               onFeaturePropertiesSave={(feature, data) => {
                 if (draw) {
@@ -348,9 +299,35 @@ const SafeRoutesMapAdminInner = ({
             />
           </MapPanel>
           <MapSurface open={showControlPanel}>
+            {draw && (
+              <RouteToolbar
+                draw={draw}
+                onSave={async () => {
+                  handleSubmit(async (features) => {
+                    await saveRoutesHandler(
+                      {
+                        type: "FeatureCollection",
+                        features: features
+                          .filter(
+                            (
+                              feature,
+                            ): feature is GeoJSON.Feature<GeoJSON.LineString> =>
+                              feature.geometry.type === "LineString",
+                          )
+                          .map((feature) =>
+                            geoJSONFeatureToRouteFeature(region, feature),
+                          ),
+                      },
+                      [...deletedRouteIds],
+                    );
+                  });
+                }}
+                onUndo={undo}
+              />
+            )}
             <StyleSelector
               onClick={(title) => setCurrentStyle(title)}
-              currentlySelectedStyle={currentStyle as Styles}
+              currentlySelectedStyle={currentStyle}
             />
             <MapPanelButton
               open={showControlPanel}

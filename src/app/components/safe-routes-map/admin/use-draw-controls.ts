@@ -1,6 +1,7 @@
 import type { IRouteProperties } from "@/types/map";
 import type MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { useRouteAdminContext } from "./state";
+import { repaintDrawLayer } from "./utils";
 
 type ISetFeatureProperty = <
   K extends keyof IRouteProperties,
@@ -11,12 +12,6 @@ type ISetFeatureProperty = <
   key: K,
   value: V,
 ) => void;
-
-const repaintDrawLayer = (draw: MapboxDraw) => {
-  const allFeatures = draw.getAll();
-  draw.deleteAll();
-  draw.add(allFeatures);
-};
 
 const createMergeFeatureProperties =
   (setFeatureProperties: ISetFeatureProperty) =>
@@ -35,7 +30,10 @@ export const useDrawControls = () => {
   const createFeatures = useRouteAdminContext((s) => s.createFeatures);
   const updateFeatures = useRouteAdminContext((s) => s.updateFeatures);
   const deleteFeatures = useRouteAdminContext((s) => s.deleteFeatures);
+  const popHistory = useRouteAdminContext((s) => s.popHistory);
+  const canPopHistory = useRouteAdminContext((s) => s.canPopHistory());
 
+  // feature utility methods
   const setFeatureProperty: ISetFeatureProperty = (
     draw: MapboxDraw,
     feature: GeoJSON.Feature,
@@ -44,7 +42,8 @@ export const useDrawControls = () => {
   ) => {
     // set the feature on the draw layer
     draw.setFeatureProperty(feature.id as string, key, value);
-    repaintDrawLayer(draw);
+    const features = draw.getAll();
+    repaintDrawLayer(draw, features);
 
     // update it in global state
     const updatedFeature = draw.get(feature.id as string);
@@ -55,6 +54,7 @@ export const useDrawControls = () => {
   const mergeFeatureProperties =
     createMergeFeatureProperties(setFeatureProperty);
 
+  // MapboxDraw Handlers
   const onSelectionChange = (
     draw: MapboxDraw,
     event: MapboxDraw.DrawSelectionChangeEvent,
@@ -79,6 +79,14 @@ export const useDrawControls = () => {
     selectFeatures([]);
   };
 
+  const undo = (draw: MapboxDraw) => {
+    if (canPopHistory) {
+      popHistory((features) => {
+        repaintDrawLayer(draw, features);
+      });
+    }
+  };
+
   return {
     mergeFeatureProperties,
     setFeatureProperty,
@@ -86,5 +94,6 @@ export const useDrawControls = () => {
     onCreate,
     onUpdate,
     onDelete,
+    undo,
   };
 };
