@@ -1,4 +1,4 @@
-import SafeRoutesMapAdmin from "@/app/components/safe-routes-map/admin/map";
+import { SafeRoutesMapAdmin } from "@/app/components/safe-routes-map/admin/map";
 import type { Role } from "@/db/enums";
 import { deleteRoutes, getRoutes, saveRoutes } from "@/db/routes";
 import type { IRouteFeatureCollection } from "@/types/map";

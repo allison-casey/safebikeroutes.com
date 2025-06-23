@@ -3,17 +3,12 @@
 import SaveIcon from "@mui/icons-material/Save";
 import UndoIcon from "@mui/icons-material/Undo";
 import mapboxgl from "mapbox-gl";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
-import { routeStyles } from "@/app/route_styles";
+import { drawControlRouteStyles } from "@/app/route_styles";
 import type { Region } from "@/db/enums";
-import type {
-  IRouteFeature,
-  IRouteFeatureCollection,
-  IRouteProperties,
-} from "@/types/map";
-import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import type { IRouteFeatureCollection, IRouteProperties } from "@/types/map";
 import type MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import {
   Button,
@@ -22,6 +17,7 @@ import {
   MenuItem,
   Select,
   Snackbar,
+  Stack,
   TextField,
 } from "@mui/material";
 import { GeolocateControl, type MapProps, MapProvider } from "react-map-gl";
@@ -38,38 +34,20 @@ import {
   SafeRoutesMap,
 } from "../skeleton";
 import StyleSelector, { MAP_STYLES, type Styles } from "../style-selector";
-import { popDrawHistory, pushDrawHistory } from "./history";
+import {
+  RouteAdminContext,
+  createRouteAdminStore,
+  useRouteAdminContext,
+} from "./state";
+import { useDrawControls } from "./use-draw-controls";
+import { geoJSONFeatureToRouteFeature } from "./utils";
 
-const DEFAULT_MAP_STYLE = "Streets";
-
-const geoJSONFeatureToRouteFeature = (
-  region: Region,
-  feature: GeoJSON.Feature<GeoJSON.LineString>,
-): IRouteFeature => ({
-  type: "Feature",
-  bbox: feature.bbox,
-  geometry: feature.geometry,
-  id: feature.id as string, // mapbox always generates a UUID `id` string
-  properties: {
-    route_type: feature.properties?.route_type ?? "STREET",
-    region: region,
-    name: feature.properties?.name ?? null,
-  },
-});
+const DEFAULT_MAP_STYLE: Styles = "Streets";
 
 type IUpdateRoutesHandler = (
   features: IRouteFeatureCollection,
   routeIdsToDelete: string[],
 ) => Promise<void>;
-
-type IUpdateRouteProperty = <
-  K extends keyof IRouteProperties,
-  V extends Required<IRouteProperties>[K],
->(
-  feature: GeoJSON.Feature,
-  key: K,
-  value: V,
-) => void;
 
 type SafeRoutesMapProps = Omit<
   MapProps,
@@ -83,47 +61,20 @@ type SafeRoutesMapProps = Omit<
   saveRoutesHandler: IUpdateRoutesHandler;
 };
 
-const drawRouteStyles = [
-  ...routeStyles.map(({ routeType, paintLayers }) =>
-    paintLayers.map((layer, index) => ({
-      id: `saferoutesla-${routeType}-${index}`,
-      type: "line",
-      filter: [
-        "all",
-        ["==", "$type", "LineString"],
-        ["!=", "mode", "static"],
-        ["==", "user_route_type", routeType],
-      ],
-      paint: layer,
-    })),
-  ),
-  ...MapboxDraw.lib.theme.filter(
-    (style) => style.id !== "gl-draw-line-inactive",
-  ),
-].flat();
-
-const repaintDrawLayer = (
-  draw: MapboxDraw,
-  features: GeoJSON.FeatureCollection,
-) => {
-  draw.deleteAll();
-  draw.add(features);
-};
-
 interface ControlPanelProps {
-  undoDisabled: boolean;
-  undoHandler: () => void;
-  onSaveHandler: () => void;
   selectedFeatures: GeoJSON.Feature[];
-  updateFeatureProperty: IUpdateRouteProperty;
+  onFeaturePropertiesSave: (
+    feature: GeoJSON.Feature,
+    properties: IRouteProperties,
+  ) => void;
 }
 
 const RouteEditor = ({
   feature,
-  updateRouteProperty,
+  onSave,
 }: {
   feature: GeoJSON.Feature;
-  updateRouteProperty: IUpdateRouteProperty;
+  onSave: (feature: GeoJSON.Feature, properties: IRouteProperties) => void;
 }) => {
   const { handleSubmit, control } = useForm<IRouteProperties>({
     defaultValues: {
@@ -132,13 +83,10 @@ const RouteEditor = ({
     },
   });
 
-  const onSubmit = (data: IRouteProperties) => {
-    updateRouteProperty(feature, "route_type", data.route_type);
-    data.name && updateRouteProperty(feature, "name", data.name);
-  };
+  const onSubmit = handleSubmit((data) => onSave(feature, data));
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={onSubmit}>
       <Grid container direction="column" gap={1}>
         <Controller
           name="name"
@@ -178,11 +126,8 @@ const RouteEditor = ({
 };
 
 const ControlPanel = ({
-  undoDisabled,
-  undoHandler,
-  onSaveHandler,
   selectedFeatures,
-  updateFeatureProperty,
+  onFeaturePropertiesSave,
 }: ControlPanelProps) => {
   const [showSnackbar, setShowSnackbar] = useState(false);
   return (
@@ -196,43 +141,13 @@ const ControlPanel = ({
       />
       <MapToolBar />
       <div className="grid grid-rows grid-rows-1 p-5">
-        <Grid container direction="row" justifyContent="space-around">
-          <Grid>
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              sx={{ mr: 2 }}
-              disabled={undoDisabled}
-              onClick={undoHandler}
-            >
-              <UndoIcon />
-            </IconButton>
-          </Grid>
-          <Grid>
-            <IconButton
-              size="large"
-              edge="start"
-              color="primary"
-              aria-label="menu"
-              sx={{ mr: 2 }}
-              onClick={() => {
-                onSaveHandler();
-                setShowSnackbar(true);
-              }}
-            >
-              <SaveIcon />
-            </IconButton>
-          </Grid>
-        </Grid>
         <div>
           {selectedFeatures
             ? selectedFeatures.map((feature) => (
                 <RouteEditor
                   key={feature.id}
                   feature={feature}
-                  updateRouteProperty={updateFeatureProperty}
+                  onSave={onFeaturePropertiesSave}
                 />
               ))
             : null}
@@ -242,7 +157,31 @@ const ControlPanel = ({
   );
 };
 
-const SafeRoutesMapAdmin = ({
+const RouteToolbar = (props: {
+  draw: MapboxDraw;
+  onSave: () => void;
+  onUndo: (draw: MapboxDraw) => void;
+}) => {
+  const canPopHistory = useRouteAdminContext((s) => s.canPopHistory());
+  return (
+    <Stack className="border-solid divide-solid pointer-events-auto absolute  right-[calc(50%-1rem)] top-0 sm:right-2 mt-2 sm:mt-10 sm:top-0 z-20 px-1 py-1 rounded-lg bg-white drop-shadow-md">
+      <IconButton size="small" color="primary" aria-label="menu">
+        <SaveIcon fontSize="small" />
+      </IconButton>
+      <IconButton
+        size="small"
+        color="inherit"
+        aria-label="menu"
+        disabled={!canPopHistory}
+        onClick={() => props.onUndo(props.draw)}
+      >
+        <UndoIcon fontSize="small" />
+      </IconButton>
+    </Stack>
+  );
+};
+
+const SafeRoutesMapAdminInner = ({
   token,
   region,
   regionLabel,
@@ -256,42 +195,22 @@ const SafeRoutesMapAdmin = ({
   }
   const { default: draw } = useDraw();
 
-  const [selectedFeatures, setSelectedFeatures] = useState<GeoJSON.Feature[]>(
-    [],
-  );
-  const [deletedRouteIds, setDeletedRouteIds] = useState<string[]>([]);
-  const [featuresToUpdate, setFeaturesToUpdate] = useState<string[]>([]);
-  const [history, setHistory] = useState<GeoJSON.FeatureCollection[]>([routes]);
+  const selectedFeatures = useRouteAdminContext((s) => s.selectedFeatures);
+  const deletedRouteIds = useRouteAdminContext((s) => s.deletedRouteIDs);
 
-  const onUpdate = (draw: MapboxDraw, event: MapboxDraw.DrawUpdateEvent) => {
-    setFeaturesToUpdate((features) => [
-      ...features,
-      ...event.features.map((ft) => ft.id as string),
-    ]);
-    setHistory((history) => {
-      return draw ? pushDrawHistory(history, draw.getAll()) : history;
-    });
-  };
+  const handleSubmit = useRouteAdminContext((s) => s.handleSubmit);
 
-  const [currentStyle, setCurrentStyle] = useState(DEFAULT_MAP_STYLE);
+  const {
+    mergeFeatureProperties,
+    onSelectionChange,
+    onCreate,
+    onUpdate,
+    onDelete,
+    undo,
+  } = useDrawControls();
+
+  const [currentStyle, setCurrentStyle] = useState<Styles>(DEFAULT_MAP_STYLE);
   const [showControlPanel, toggleControlPanel] = useState(true);
-
-  const updateFeatureProperty: IUpdateRouteProperty = (
-    feature: GeoJSON.Feature,
-    key,
-    value,
-  ) => {
-    if (draw && feature.id) {
-      draw.setFeatureProperty(feature.id.toString(), key, value);
-      const data = draw.getAll();
-      setHistory((history) =>
-        draw ? pushDrawHistory(history, draw.getAll()) : history,
-      );
-      repaintDrawLayer(draw, data);
-      setFeaturesToUpdate((features) => [...features, feature.id as string]);
-      setSelectedFeatures([]);
-    }
-  };
 
   return (
     <SafeRoutesMapContext.Provider value={{ region, regionLabel }}>
@@ -317,76 +236,59 @@ const SafeRoutesMapAdmin = ({
             userProperties
             position="top-left"
             displayControlsDefault={false}
-            styles={drawRouteStyles}
+            styles={drawControlRouteStyles}
             features={routes}
             controls={{
               line_string: true,
               trash: true,
             }}
             onUpdate={onUpdate}
-            onCreate={(_draw, evt) => {
-              for (const feature of evt.features) {
-                updateFeatureProperty(feature, "route_type", "STREET");
-              }
-            }}
-            onDelete={(_draw, evt) => {
-              setDeletedRouteIds((ids) => [
-                ...ids,
-                ...evt.features
-                  .map((feature) => feature.id as string)
-                  .filter((id) => !!id),
-              ]);
-            }}
-            onSelectionChange={(_draw, evt) => {
-              setSelectedFeatures(evt.features);
-            }}
+            onCreate={onCreate}
+            onDelete={onDelete}
+            onSelectionChange={onSelectionChange}
           />
         </SafeRoutesMap>
         <MapSurfaceContainer>
           <MapPanel open={showControlPanel}>
             <ControlPanel
-              undoDisabled={history.length === 1}
-              onSaveHandler={async () => {
-                if (draw) {
-                  const features = draw.getAll();
-                  await saveRoutesHandler(
-                    {
-                      type: "FeatureCollection",
-                      features: features.features
-                        .filter(
-                          (
-                            feature,
-                          ): feature is GeoJSON.Feature<GeoJSON.LineString> =>
-                            feature.geometry.type === "LineString",
-                        )
-                        .filter((feature) =>
-                          featuresToUpdate.includes(feature.id as string),
-                        )
-                        .map((feature) =>
-                          geoJSONFeatureToRouteFeature(region, feature),
-                        ),
-                    },
-                    deletedRouteIds,
-                  );
-                  setDeletedRouteIds([]);
-                  setFeaturesToUpdate([]);
-                }
-              }}
-              undoHandler={() => {
-                if (draw) {
-                  const [newHistory, state] = popDrawHistory(history);
-                  repaintDrawLayer(draw, state);
-                  setHistory(newHistory);
-                }
-              }}
               selectedFeatures={selectedFeatures}
-              updateFeatureProperty={updateFeatureProperty}
+              onFeaturePropertiesSave={(feature, data) => {
+                if (draw) {
+                  mergeFeatureProperties(draw, feature, data);
+                }
+              }}
             />
           </MapPanel>
           <MapSurface open={showControlPanel}>
+            {draw && (
+              <RouteToolbar
+                draw={draw}
+                onSave={async () => {
+                  handleSubmit(async (features) => {
+                    await saveRoutesHandler(
+                      {
+                        type: "FeatureCollection",
+                        features: features
+                          .filter(
+                            (
+                              feature,
+                            ): feature is GeoJSON.Feature<GeoJSON.LineString> =>
+                              feature.geometry.type === "LineString",
+                          )
+                          .map((feature) =>
+                            geoJSONFeatureToRouteFeature(region, feature),
+                          ),
+                      },
+                      [...deletedRouteIds],
+                    );
+                  });
+                }}
+                onUndo={undo}
+              />
+            )}
             <StyleSelector
               onClick={(title) => setCurrentStyle(title)}
-              currentlySelectedStyle={currentStyle as Styles}
+              currentlySelectedStyle={currentStyle}
             />
             <MapPanelButton
               open={showControlPanel}
@@ -399,4 +301,11 @@ const SafeRoutesMapAdmin = ({
   );
 };
 
-export default SafeRoutesMapAdmin;
+export const SafeRoutesMapAdmin = (props: SafeRoutesMapProps) => {
+  const store = useRef(createRouteAdminStore({ routes: props.routes })).current;
+  return (
+    <RouteAdminContext.Provider value={store}>
+      <SafeRoutesMapAdminInner {...props} />
+    </RouteAdminContext.Provider>
+  );
+};
