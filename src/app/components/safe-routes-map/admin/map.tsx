@@ -164,19 +164,23 @@ const RouteToolbar = (props: {
 }) => {
   const canPopHistory = useRouteAdminContext((s) => s.canPopHistory());
   return (
-    <Stack className="border-solid divide-solid pointer-events-auto absolute  right-[calc(50%-1rem)] top-0 sm:right-2 mt-2 sm:mt-10 sm:top-0 z-20 px-1 py-1 rounded-lg bg-white drop-shadow-md">
-      <IconButton size="small" color="primary" aria-label="menu">
-        <SaveIcon fontSize="small" />
-      </IconButton>
-      <IconButton
-        size="small"
-        color="inherit"
-        aria-label="menu"
-        disabled={!canPopHistory}
-        onClick={() => props.onUndo(props.draw)}
-      >
-        <UndoIcon fontSize="small" />
-      </IconButton>
+    <Stack className="border border-solid border-slate-300 divide-y-[1px] divide-solid divide-slate-300 pointer-events-auto absolute  right-[calc(50%-1rem)] top-0 sm:right-2 mt-2 sm:mt-10 sm:top-0 z-20 mx-1 my-1 rounded-lg bg-white drop-shadow-md">
+      <div className="p-1">
+        <IconButton size="small" color="primary" aria-label="menu">
+          <SaveIcon fontSize="small" />
+        </IconButton>
+      </div>
+      <div className="p-1">
+        <IconButton
+          size="small"
+          color="inherit"
+          aria-label="menu"
+          disabled={!canPopHistory}
+          onClick={() => props.onUndo(props.draw)}
+        >
+          <UndoIcon fontSize="small" />
+        </IconButton>
+      </div>
     </Stack>
   );
 };
