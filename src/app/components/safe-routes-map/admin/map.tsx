@@ -165,7 +165,12 @@ const RouteToolbar = (props: {
   const canPopHistory = useRouteAdminContext((s) => s.canPopHistory());
   return (
     <Stack className="border-solid divide-solid pointer-events-auto absolute  right-[calc(50%-1rem)] top-0 sm:right-2 mt-2 sm:mt-10 sm:top-0 z-20 px-1 py-1 rounded-lg bg-white drop-shadow-md">
-      <IconButton size="small" color="primary" aria-label="menu">
+      <IconButton
+        size="small"
+        color="primary"
+        aria-label="menu"
+        onClick={props.onSave}
+      >
         <SaveIcon fontSize="small" />
       </IconButton>
       <IconButton
