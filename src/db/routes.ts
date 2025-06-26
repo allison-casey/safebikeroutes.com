@@ -39,7 +39,9 @@ export const getRoutes = async (
     .select(() => [
       jsonBuildObject({
         type: sql<"FeatureCollection">`'FeatureCollection'`,
-        features: sql<IRouteFeature[]>`jsonb_agg(features.feature)`,
+        features: sql<
+          IRouteFeature[]
+        >`COALESCE(jsonb_agg(features.feature), '[]')`,
       }).as("geojson"),
     ])
     .executeTakeFirstOrThrow();
