@@ -3,7 +3,7 @@
 import SaveIcon from "@mui/icons-material/Save";
 import UndoIcon from "@mui/icons-material/Undo";
 import mapboxgl from "mapbox-gl";
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { drawControlRouteStyles } from "@/app/route_styles";
@@ -129,16 +129,8 @@ const ControlPanel = ({
   selectedFeatures,
   onFeaturePropertiesSave,
 }: ControlPanelProps) => {
-  const [showSnackbar, setShowSnackbar] = useState(false);
   return (
     <>
-      <Snackbar
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        autoHideDuration={3000}
-        open={showSnackbar}
-        onClose={() => setShowSnackbar(false)}
-        message="Map Saved."
-      />
       <MapToolBar />
       <div className="grid grid-rows grid-rows-1 p-5">
         <div>
@@ -162,26 +154,48 @@ const RouteToolbar = (props: {
   onSave: () => void;
   onUndo: (draw: MapboxDraw) => void;
 }) => {
+  const [isSubmitting, startTransition] = useTransition();
+  const [showSnackbar, setShowSnackbar] = useState(false);
   const canPopHistory = useRouteAdminContext((s) => s.canPopHistory());
   return (
-    <Stack className="border border-solid border-slate-300 divide-y-[1px] divide-solid divide-slate-300 pointer-events-auto absolute  right-[calc(50%-1rem)] top-0 sm:right-2 mt-2 sm:mt-10 sm:top-0 z-20 mx-1 my-1 rounded-lg bg-white drop-shadow-md">
-      <div className="p-1">
-        <IconButton size="small" color="primary" aria-label="menu">
-          <SaveIcon fontSize="small" />
-        </IconButton>
-      </div>
-      <div className="p-1">
-        <IconButton
-          size="small"
-          color="inherit"
-          aria-label="menu"
-          disabled={!canPopHistory}
-          onClick={() => props.onUndo(props.draw)}
-        >
-          <UndoIcon fontSize="small" />
-        </IconButton>
-      </div>
-    </Stack>
+    <>
+      <Snackbar
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        autoHideDuration={3000}
+        open={showSnackbar}
+        onClose={() => setShowSnackbar(false)}
+        message="Map Saved."
+      />
+      <Stack className="border border-solid border-slate-300 divide-y-[1px] divide-solid divide-slate-300 pointer-events-auto absolute  right-[calc(50%-1rem)] top-0 sm:right-2 mt-2 sm:mt-10 sm:top-0 z-20 mx-1 my-1 rounded-lg bg-white drop-shadow-md">
+        <div>
+          <IconButton
+            size="small"
+            color="primary"
+            aria-label="menu"
+            disabled={isSubmitting}
+            onClick={async () => {
+              startTransition(() => {
+                props.onSave();
+                setShowSnackbar(true);
+              });
+            }}
+          >
+            <SaveIcon fontSize="small" />
+          </IconButton>
+        </div>
+        <div>
+          <IconButton
+            size="small"
+            color="inherit"
+            aria-label="menu"
+            disabled={!canPopHistory}
+            onClick={() => props.onUndo(props.draw)}
+          >
+            <UndoIcon fontSize="small" />
+          </IconButton>
+        </div>
+      </Stack>
+    </>
   );
 };
 
@@ -197,11 +211,11 @@ const SafeRoutesMapAdminInner = ({
   if (!token) {
     throw new Error("ACCESS_TOKEN is undefined");
   }
+
   const { default: draw } = useDraw();
 
   const selectedFeatures = useRouteAdminContext((s) => s.selectedFeatures);
   const deletedRouteIds = useRouteAdminContext((s) => s.deletedRouteIDs);
-
   const handleSubmit = useRouteAdminContext((s) => s.handleSubmit);
 
   const {
@@ -267,7 +281,7 @@ const SafeRoutesMapAdminInner = ({
             {draw && (
               <RouteToolbar
                 draw={draw}
-                onSave={async () => {
+                onSave={() =>
                   handleSubmit(async (features) => {
                     await saveRoutesHandler(
                       {
@@ -285,8 +299,8 @@ const SafeRoutesMapAdminInner = ({
                       },
                       [...deletedRouteIds],
                     );
-                  });
-                }}
+                  })
+                }
                 onUndo={undo}
               />
             )}

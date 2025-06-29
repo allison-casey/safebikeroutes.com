@@ -18,6 +18,7 @@ datasource db {
   extensions = [uuidOssp(map: "uuid-ossp"), postgis]
 }
 
+
 enum RouteType {
   SIDEWALK
   STREET 
