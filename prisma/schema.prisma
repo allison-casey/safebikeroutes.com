@@ -18,6 +18,10 @@ datasource db {
   extensions = [uuidOssp(map: "uuid-ossp"), postgis]
 }
 
+enum Region {
+  LA
+  CC_PRIDE
+}
 
 enum RouteType {
   SIDEWALK
@@ -30,18 +34,10 @@ enum RouteType {
 model Route {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name String?
-  region String
+  region Region
   routeType RouteType @map("route_type")
   geometry Unsupported("geography(Linestring, 4326)")
   @@map("route")
-}
-
-model RegionConfig {
-  region String @id
-  urlSegment String @map("url_segment")
-  label String
-  bbox Unsupported("box2d")
-  @@map("region_config")
 }
 
 model User {
@@ -126,9 +122,8 @@ model UserRoles {
   id     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId String  @db.Uuid
   role   Role
-  region String
+  region Region
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@map("user_roles")
 }
-
