@@ -5,10 +5,10 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator kysely {
-  provider = "prisma-kysely"
-  output = "../src/db"
-  fileName = "types.ts"
-  enumFileName = "enums.ts"
+  provider        = "prisma-kysely"
+  output          = "../src/db"
+  fileName        = "types.ts"
+  enumFileName    = "enums.ts"
   previewFeatures = ["postgresqlExtensions"]
 }
 
@@ -25,19 +25,33 @@ enum Region {
 
 enum RouteType {
   SIDEWALK
-  STREET 
-  LANE 
+  STREET
+  LANE
   PROTECTED
   TRACK
 }
 
 model Route {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name String?
-  region Region
-  routeType RouteType @map("route_type")
-  geometry Unsupported("geography(Linestring, 4326)")
+  id        String                                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String?
+  region    Region
+  regionId  String?                                    @map("region_id")
+  routeType RouteType                                  @map("route_type")
+  geometry  Unsupported("geography(Linestring, 4326)")
+
   @@map("route")
+}
+
+model RegionConfig {
+  region      String                         @id
+  urlSegment  String                         @map("url_segment")
+  label       String
+  description String
+  center      Unsupported("geometry(Point)")
+  bbox        Unsupported("box2d")
+  zoom        Int
+
+  @@map("region_config")
 }
 
 model User {
@@ -50,14 +64,15 @@ model User {
   sessions      Session[]
   roles         UserRoles[]
   Authenticator Authenticator[]
- 
+
   createdAt DateTime @default(now())
+
   @@map("users")
 }
- 
+
 model Account {
-  id                String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId            String @db.Uuid
+  id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String  @db.Uuid
   type              String
   provider          String
   providerAccountId String
@@ -68,34 +83,35 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
- 
+
   createdAt DateTime @default(now())
- 
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@map("accounts")
 }
- 
+
 model Session {
   id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   sessionToken String   @unique
   userId       String   @db.Uuid
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   createdAt DateTime @default(now())
+
   @@map("sessions")
 }
- 
+
 model VerificationToken {
   identifier String
   token      String
   expires    DateTime
- 
+
   @@id([identifier, token])
   @@map("verification_token")
 }
- 
+
 // Optional for WebAuthn support
 model Authenticator {
   credentialID         String  @unique
@@ -106,9 +122,9 @@ model Authenticator {
   credentialDeviceType String
   credentialBackedUp   Boolean
   transports           String?
- 
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@id([userId, credentialID])
   @@map("authenticator")
 }
@@ -119,11 +135,12 @@ enum Role {
 }
 
 model UserRoles {
-  id     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId String  @db.Uuid
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @db.Uuid
   role   Role
   region Region
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("user_roles")
 }

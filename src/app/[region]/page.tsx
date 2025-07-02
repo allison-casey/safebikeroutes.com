@@ -1,11 +1,11 @@
 import SafeBikeRoutesClient from "@/app/components/safe-routes-map/client/map";
-import { getRoutes } from "@/db/routes";
+import { db } from "@/db/client";
+import { getRoutesByRegionID } from "@/db/routes";
 import { Grid } from "@mui/material";
 import { unstable_noStore as noStore } from "next/cache";
-import { MapToolBar } from "../components/safe-routes-map/skeleton";
-import { db } from "@/db/client";
-import { indexBy } from "remeda";
 import { notFound } from "next/navigation";
+import { indexBy } from "remeda";
+import { MapToolBar } from "../components/safe-routes-map/skeleton";
 // import Description from "./description.mdx";
 
 const BOUNDS: MapboxGeocoder.Bbox = [
@@ -23,19 +23,20 @@ interface ISafeRoutesPageProps {
 export default async function SafeRoutes(props: ISafeRoutesPageProps) {
   noStore();
   const regions = await db
-    .selectFrom("route")
-    .select("route.region")
+    .selectFrom("region_config")
+    .selectAll()
     .distinct()
     .execute();
 
   const regionLookup = indexBy(regions, (r) => r.region);
-  const region = props.params.region;
 
-  if (!regionLookup[region]) {
+  if (!regionLookup[props.params.region]) {
     notFound();
   }
 
-  const routes = await getRoutes(region);
+  const regionConfig = regionLookup[props.params.region];
+
+  const routes = await getRoutesByRegionID(regionConfig.region);
 
   if (!process.env.ACCESS_TOKEN) {
     throw Error("ACCESS_TOKEN not set");
@@ -44,8 +45,8 @@ export default async function SafeRoutes(props: ISafeRoutesPageProps) {
   return (
     <SafeBikeRoutesClient
       mapboxAccessToken={process.env.ACCESS_TOKEN}
-      region={region}
-      regionLabel="Los Angeles"
+      region={regionConfig.region}
+      regionLabel={regionConfig.label}
       routes={routes}
       panelContents={
         <Grid container>
