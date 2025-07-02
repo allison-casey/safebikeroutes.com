@@ -32,12 +32,13 @@ enum RouteType {
 }
 
 model Route {
-  id        String                                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String?
-  region    Region
-  regionId  String?                                    @map("region_id")
-  routeType RouteType                                  @map("route_type")
-  geometry  Unsupported("geography(Linestring, 4326)")
+  id           String                                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String?
+  region       Region
+  regionId     String                                     @map("region_id")
+  regionConfig RegionConfig                               @relation(fields: [regionId], references: [region], onDelete: Cascade)
+  routeType    RouteType                                  @map("route_type")
+  geometry     Unsupported("geography(Linestring, 4326)")
 
   @@map("route")
 }
@@ -50,6 +51,7 @@ model RegionConfig {
   center      Unsupported("geometry(Point)")
   bbox        Unsupported("box2d")
   zoom        Int
+  Route       Route[]
 
   @@map("region_config")
 }

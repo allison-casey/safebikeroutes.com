@@ -42,7 +42,7 @@ export type Route = {
   id: Generated<string>;
   name: string | null;
   region: Region;
-  region_id: string | null;
+  region_id: string;
   route_type: RouteType;
 };
 export type Session = {
