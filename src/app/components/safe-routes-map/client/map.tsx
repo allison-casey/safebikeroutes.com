@@ -14,7 +14,6 @@ import StyleSelector, {
   type Styles,
 } from "@/app/components/safe-routes-map/style-selector";
 import { routeStyles } from "@/app/route_styles";
-import type { Region } from "@/db/enums";
 import type { IRouteFeatureCollection } from "@/types/map";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import mapboxgl, {
@@ -35,7 +34,7 @@ type WatchState =
 
 type SafeRoutesMapProps = Omit<MapProps, "mapLib" | "mapStyle"> & {
   mapboxAccessToken: string;
-  region: Region;
+  region: string;
   regionLabel: string;
   routes: IRouteFeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;

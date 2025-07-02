@@ -1,10 +1,9 @@
 "use client";
 
-import type { Region } from "@/db/enums";
 import { createContext, useContext } from "react";
 
 interface ISafeRoutesMapContext {
-  region: Region;
+  region: string;
   regionLabel: string;
 }
 

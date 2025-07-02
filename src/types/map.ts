@@ -1,8 +1,8 @@
-import type { Region, RouteType } from "@/db/enums";
+import type { RouteType } from "@/db/enums";
 
 export interface IRouteProperties {
   route_type: RouteType;
-  region: Region;
+  region: string;
   name: string | null;
 }
 

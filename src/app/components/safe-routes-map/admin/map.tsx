@@ -7,7 +7,6 @@ import { useRef, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { drawControlRouteStyles } from "@/app/route_styles";
-import type { Region } from "@/db/enums";
 import type { IRouteFeatureCollection, IRouteProperties } from "@/types/map";
 import type MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import {
@@ -54,7 +53,7 @@ type SafeRoutesMapProps = Omit<
   "mapboxAccessToken" | "mapLib" | "mapStyle"
 > & {
   token?: string;
-  region: Region;
+  region: string;
   regionLabel: string;
   routes: IRouteFeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;

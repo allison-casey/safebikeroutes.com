@@ -34,7 +34,7 @@ enum RouteType {
 model Route {
   id           String                                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name         String?
-  region       Region
+  region       Region?
   regionId     String                                     @map("region_id")
   regionConfig RegionConfig                               @relation(fields: [regionId], references: [region], onDelete: Cascade)
   routeType    RouteType                                  @map("route_type")

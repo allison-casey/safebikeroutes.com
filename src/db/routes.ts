@@ -6,7 +6,6 @@ import type {
 import { type Expression, type RawBuilder, type Simplify, sql } from "kysely";
 import { jsonBuildObject } from "kysely/helpers/postgres";
 import { db } from "./client";
-import type { Region } from "./enums";
 
 export const geoJSONObjectFrom = <O>(
   expr: Expression<O>,
@@ -14,7 +13,7 @@ export const geoJSONObjectFrom = <O>(
 
 // TODO: simplify this
 export const getRoutes = async (
-  region: Region,
+  region: string,
 ): Promise<IRouteFeatureCollection> => {
   const result = await db
     .selectFrom([
@@ -23,7 +22,7 @@ export const getRoutes = async (
           db
             .selectFrom("route")
             .selectAll()
-            .where("region", "=", region)
+            .where("region_id", "=", region)
             .as("inputs"),
         ])
         .select((eb) => [
@@ -86,7 +85,7 @@ export const getRoutesByRegionID = async (
 };
 
 export const saveRoutes = async (
-  region: Region,
+  region: string,
   featureCollection: IRouteFeatureCollection,
 ) => {
   if (featureCollection.features.length === 0) {
@@ -98,7 +97,6 @@ export const saveRoutes = async (
     .values(
       featureCollection.features.map((feature) => ({
         id: feature.id as string,
-        region: region,
         region_id: region,
         route_type: feature.properties?.route_type || "STREET",
         name: feature.properties?.name,
@@ -118,7 +116,7 @@ export const saveRoutes = async (
 };
 
 export const deleteRoutes = async (
-  _region: Region,
+  _region: string,
   ids: string[],
 ): Promise<number> => {
   if (ids.length) {

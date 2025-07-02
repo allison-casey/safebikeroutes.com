@@ -41,7 +41,7 @@ export type RegionConfig = {
 export type Route = {
   id: Generated<string>;
   name: string | null;
-  region: Region;
+  region: Region | null;
   region_id: string;
   route_type: RouteType;
 };
