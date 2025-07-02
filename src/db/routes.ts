@@ -59,7 +59,7 @@ export const getRoutesByRegionID = async (
           db
             .selectFrom("route")
             .selectAll()
-            .where("route.regionId", "=", region)
+            .where("route.region_id", "=", region)
             .as("inputs"),
         ])
         .select((eb) => [
