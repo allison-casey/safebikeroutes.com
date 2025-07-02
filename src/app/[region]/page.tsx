@@ -1,12 +1,12 @@
 import SafeBikeRoutesClient from "@/app/components/safe-routes-map/client/map";
 import { db } from "@/db/client";
+import type { Region } from "@/db/enums";
 import { getRoutesByRegionID } from "@/db/routes";
 import { Grid } from "@mui/material";
 import { unstable_noStore as noStore } from "next/cache";
 import { notFound } from "next/navigation";
 import { indexBy } from "remeda";
 import { MapToolBar } from "../components/safe-routes-map/skeleton";
-import type { Region } from "@/db/enums";
 // import Description from "./description.mdx";
 
 const BOUNDS: MapboxGeocoder.Bbox = [

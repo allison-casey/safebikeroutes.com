@@ -4,6 +4,7 @@ import type { Branding, Navigation } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { PageContainer } from "@toolpad/core/PageContainer";
 import { NextAppProvider } from "@toolpad/core/nextjs";
+import { Suspense } from "react";
 
 const NAVIGATION: Navigation = [
   {
@@ -25,10 +26,12 @@ const BRANDING: Branding = {
 
 export default async function App({ children }: { children: React.ReactNode }) {
   return (
-    <NextAppProvider navigation={NAVIGATION} branding={BRANDING}>
-      <DashboardLayout>
-        <PageContainer>{children}</PageContainer>
-      </DashboardLayout>
-    </NextAppProvider>
+    <Suspense>
+      <NextAppProvider navigation={NAVIGATION} branding={BRANDING}>
+        <DashboardLayout>
+          <PageContainer>{children}</PageContainer>
+        </DashboardLayout>
+      </NextAppProvider>
+    </Suspense>
   );
 }

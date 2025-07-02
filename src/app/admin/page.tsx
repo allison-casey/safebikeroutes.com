@@ -1,12 +1,12 @@
 import { db } from "@/db/client";
+import type { Role } from "@/db/enums";
+import { auth } from "@root/auth";
 import { sql } from "kysely";
+import { notFound } from "next/navigation";
 import {
   type INewRegionTransformed,
   RouteConfigPanel,
 } from "./route-config-tab";
-import { auth } from "@root/auth";
-import type { Role } from "@/db/enums";
-import { notFound } from "next/navigation";
 
 const saveNewRouteConfig = async ({
   region,
