@@ -49,6 +49,42 @@ export const getRoutes = async (
   return result.geojson;
 };
 
+export const getRoutesByRegionID = async (
+  region: string,
+): Promise<IRouteFeatureCollection> => {
+  const result = await db
+    .selectFrom([
+      db
+        .selectFrom([
+          db
+            .selectFrom("route")
+            .selectAll()
+            .where("route.region_id", "=", region)
+            .as("inputs"),
+        ])
+        .select((eb) => [
+          jsonBuildObject({
+            type: sql<string>`'Feature'`,
+            id: eb.ref("inputs.id"),
+            geometry: geoJSONObjectFrom(eb.ref("geometry")),
+            properties: sql<IRouteProperties>`to_jsonb(inputs) - 'id' - 'geometry'`,
+          }).as("feature"),
+        ])
+        .as("features"),
+    ])
+    .select(() => [
+      jsonBuildObject({
+        type: sql<"FeatureCollection">`'FeatureCollection'`,
+        features: sql<
+          IRouteFeature[]
+        >`COALESCE(jsonb_agg(features.feature), '[]')`,
+      }).as("geojson"),
+    ])
+    .executeTakeFirstOrThrow();
+
+  return result.geojson;
+};
+
 export const saveRoutes = async (
   region: Region,
   featureCollection: IRouteFeatureCollection,

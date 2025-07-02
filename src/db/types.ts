@@ -31,10 +31,18 @@ export type Authenticator = {
   credentialBackedUp: boolean;
   transports: string | null;
 };
+export type RegionConfig = {
+  region: string;
+  url_segment: string;
+  label: string;
+  description: string;
+  zoom: number;
+};
 export type Route = {
   id: Generated<string>;
   name: string | null;
   region: Region;
+  region_id: string | null;
   route_type: RouteType;
 };
 export type Session = {
@@ -66,6 +74,7 @@ export type VerificationToken = {
 export type DB = {
   accounts: Account;
   authenticator: Authenticator;
+  region_config: RegionConfig;
   route: Route;
   sessions: Session;
   user_roles: UserRoles;
