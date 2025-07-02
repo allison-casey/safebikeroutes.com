@@ -99,6 +99,7 @@ export const saveRoutes = async (
       featureCollection.features.map((feature) => ({
         id: feature.id as string,
         region: region,
+        region_id: region,
         route_type: feature.properties?.route_type || "STREET",
         name: feature.properties?.name,
         geometry: sql<string>`ST_GeomFromGeoJSON(${feature.geometry})`,
