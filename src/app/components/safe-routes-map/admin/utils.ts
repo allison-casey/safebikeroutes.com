@@ -1,4 +1,3 @@
-import type { Region } from "@/db/enums";
 import type { IRouteFeature } from "@/types/map";
 import * as R from "remeda";
 
@@ -19,7 +18,7 @@ export const repaintDrawLayer = (
 };
 
 export const geoJSONFeatureToRouteFeature = (
-  region: Region,
+  region: string,
   feature: GeoJSON.Feature<GeoJSON.LineString>,
 ): IRouteFeature => ({
   type: "Feature",

@@ -1,8 +1,8 @@
 import SafeBikeRoutesClient from "@/app/components/safe-routes-map/client/map";
 import { db } from "@/db/client";
-import type { Region } from "@/db/enums";
 import { getRoutesByRegionID } from "@/db/routes";
 import { Grid } from "@mui/material";
+import parse from "html-react-parser";
 import { unstable_noStore as noStore } from "next/cache";
 import { notFound } from "next/navigation";
 import { indexBy } from "remeda";
@@ -23,13 +23,9 @@ interface ISafeRoutesPageProps {
 
 export default async function SafeRoutes(props: ISafeRoutesPageProps) {
   noStore();
-  const regions = await db
-    .selectFrom("region_config")
-    .selectAll()
-    .distinct()
-    .execute();
+  const regions = await db.selectFrom("region_config").selectAll().execute();
 
-  const regionLookup = indexBy(regions, (r) => r.region);
+  const regionLookup = indexBy(regions, (r) => r.url_segment);
 
   if (!regionLookup[props.params.region]) {
     notFound();
@@ -46,12 +42,13 @@ export default async function SafeRoutes(props: ISafeRoutesPageProps) {
   return (
     <SafeBikeRoutesClient
       mapboxAccessToken={process.env.ACCESS_TOKEN}
-      region={regionConfig.region as Region} // TODO: migrate
+      region={regionConfig.region}
       regionLabel={regionConfig.label}
       routes={routes}
       panelContents={
         <Grid container>
           <MapToolBar />
+          {parse(regionConfig.description)}
         </Grid>
       }
       initialViewState={{
