@@ -4,10 +4,10 @@ import {
   saveRegionConfig,
   updateRegionConfig,
 } from "@/db/region-configs";
+import type { IRegionConfig } from "@/types/map";
 import { auth } from "@root/auth";
 import { notFound } from "next/navigation";
-import { RouteConfigPanel } from "./route-config-tab";
-import type { IRegionConfig } from "@/types/map";
+import { RouteConfigPanel } from "./components/route-config-tab";
 
 const saveNewRouteConfig = async (regionConfig: IRegionConfig) => {
   "use server";

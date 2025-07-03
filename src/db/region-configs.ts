@@ -1,7 +1,7 @@
+import type { IRegionConfig } from "@/types/map";
 import { sql } from "kysely";
 import { db } from "./client";
 import { geoJSONObjectFrom } from "./routes";
-import type { IRegionConfig } from "@/types/map";
 
 export const saveRegionConfig = async (regionConfig: IRegionConfig) => {
   const { region, urlSegment, label, description, bbox, center, zoom } =
