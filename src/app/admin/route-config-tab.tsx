@@ -11,6 +11,7 @@ import {
   CardActions,
   CardContent,
   Checkbox,
+  Divider,
   FormControlLabel,
   Grid,
   Modal,
@@ -29,23 +30,14 @@ import {
 } from "react-hook-form";
 import { ControlledNumberField } from "../components/form-fields/number-field";
 import { ControlledTextField } from "../components/form-fields/text-field";
+import clsx from "clsx";
+import { partition, prop } from "remeda";
+import type { IRegionConfig } from "@/types/map";
 
 interface IRouteConfigPanelProps {
-  regionConfigs: INewRegionTransformed[];
-  saveNewRouteHandler: (regionConfig: INewRegionTransformed) => Promise<void>;
-  updateRouteHandler: (regionConfig: INewRegionTransformed) => Promise<void>;
-}
-
-export interface INewRegionTransformed {
-  region: string;
-  urlSegment: string;
-  label: string;
-  description: string;
-  center: { lat: number; long: number };
-  bbox: [{ lat: number; long: number }, { lat: number; long: number }];
-  zoom: number;
-  disabled: boolean;
-  useDefaultDescriptionSkeleton: boolean;
+  regionConfigs: IRegionConfig[];
+  saveNewRouteHandler: (regionConfig: IRegionConfig) => Promise<void>;
+  updateRouteHandler: (regionConfig: IRegionConfig) => Promise<void>;
 }
 
 interface INewRegionForm {
@@ -63,18 +55,15 @@ interface INewRegionForm {
   useDefaultDescriptionSkeleton: boolean;
 }
 
-const RegionConfigForm = () => {
-  const { control } = useFormContext<
-    INewRegionForm,
-    null,
-    INewRegionTransformed
-  >();
+const RegionConfigForm = (props: { regionDisabled: boolean }) => {
+  const { control } = useFormContext<INewRegionForm, null, IRegionConfig>();
   return (
     <Stack gap="1rem" className="py-3">
       <Grid container spacing={2}>
         <Grid size={6}>
           <Stack spacing={2}>
             <ControlledTextField
+              disabled={props.regionDisabled}
               required
               control={control}
               rules={{
@@ -204,20 +193,27 @@ const RegionConfigForm = () => {
           </Stack>
         </Grid>
       </Grid>
-      <Typography variant="subtitle2">Region Description</Typography>
-      <Controller
-        control={control}
-        name="description"
-        render={({ field: { value, onChange } }) => {
-          return (
-            <CodeMirror
-              value={value}
-              onChange={onChange}
-              extensions={[html()]}
-            />
-          );
-        }}
-      />
+
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="subtitle2">Region Description</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Controller
+            control={control}
+            name="description"
+            render={({ field: { value, onChange } }) => {
+              return (
+                <CodeMirror
+                  value={value}
+                  onChange={onChange}
+                  extensions={[html()]}
+                />
+              );
+            }}
+          />
+        </AccordionDetails>
+      </Accordion>
     </Stack>
   );
 };
@@ -225,9 +221,9 @@ const RegionConfigForm = () => {
 const NewRegionModal = (props: {
   open: boolean;
   onClose: () => void;
-  onSave: (regionConfig: INewRegionTransformed) => Promise<void>;
+  onSave: (regionConfig: IRegionConfig) => Promise<void>;
 }) => {
-  const form = useForm<INewRegionForm, null, INewRegionTransformed>({
+  const form = useForm<INewRegionForm, null, IRegionConfig>({
     defaultValues: {
       region: "",
       urlSegment: "",
@@ -267,7 +263,7 @@ const NewRegionModal = (props: {
         >
           <CardContent>
             <Typography variant="h5">Create Region</Typography>
-            <RegionConfigForm />
+            <RegionConfigForm regionDisabled={false} />
           </CardContent>
           <CardActions>
             <Button variant="outlined" onClick={props.onClose}>
@@ -287,13 +283,13 @@ const UpdateRegionCard = ({
   regionConfig,
   onUpdate,
 }: {
-  regionConfig: INewRegionTransformed;
-  onUpdate: (regionConfig: INewRegionTransformed) => Promise<void>;
+  regionConfig: IRegionConfig;
+  onUpdate: (regionConfig: IRegionConfig) => Promise<void>;
 }) => {
   const [isSubmitting, startTransition] = useTransition();
   const [showSnackbar, setShowSnackbar] = useState(false);
 
-  const form = useForm<INewRegionForm, null, INewRegionTransformed>({
+  const form = useForm<INewRegionForm, null, IRegionConfig>({
     defaultValues: {
       ...regionConfig,
     },
@@ -311,10 +307,17 @@ const UpdateRegionCard = ({
       />
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h5">{regionConfig.label}</Typography>
+          <Typography
+            variant="h5"
+            className={clsx(
+              regionConfig.disabled && "line-through text-slate-400",
+            )}
+          >
+            {regionConfig.label}
+          </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <RegionConfigForm />
+          <RegionConfigForm regionDisabled={true} />
         </AccordionDetails>
         <AccordionActions>
           <Button
@@ -341,6 +344,10 @@ const UpdateRegionCard = ({
 export const RouteConfigPanel = (props: IRouteConfigPanelProps) => {
   const router = useRouter();
   const [newRegionModalOpen, setNewRegionModalOpen] = useState(false);
+  const [disabledRegionConfigs, enabledRegionConfigs] = partition(
+    props.regionConfigs,
+    prop("disabled"),
+  );
 
   return (
     <>
@@ -363,7 +370,18 @@ export const RouteConfigPanel = (props: IRouteConfigPanelProps) => {
           </Grid>
         </Grid>
         <Stack gap="2rem">
-          {props.regionConfigs.map((regionConfig) => (
+          {enabledRegionConfigs.map((regionConfig) => (
+            <UpdateRegionCard
+              key={regionConfig.region}
+              regionConfig={regionConfig}
+              onUpdate={async (regionConfig) => {
+                await props.updateRouteHandler(regionConfig);
+                router.refresh();
+              }}
+            />
+          ))}
+          {!!disabledRegionConfigs.length && <Divider />}
+          {disabledRegionConfigs.map((regionConfig) => (
             <UpdateRegionCard
               key={regionConfig.region}
               regionConfig={regionConfig}

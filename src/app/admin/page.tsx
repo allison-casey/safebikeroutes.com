@@ -6,17 +6,15 @@ import {
 } from "@/db/region-configs";
 import { auth } from "@root/auth";
 import { notFound } from "next/navigation";
-import {
-  type INewRegionTransformed,
-  RouteConfigPanel,
-} from "./route-config-tab";
+import { RouteConfigPanel } from "./route-config-tab";
+import type { IRegionConfig } from "@/types/map";
 
-const saveNewRouteConfig = async (regionConfig: INewRegionTransformed) => {
+const saveNewRouteConfig = async (regionConfig: IRegionConfig) => {
   "use server";
 
   await saveRegionConfig(regionConfig);
 };
-const updateRouteConfig = async (regionConfig: INewRegionTransformed) => {
+const updateRouteConfig = async (regionConfig: IRegionConfig) => {
   "use server";
 
   await updateRegionConfig(regionConfig);

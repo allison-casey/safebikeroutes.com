@@ -1,9 +1,9 @@
-import type { INewRegionTransformed } from "@/app/admin/route-config-tab";
 import { sql } from "kysely";
 import { db } from "./client";
 import { geoJSONObjectFrom } from "./routes";
+import type { IRegionConfig } from "@/types/map";
 
-export const saveRegionConfig = async (regionConfig: INewRegionTransformed) => {
+export const saveRegionConfig = async (regionConfig: IRegionConfig) => {
   const { region, urlSegment, label, description, bbox, center, zoom } =
     regionConfig;
   return await db
@@ -21,9 +21,7 @@ export const saveRegionConfig = async (regionConfig: INewRegionTransformed) => {
     .executeTakeFirst();
 };
 
-export const updateRegionConfig = async (
-  regionConfig: INewRegionTransformed,
-) => {
+export const updateRegionConfig = async (regionConfig: IRegionConfig) => {
   const { center, bbox } = regionConfig;
 
   return await db
@@ -44,7 +42,7 @@ export const updateRegionConfig = async (
     .executeTakeFirst();
 };
 
-export const getRegionConfigs = async (): Promise<INewRegionTransformed[]> => {
+export const getRegionConfigs = async (): Promise<IRegionConfig[]> => {
   const response = await db
     .selectFrom("region_config")
     .select((eb) => [
