@@ -286,6 +286,8 @@ const UpdateRegionCard = ({
   regionConfig: IRegionConfig;
   onUpdate: (regionConfig: IRegionConfig) => Promise<void>;
 }) => {
+  const router = useRouter();
+
   const [isSubmitting, startTransition] = useTransition();
   const [showSnackbar, setShowSnackbar] = useState(false);
 
@@ -320,6 +322,11 @@ const UpdateRegionCard = ({
           <RegionConfigForm regionDisabled={true} />
         </AccordionDetails>
         <AccordionActions>
+          {!regionConfig.disabled && (
+            <Button onClick={() => router.push(regionConfig.urlSegment)}>
+              Open Region
+            </Button>
+          )}
           <Button
             variant="contained"
             color="primary"
