@@ -1,6 +1,6 @@
 "use client";
 
-import { canViewAdminPage } from "@/permissions";
+import { canViewAdminPage, canViewRegionEditorPage } from "@/permissions";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import {
   AppBar,
@@ -103,18 +103,25 @@ export const MapToolBar = () => {
         anchorEl={anchorEl}
       >
         <MenuItem onClick={() => signOut()}>Logout</MenuItem>
-        {!isOnAdminPage && session && canViewAdminPage(session, region) && (
-          <MenuItem onClick={() => router.push(`${pathname}/admin`)}>
-            Open Region Admin Page
+        {session && canViewAdminPage(session) && (
+          <MenuItem onClick={() => router.push("/admin")}>
+            Admin Dashboard
           </MenuItem>
         )}
+        {!isOnAdminPage &&
+          session &&
+          canViewRegionEditorPage(session, region) && (
+            <MenuItem onClick={() => router.push(`${pathname}/admin`)}>
+              Region Editor
+            </MenuItem>
+          )}
         {isOnAdminPage && (
           <MenuItem
             onClick={() =>
               router.push(pathname.substring(0, pathname.lastIndexOf("/")))
             }
           >
-            Open Region Page
+            Region Page
           </MenuItem>
         )}
       </Menu>
