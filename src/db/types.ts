@@ -67,6 +67,7 @@ export type UserRoles = {
     userId: string;
     role: Role;
     region: Region;
+    region_id: string | null;
 };
 export type VerificationToken = {
     identifier: string;

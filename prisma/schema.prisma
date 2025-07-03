@@ -139,10 +139,11 @@ enum Role {
 }
 
 model UserRoles {
-  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId String @db.Uuid
-  role   Role
-  region Region
+  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId   String  @db.Uuid
+  role     Role
+  region   Region
+  regionId String? @map("region_id")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
