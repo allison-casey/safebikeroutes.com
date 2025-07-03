@@ -43,6 +43,7 @@ export const ControlledNumberField = <T extends FieldValues>({
       render={({ field: { value, onChange }, fieldState: { error } }) => {
         return (
           <NumericFormat
+            size="small"
             error={!!error}
             helperText={!!error && error.message}
             disabled={disabled}

@@ -1,4 +1,3 @@
-import { db } from "@/db/client";
 import type { Role } from "@/db/enums";
 import {
   getRegionConfigs,
@@ -6,7 +5,6 @@ import {
   updateRegionConfig,
 } from "@/db/region-configs";
 import { auth } from "@root/auth";
-import { sql } from "kysely";
 import { notFound } from "next/navigation";
 import {
   type INewRegionTransformed,
