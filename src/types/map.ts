@@ -1,4 +1,5 @@
 import type { RouteType } from "@/db/enums";
+import type { User, UserRoles } from "@/db/types";
 
 export interface IRouteProperties {
   route_type: RouteType;
@@ -25,4 +26,16 @@ export interface IRegionConfig {
   zoom: number;
   disabled: boolean;
   useDefaultDescriptionSkeleton: boolean;
+}
+
+export interface IUserRole extends Omit<UserRoles, "id"> {
+  id: string;
+}
+
+export interface IUser
+  extends Omit<User, "id" | "createdAt" | "emailVerified"> {
+  id: string;
+  createdAt: Date;
+  emailVerified: Date | null;
+  roles: IUserRole[];
 }
