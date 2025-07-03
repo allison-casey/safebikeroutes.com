@@ -9,16 +9,22 @@ import {
   Card,
   CardActions,
   CardContent,
+  Checkbox,
+  FormControlLabel,
   Grid,
   Modal,
   Snackbar,
   Stack,
   Typography,
 } from "@mui/material";
-import type { RegionConfig } from "kysely-codegen";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import {
+  Controller,
+  FormProvider,
+  useForm,
+  useFormContext,
+} from "react-hook-form";
 import { ControlledNumberField } from "../components/form-fields/number-field";
 import { ControlledTextField } from "../components/form-fields/text-field";
 
@@ -36,6 +42,8 @@ export interface INewRegionTransformed {
   center: { lat: number; long: number };
   bbox: [{ lat: number; long: number }, { lat: number; long: number }];
   zoom: number;
+  disabled: boolean;
+  useDefaultDescriptionSkeleton: boolean;
 }
 
 interface INewRegionForm {
@@ -49,6 +57,8 @@ interface INewRegionForm {
     { lat: number | null; long: number | null },
   ];
   zoom: number | null;
+  disabled: boolean;
+  useDefaultDescriptionSkeleton: boolean;
 }
 
 const RegionConfigForm = () => {
@@ -88,6 +98,18 @@ const RegionConfigForm = () => {
         control={control}
         fieldName="label"
         label="Region Label"
+      />
+      <Controller
+        name="useDefaultDescriptionSkeleton"
+        control={control}
+        render={({ field: { value, onChange }, fieldState: { error } }) => {
+          return (
+            <FormControlLabel
+              control={<Checkbox checked={value} onChange={onChange} />}
+              label="Use default description skeleton"
+            />
+          );
+        }}
       />
       <ControlledTextField
         required
@@ -150,6 +172,19 @@ const RegionConfigForm = () => {
         control={control}
         fieldName="zoom"
         label="Initial Zoom"
+      />
+
+      <Controller
+        name="disabled"
+        control={control}
+        render={({ field: { value, onChange }, fieldState: { error } }) => {
+          return (
+            <FormControlLabel
+              control={<Checkbox checked={value} onChange={onChange} />}
+              label="Region disabled"
+            />
+          );
+        }}
       />
     </Stack>
   );
@@ -257,6 +292,7 @@ const UpdateRegionCard = ({
             onClick={() =>
               startTransition(
                 handleSubmit(async (data) => {
+                  console.log(data.useDefaultDescriptionSkeleton);
                   await onUpdate(data);
                   setShowSnackbar(true);
                 }),
@@ -301,9 +337,7 @@ export const RouteConfigPanel = (props: IRouteConfigPanelProps) => {
               key={regionConfig.region}
               regionConfig={regionConfig}
               onUpdate={async (regionConfig) => {
-                console.log("START");
                 await props.updateRouteHandler(regionConfig);
-                console.log("END");
                 router.refresh();
               }}
             />
