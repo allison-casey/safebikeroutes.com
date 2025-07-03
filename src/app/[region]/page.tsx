@@ -1,5 +1,4 @@
 import SafeBikeRoutesClient from "@/app/components/safe-routes-map/client/map";
-import { db } from "@/db/client";
 import { getRoutesByRegionID } from "@/db/routes";
 import { Grid } from "@mui/material";
 import parse from "html-react-parser";
