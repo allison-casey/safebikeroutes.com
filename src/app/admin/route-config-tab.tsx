@@ -1,26 +1,31 @@
 "use client";
-
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
+  Accordion,
+  AccordionActions,
+  AccordionDetails,
+  AccordionSummary,
   Button,
   Card,
   CardActions,
   CardContent,
   Grid,
   Modal,
+  Snackbar,
   Stack,
   Typography,
 } from "@mui/material";
 import type { RegionConfig } from "kysely-codegen";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState, useTransition } from "react";
+import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { ControlledNumberField } from "../components/form-fields/number-field";
 import { ControlledTextField } from "../components/form-fields/text-field";
 
 interface IRouteConfigPanelProps {
-  regionConfigs: RegionConfig[];
+  regionConfigs: INewRegionTransformed[];
   saveNewRouteHandler: (regionConfig: INewRegionTransformed) => Promise<void>;
-  updateRouteHandler: () => Promise<void>;
+  updateRouteHandler: (regionConfig: INewRegionTransformed) => Promise<void>;
 }
 
 export interface INewRegionTransformed {
@@ -46,16 +51,116 @@ interface INewRegionForm {
   zoom: number | null;
 }
 
+const RegionConfigForm = () => {
+  const { control } = useFormContext<
+    INewRegionForm,
+    null,
+    INewRegionTransformed
+  >();
+  return (
+    <Stack gap="1rem" className="py-3">
+      <ControlledTextField
+        required
+        control={control}
+        rules={{
+          pattern: {
+            value: /^[A-Za-z_]+$/,
+            message: "Only letters and underscores allowed",
+          },
+        }}
+        fieldName="region"
+        label="Region"
+      />
+      <ControlledTextField
+        required
+        control={control}
+        rules={{
+          pattern: {
+            value: /^[A-Za-z]+$/,
+            message: "Only letters allowed",
+          },
+        }}
+        fieldName="urlSegment"
+        label="URL Segment"
+      />
+      <ControlledTextField
+        required
+        control={control}
+        fieldName="label"
+        label="Region Label"
+      />
+      <ControlledTextField
+        required
+        multiline
+        control={control}
+        fieldName="description"
+        label="Region Description"
+      />
+      <Typography variant="h5">Center</Typography>
+      <Stack direction="row" gap="1rem">
+        <ControlledNumberField
+          required
+          control={control}
+          fieldName="center.lat"
+          label="Lat"
+        />
+        <ControlledNumberField
+          required
+          control={control}
+          fieldName="center.long"
+          label="long"
+        />
+      </Stack>
+
+      <Typography variant="h5">Bounding Box</Typography>
+      <Typography variant="h6">Lower Left Corner</Typography>
+      <Stack direction="row" gap="1rem">
+        <ControlledNumberField
+          required
+          control={control}
+          fieldName="bbox.0.lat"
+          label="Lat"
+        />
+        <ControlledNumberField
+          required
+          control={control}
+          fieldName="bbox.0.long"
+          label="long"
+        />
+      </Stack>
+
+      <Typography variant="h6">Upper Right Corner</Typography>
+      <Stack direction="row" gap="1rem">
+        <ControlledNumberField
+          required
+          control={control}
+          fieldName="bbox.1.lat"
+          label="Lat"
+        />
+        <ControlledNumberField
+          required
+          control={control}
+          fieldName="bbox.1.long"
+          label="long"
+        />
+      </Stack>
+
+      <ControlledNumberField
+        required
+        control={control}
+        fieldName="zoom"
+        label="Initial Zoom"
+      />
+    </Stack>
+  );
+};
+
 const NewRegionModal = (props: {
   open: boolean;
   onClose: () => void;
   onSave: (regionConfig: INewRegionTransformed) => Promise<void>;
 }) => {
-  const { control, handleSubmit } = useForm<
-    INewRegionForm,
-    null,
-    INewRegionTransformed
-  >({
+  const form = useForm<INewRegionForm, null, INewRegionTransformed>({
     defaultValues: {
       region: "",
       urlSegment: "",
@@ -69,6 +174,7 @@ const NewRegionModal = (props: {
       zoom: null,
     },
   });
+  const { handleSubmit } = form;
 
   const onSubmit = handleSubmit(async (regionConfig) => {
     await props.onSave(regionConfig);
@@ -76,128 +182,92 @@ const NewRegionModal = (props: {
   });
 
   return (
-    <Modal open={props.open} onClose={props.onClose}>
-      <Card
-        sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: 400,
-          height: "80%",
-          overflowY: "auto",
-          bgcolor: "background.paper",
-          boxShadow: 24,
-          p: 4,
-        }}
-      >
-        <CardContent>
-          <Typography variant="h5">Create Region</Typography>
-          <Stack gap="1rem" className="py-3">
-            <ControlledTextField
-              required
-              control={control}
-              rules={{
-                pattern: {
-                  value: /^[A-Za-z_]+$/,
-                  message: "Only letters and underscores allowed",
-                },
-              }}
-              fieldName="region"
-              label="Region"
-            />
-            <ControlledTextField
-              required
-              control={control}
-              rules={{
-                pattern: {
-                  value: /^[A-Za-z]+$/,
-                  message: "Only letters allowed",
-                },
-              }}
-              fieldName="urlSegment"
-              label="URL Segment"
-            />
-            <ControlledTextField
-              required
-              control={control}
-              fieldName="label"
-              label="Region Label"
-            />
-            <ControlledTextField
-              required
-              multiline
-              control={control}
-              fieldName="description"
-              label="Region Description"
-            />
-            <Typography variant="h5">Center</Typography>
-            <Stack direction="row" gap="1rem">
-              <ControlledNumberField
-                required
-                control={control}
-                fieldName="center.lat"
-                label="Lat"
-              />
-              <ControlledNumberField
-                required
-                control={control}
-                fieldName="center.long"
-                label="long"
-              />
-            </Stack>
+    <FormProvider {...form}>
+      <Modal open={props.open} onClose={props.onClose}>
+        <Card
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "60%",
+            height: "80%",
+            overflowY: "auto",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <CardContent>
+            <Typography variant="h5">Create Region</Typography>
+            <RegionConfigForm />
+          </CardContent>
+          <CardActions>
+            <Button variant="outlined" onClick={props.onClose}>
+              Cancel
+            </Button>
+            <Button variant="contained" color="primary" onClick={onSubmit}>
+              Save
+            </Button>
+          </CardActions>
+        </Card>
+      </Modal>
+    </FormProvider>
+  );
+};
 
-            <Typography variant="h5">Bounding Box</Typography>
-            <Typography variant="h6">Lower Left Corner</Typography>
-            <Stack direction="row" gap="1rem">
-              <ControlledNumberField
-                required
-                control={control}
-                fieldName="bbox.0.lat"
-                label="Lat"
-              />
-              <ControlledNumberField
-                required
-                control={control}
-                fieldName="bbox.0.long"
-                label="long"
-              />
-            </Stack>
+const UpdateRegionCard = ({
+  regionConfig,
+  onUpdate,
+}: {
+  regionConfig: INewRegionTransformed;
+  onUpdate: (regionConfig: INewRegionTransformed) => Promise<void>;
+}) => {
+  const [isSubmitting, startTransition] = useTransition();
+  const [showSnackbar, setShowSnackbar] = useState(false);
 
-            <Typography variant="h6">Upper Right Corner</Typography>
-            <Stack direction="row" gap="1rem">
-              <ControlledNumberField
-                required
-                control={control}
-                fieldName="bbox.1.lat"
-                label="Lat"
-              />
-              <ControlledNumberField
-                required
-                control={control}
-                fieldName="bbox.1.long"
-                label="long"
-              />
-            </Stack>
+  const form = useForm<INewRegionForm, null, INewRegionTransformed>({
+    defaultValues: {
+      ...regionConfig,
+    },
+  });
+  const { handleSubmit } = form;
 
-            <ControlledNumberField
-              required
-              control={control}
-              fieldName="zoom"
-              label="Initial Zoom"
-            />
-          </Stack>
-        </CardContent>
-        <CardActions>
-          <Button variant="outlined" onClick={props.onClose}>
-            Cancel
+  return (
+    <FormProvider {...form}>
+      <Snackbar
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        autoHideDuration={3000}
+        open={showSnackbar}
+        onClose={() => setShowSnackbar(false)}
+        message="Map updated."
+      />
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="h5">{regionConfig.label}</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <RegionConfigForm />
+        </AccordionDetails>
+        <AccordionActions>
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={isSubmitting}
+            onClick={() =>
+              startTransition(
+                handleSubmit(async (data) => {
+                  await onUpdate(data);
+                  setShowSnackbar(true);
+                }),
+              )
+            }
+          >
+            Update
           </Button>
-          <Button variant="contained" color="primary" onClick={onSubmit}>
-            Save
-          </Button>
-        </CardActions>
-      </Card>
-    </Modal>
+        </AccordionActions>
+      </Accordion>
+    </FormProvider>
   );
 };
 
@@ -225,9 +295,20 @@ export const RouteConfigPanel = (props: IRouteConfigPanelProps) => {
             </Button>
           </Grid>
         </Grid>
-        {props.regionConfigs.map((regionConfig) => (
-          <Card key={regionConfig.region}>{regionConfig.region}</Card>
-        ))}
+        <Stack gap="2rem">
+          {props.regionConfigs.map((regionConfig) => (
+            <UpdateRegionCard
+              key={regionConfig.region}
+              regionConfig={regionConfig}
+              onUpdate={async (regionConfig) => {
+                console.log("START");
+                await props.updateRouteHandler(regionConfig);
+                console.log("END");
+                router.refresh();
+              }}
+            />
+          ))}
+        </Stack>
       </Stack>
     </>
   );

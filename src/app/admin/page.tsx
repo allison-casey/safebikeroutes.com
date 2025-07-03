@@ -7,34 +7,21 @@ import {
   type INewRegionTransformed,
   RouteConfigPanel,
 } from "./route-config-tab";
+import {
+  getRegionConfigs,
+  saveRegionConfig,
+  updateRegionConfig,
+} from "@/db/region-configs";
 
-const saveNewRouteConfig = async ({
-  region,
-  urlSegment,
-  label,
-  description,
-  bbox,
-  center,
-  zoom,
-}: INewRegionTransformed) => {
+const saveNewRouteConfig = async (regionConfig: INewRegionTransformed) => {
   "use server";
 
-  await db
-    .insertInto("region_config")
-    .values({
-      region,
-      url_segment: urlSegment,
-      label,
-      description,
-      zoom,
-      center: sql<string>`ST_MakePoint(${center.long}, ${center.lat})`,
-      // TODO: figure out how to do this without direct string substitution
-      bbox: `BOX(${bbox[0].long} ${bbox[0].lat},${bbox[1].long} ${bbox[1].lat})`,
-    })
-    .executeTakeFirst();
+  await saveRegionConfig(regionConfig);
 };
-const updateRouteConfig = async () => {
+const updateRouteConfig = async (regionConfig: INewRegionTransformed) => {
   "use server";
+
+  await updateRegionConfig(regionConfig);
 };
 
 const permittedRoles = new Set<Role>(["ADMIN"]);
@@ -45,10 +32,7 @@ export default async function AdminPage() {
     notFound();
   }
 
-  const regionConfigs = await db
-    .selectFrom("region_config")
-    .selectAll()
-    .execute();
+  const regionConfigs = await getRegionConfigs();
 
   return (
     <RouteConfigPanel

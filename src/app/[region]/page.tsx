@@ -1,5 +1,4 @@
 import SafeBikeRoutesClient from "@/app/components/safe-routes-map/client/map";
-import { db } from "@/db/client";
 import { getRoutesByRegionID } from "@/db/routes";
 import { Grid } from "@mui/material";
 import parse from "html-react-parser";
@@ -7,15 +6,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { notFound } from "next/navigation";
 import { indexBy } from "remeda";
 import { MapToolBar } from "../components/safe-routes-map/skeleton";
-// import Description from "./description.mdx";
-
-const BOUNDS: MapboxGeocoder.Bbox = [
-  -118.88065856936811,
-  33.63722119725411, // Southwest coordinates
-  -117.83375850298786,
-  34.4356118682199, // Northeast coordinates
-];
-const CENTER = [-118.35874251099995, 34.061734936928694];
+import { getRegionConfigs } from "@/db/region-configs";
 
 interface ISafeRoutesPageProps {
   params: { region: string };
@@ -23,15 +14,21 @@ interface ISafeRoutesPageProps {
 
 export default async function SafeRoutes(props: ISafeRoutesPageProps) {
   noStore();
-  const regions = await db.selectFrom("region_config").selectAll().execute();
+  const regions = await getRegionConfigs();
 
-  const regionLookup = indexBy(regions, (r) => r.url_segment);
+  const regionLookup = indexBy(regions, (r) => r.urlSegment);
 
   if (!regionLookup[props.params.region]) {
     notFound();
   }
 
   const regionConfig = regionLookup[props.params.region];
+  const bounds: MapboxGeocoder.Bbox = [
+    regionConfig.bbox[0].long,
+    regionConfig.bbox[0].lat,
+    regionConfig.bbox[1].long,
+    regionConfig.bbox[1].lat,
+  ];
 
   const routes = await getRoutesByRegionID(regionConfig.region);
 
@@ -52,12 +49,12 @@ export default async function SafeRoutes(props: ISafeRoutesPageProps) {
         </Grid>
       }
       initialViewState={{
-        longitude: CENTER[0],
-        latitude: CENTER[1],
-        zoom: 12,
+        longitude: regionConfig.center.long,
+        latitude: regionConfig.center.lat,
+        zoom: regionConfig.zoom,
       }}
-      maxBounds={BOUNDS}
-      geocoderBbox={BOUNDS}
+      maxBounds={bounds}
+      geocoderBbox={bounds}
     />
   );
 }
