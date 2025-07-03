@@ -54,6 +54,7 @@ model RegionConfig {
   disabled                      Boolean                        @default(false)
   useDefaultDescriptionSkeleton Boolean                        @default(true) @map("use_default_description_skeleton")
   Route                         Route[]
+  UserRoles                     UserRoles[]
 
   @@map("region_config")
 }
@@ -139,11 +140,12 @@ enum Role {
 }
 
 model UserRoles {
-  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId   String  @db.Uuid
-  role     Role
-  region   Region
-  regionId String? @map("region_id")
+  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String       @db.Uuid
+  role         Role
+  region       Region?
+  regionId     String       @map("region_id")
+  regionConfig RegionConfig @relation(fields: [regionId], references: [region], onDelete: Cascade)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
