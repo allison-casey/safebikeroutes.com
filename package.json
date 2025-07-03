@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.2.0",
+    "@codemirror/lang-html": "^6.4.9",
     "@codemirror/lang-json": "^6.0.1",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
@@ -43,7 +44,7 @@
     "@types/pg": "^8.11.5",
     "@types/ws": "^8.5.10",
     "@uidotdev/usehooks": "^2.4.1",
-    "@uiw/react-codemirror": "^4.21.25",
+    "@uiw/react-codemirror": "^4.23.14",
     "@vercel/postgres-kysely": "^0.10.0",
     "clsx": "^2.1.0",
     "dotenv": "^16.5.0",

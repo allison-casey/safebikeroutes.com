@@ -1,4 +1,5 @@
 "use client";
+import { html } from "@codemirror/lang-html";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Accordion,
@@ -17,6 +18,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import CodeMirror from "@uiw/react-codemirror";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
@@ -102,7 +104,7 @@ const RegionConfigForm = () => {
       <Controller
         name="useDefaultDescriptionSkeleton"
         control={control}
-        render={({ field: { value, onChange }, fieldState: { error } }) => {
+        render={({ field: { value, onChange } }) => {
           return (
             <FormControlLabel
               control={<Checkbox checked={value} onChange={onChange} />}
@@ -111,12 +113,19 @@ const RegionConfigForm = () => {
           );
         }}
       />
-      <ControlledTextField
-        required
-        multiline
+      <Typography variant="subtitle2">Region Description</Typography>
+      <Controller
         control={control}
-        fieldName="description"
-        label="Region Description"
+        name="description"
+        render={({ field: { value, onChange } }) => {
+          return (
+            <CodeMirror
+              value={value}
+              onChange={onChange}
+              extensions={[html()]}
+            />
+          );
+        }}
       />
       <Typography variant="h5">Center</Typography>
       <Stack direction="row" gap="1rem">
@@ -177,7 +186,7 @@ const RegionConfigForm = () => {
       <Controller
         name="disabled"
         control={control}
-        render={({ field: { value, onChange }, fieldState: { error } }) => {
+        render={({ field: { value, onChange } }) => {
           return (
             <FormControlLabel
               control={<Checkbox checked={value} onChange={onChange} />}
@@ -292,7 +301,6 @@ const UpdateRegionCard = ({
             onClick={() =>
               startTransition(
                 handleSubmit(async (data) => {
-                  console.log(data.useDefaultDescriptionSkeleton);
                   await onUpdate(data);
                   setShowSnackbar(true);
                 }),
