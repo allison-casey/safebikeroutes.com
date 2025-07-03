@@ -66,7 +66,7 @@ interface INewRegionForm {
   useDefaultDescriptionSkeleton: boolean;
 }
 
-const RegionConfigForm = () => {
+const RegionConfigForm = (props: { regionDisabled: boolean }) => {
   const { control } = useFormContext<
     INewRegionForm,
     null,
@@ -78,6 +78,7 @@ const RegionConfigForm = () => {
         <Grid size={6}>
           <Stack spacing={2}>
             <ControlledTextField
+              disabled={props.regionDisabled}
               required
               control={control}
               rules={{
@@ -277,7 +278,7 @@ const NewRegionModal = (props: {
         >
           <CardContent>
             <Typography variant="h5">Create Region</Typography>
-            <RegionConfigForm />
+            <RegionConfigForm regionDisabled={false} />
           </CardContent>
           <CardActions>
             <Button variant="outlined" onClick={props.onClose}>
@@ -331,7 +332,7 @@ const UpdateRegionCard = ({
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <RegionConfigForm />
+          <RegionConfigForm regionDisabled={true} />
         </AccordionDetails>
         <AccordionActions>
           <Button
