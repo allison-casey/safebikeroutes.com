@@ -44,15 +44,16 @@ model Route {
 }
 
 model RegionConfig {
-  region      String                         @id
-  urlSegment  String                         @map("url_segment")
-  label       String
-  description String
-  center      Unsupported("geometry(Point)")
-  bbox        Unsupported("box2d")
-  zoom        Int
-  disabled    Boolean                        @default(false)
-  Route       Route[]
+  region                        String                         @id
+  urlSegment                    String                         @map("url_segment")
+  label                         String
+  description                   String
+  center                        Unsupported("geometry(Point)")
+  bbox                          Unsupported("box2d")
+  zoom                          Int
+  disabled                      Boolean                        @default(false)
+  useDefaultDescriptionSkeleton Boolean                        @default(true) @map("use_default_description_skeleton")
+  Route                         Route[]
 
   @@map("region_config")
 }

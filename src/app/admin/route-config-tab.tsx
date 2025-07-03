@@ -43,6 +43,7 @@ export interface INewRegionTransformed {
   bbox: [{ lat: number; long: number }, { lat: number; long: number }];
   zoom: number;
   disabled: boolean;
+  useDefaultDescriptionSkeleton: boolean;
 }
 
 interface INewRegionForm {
@@ -57,6 +58,7 @@ interface INewRegionForm {
   ];
   zoom: number | null;
   disabled: boolean;
+  useDefaultDescriptionSkeleton: boolean;
 }
 
 const RegionConfigForm = () => {
@@ -96,6 +98,18 @@ const RegionConfigForm = () => {
         control={control}
         fieldName="label"
         label="Region Label"
+      />
+      <Controller
+        name="useDefaultDescriptionSkeleton"
+        control={control}
+        render={({ field: { value, onChange }, fieldState: { error } }) => {
+          return (
+            <FormControlLabel
+              control={<Checkbox checked={value} onChange={onChange} />}
+              label="Use default description skeleton"
+            />
+          );
+        }}
       />
       <ControlledTextField
         required
@@ -166,9 +180,7 @@ const RegionConfigForm = () => {
         render={({ field: { value, onChange }, fieldState: { error } }) => {
           return (
             <FormControlLabel
-              value={value}
-              onChange={onChange}
-              control={<Checkbox />}
+              control={<Checkbox checked={value} onChange={onChange} />}
               label="Region disabled"
             />
           );
@@ -280,6 +292,7 @@ const UpdateRegionCard = ({
             onClick={() =>
               startTransition(
                 handleSubmit(async (data) => {
+                  console.log(data.useDefaultDescriptionSkeleton);
                   await onUpdate(data);
                   setShowSnackbar(true);
                 }),

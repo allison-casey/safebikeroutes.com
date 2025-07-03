@@ -34,6 +34,8 @@ export const updateRegionConfig = async (
       description: regionConfig.description,
       zoom: regionConfig.zoom,
       disabled: regionConfig.disabled,
+      use_default_description_skeleton:
+        regionConfig.useDefaultDescriptionSkeleton,
       center: sql`ST_MakePoint(${center.long}, ${center.lat})`,
       // TODO: figure out how to do this without direct string substitution
       bbox: `BOX(${bbox[0].long} ${bbox[0].lat},${bbox[1].long} ${bbox[1].lat})`,
@@ -52,6 +54,7 @@ export const getRegionConfigs = async (): Promise<INewRegionTransformed[]> => {
       "description",
       "zoom",
       "disabled",
+      "use_default_description_skeleton",
       geoJSONObjectFrom(eb.ref("center")).$castTo<GeoJSON.Point>().as("center"),
       sql<
         [[number, number], [number, number]]
@@ -72,12 +75,14 @@ export const getRegionConfigs = async (): Promise<INewRegionTransformed[]> => {
       bbox,
       zoom,
       disabled,
+      use_default_description_skeleton,
     }) => ({
       region,
       urlSegment: url_segment,
       label,
       description,
       disabled,
+      useDefaultDescriptionSkeleton: use_default_description_skeleton,
       center: { long: center.coordinates[0], lat: center.coordinates[1] },
       bbox: [
         { long: bbox[0][0], lat: bbox[0][1] },

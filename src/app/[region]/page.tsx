@@ -7,6 +7,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { notFound } from "next/navigation";
 import { indexBy } from "remeda";
 import { MapToolBar } from "../components/safe-routes-map/skeleton";
+import Description from "./description-skeleton.mdx";
 
 interface ISafeRoutesPageProps {
   params: { region: string };
@@ -39,6 +40,8 @@ export default async function SafeRoutes(props: ISafeRoutesPageProps) {
     throw Error("ACCESS_TOKEN not set");
   }
 
+  const regionDescription = parse(regionConfig.description);
+
   return (
     <SafeBikeRoutesClient
       mapboxAccessToken={process.env.ACCESS_TOKEN}
@@ -48,7 +51,11 @@ export default async function SafeRoutes(props: ISafeRoutesPageProps) {
       panelContents={
         <Grid container>
           <MapToolBar />
-          {parse(regionConfig.description)}
+          {regionConfig.useDefaultDescriptionSkeleton ? (
+            <Description regionDescription={regionDescription} />
+          ) : (
+            regionDescription
+          )}
         </Grid>
       }
       initialViewState={{
