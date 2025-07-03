@@ -31,7 +31,7 @@ import {
 import { ControlledNumberField } from "../components/form-fields/number-field";
 import { ControlledTextField } from "../components/form-fields/text-field";
 import clsx from "clsx";
-import { partition, prop, sortBy } from "remeda";
+import { partition, prop } from "remeda";
 
 interface IRouteConfigPanelProps {
   regionConfigs: INewRegionTransformed[];
