@@ -32,23 +32,12 @@ import { ControlledNumberField } from "../components/form-fields/number-field";
 import { ControlledTextField } from "../components/form-fields/text-field";
 import clsx from "clsx";
 import { partition, prop } from "remeda";
+import type { IRegionConfig } from "@/types/map";
 
 interface IRouteConfigPanelProps {
-  regionConfigs: INewRegionTransformed[];
-  saveNewRouteHandler: (regionConfig: INewRegionTransformed) => Promise<void>;
-  updateRouteHandler: (regionConfig: INewRegionTransformed) => Promise<void>;
-}
-
-export interface INewRegionTransformed {
-  region: string;
-  urlSegment: string;
-  label: string;
-  description: string;
-  center: { lat: number; long: number };
-  bbox: [{ lat: number; long: number }, { lat: number; long: number }];
-  zoom: number;
-  disabled: boolean;
-  useDefaultDescriptionSkeleton: boolean;
+  regionConfigs: IRegionConfig[];
+  saveNewRouteHandler: (regionConfig: IRegionConfig) => Promise<void>;
+  updateRouteHandler: (regionConfig: IRegionConfig) => Promise<void>;
 }
 
 interface INewRegionForm {
@@ -67,11 +56,7 @@ interface INewRegionForm {
 }
 
 const RegionConfigForm = (props: { regionDisabled: boolean }) => {
-  const { control } = useFormContext<
-    INewRegionForm,
-    null,
-    INewRegionTransformed
-  >();
+  const { control } = useFormContext<INewRegionForm, null, IRegionConfig>();
   return (
     <Stack gap="1rem" className="py-3">
       <Grid container spacing={2}>
@@ -236,9 +221,9 @@ const RegionConfigForm = (props: { regionDisabled: boolean }) => {
 const NewRegionModal = (props: {
   open: boolean;
   onClose: () => void;
-  onSave: (regionConfig: INewRegionTransformed) => Promise<void>;
+  onSave: (regionConfig: IRegionConfig) => Promise<void>;
 }) => {
-  const form = useForm<INewRegionForm, null, INewRegionTransformed>({
+  const form = useForm<INewRegionForm, null, IRegionConfig>({
     defaultValues: {
       region: "",
       urlSegment: "",
@@ -298,13 +283,13 @@ const UpdateRegionCard = ({
   regionConfig,
   onUpdate,
 }: {
-  regionConfig: INewRegionTransformed;
-  onUpdate: (regionConfig: INewRegionTransformed) => Promise<void>;
+  regionConfig: IRegionConfig;
+  onUpdate: (regionConfig: IRegionConfig) => Promise<void>;
 }) => {
   const [isSubmitting, startTransition] = useTransition();
   const [showSnackbar, setShowSnackbar] = useState(false);
 
-  const form = useForm<INewRegionForm, null, INewRegionTransformed>({
+  const form = useForm<INewRegionForm, null, IRegionConfig>({
     defaultValues: {
       ...regionConfig,
     },
