@@ -9,16 +9,22 @@ import {
   Card,
   CardActions,
   CardContent,
+  Checkbox,
+  FormControlLabel,
   Grid,
   Modal,
   Snackbar,
   Stack,
   Typography,
 } from "@mui/material";
-import type { RegionConfig } from "kysely-codegen";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import {
+  Controller,
+  FormProvider,
+  useForm,
+  useFormContext,
+} from "react-hook-form";
 import { ControlledNumberField } from "../components/form-fields/number-field";
 import { ControlledTextField } from "../components/form-fields/text-field";
 
@@ -36,6 +42,7 @@ export interface INewRegionTransformed {
   center: { lat: number; long: number };
   bbox: [{ lat: number; long: number }, { lat: number; long: number }];
   zoom: number;
+  disabled: boolean;
 }
 
 interface INewRegionForm {
@@ -49,6 +56,7 @@ interface INewRegionForm {
     { lat: number | null; long: number | null },
   ];
   zoom: number | null;
+  disabled: boolean;
 }
 
 const RegionConfigForm = () => {
@@ -150,6 +158,21 @@ const RegionConfigForm = () => {
         control={control}
         fieldName="zoom"
         label="Initial Zoom"
+      />
+
+      <Controller
+        name="disabled"
+        control={control}
+        render={({ field: { value, onChange }, fieldState: { error } }) => {
+          return (
+            <FormControlLabel
+              value={value}
+              onChange={onChange}
+              control={<Checkbox />}
+              label="Region disabled"
+            />
+          );
+        }}
       />
     </Stack>
   );
@@ -301,9 +324,7 @@ export const RouteConfigPanel = (props: IRouteConfigPanelProps) => {
               key={regionConfig.region}
               regionConfig={regionConfig}
               onUpdate={async (regionConfig) => {
-                console.log("START");
                 await props.updateRouteHandler(regionConfig);
-                console.log("END");
                 router.refresh();
               }}
             />

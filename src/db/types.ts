@@ -37,6 +37,7 @@ export type RegionConfig = {
   label: string;
   description: string;
   zoom: number;
+  disabled: Generated<boolean>;
 };
 export type Route = {
   id: Generated<string>;

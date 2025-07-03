@@ -1,4 +1,5 @@
 import SafeBikeRoutesClient from "@/app/components/safe-routes-map/client/map";
+import { getRegionConfigs } from "@/db/region-configs";
 import { getRoutesByRegionID } from "@/db/routes";
 import { Grid } from "@mui/material";
 import parse from "html-react-parser";
@@ -6,7 +7,6 @@ import { unstable_noStore as noStore } from "next/cache";
 import { notFound } from "next/navigation";
 import { indexBy } from "remeda";
 import { MapToolBar } from "../components/safe-routes-map/skeleton";
-import { getRegionConfigs } from "@/db/region-configs";
 
 interface ISafeRoutesPageProps {
   params: { region: string };
@@ -18,7 +18,10 @@ export default async function SafeRoutes(props: ISafeRoutesPageProps) {
 
   const regionLookup = indexBy(regions, (r) => r.urlSegment);
 
-  if (!regionLookup[props.params.region]) {
+  if (
+    !regionLookup[props.params.region] ||
+    regionLookup[props.params.region].disabled
+  ) {
     notFound();
   }
 

@@ -51,6 +51,7 @@ model RegionConfig {
   center      Unsupported("geometry(Point)")
   bbox        Unsupported("box2d")
   zoom        Int
+  disabled    Boolean                        @default(false)
   Route       Route[]
 
   @@map("region_config")
