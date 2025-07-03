@@ -1,6 +1,10 @@
 "use client";
-
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
+  Accordion,
+  AccordionActions,
+  AccordionDetails,
+  AccordionSummary,
   Button,
   Card,
   CardActions,
@@ -238,14 +242,14 @@ const UpdateRegionCard = ({
         onClose={() => setShowSnackbar(false)}
         message="Map updated."
       />
-      <Card>
-        <CardContent>
-          <Typography variant="h5">
-            Update Region: {regionConfig.label}
-          </Typography>
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="h5">{regionConfig.label}</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
           <RegionConfigForm />
-        </CardContent>
-        <CardActions>
+        </AccordionDetails>
+        <AccordionActions>
           <Button
             variant="contained"
             color="primary"
@@ -261,8 +265,8 @@ const UpdateRegionCard = ({
           >
             Update
           </Button>
-        </CardActions>
-      </Card>
+        </AccordionActions>
+      </Accordion>
     </FormProvider>
   );
 };
