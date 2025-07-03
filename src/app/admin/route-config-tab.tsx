@@ -11,6 +11,7 @@ import {
   CardActions,
   CardContent,
   Checkbox,
+  Divider,
   FormControlLabel,
   Grid,
   Modal,
@@ -29,6 +30,8 @@ import {
 } from "react-hook-form";
 import { ControlledNumberField } from "../components/form-fields/number-field";
 import { ControlledTextField } from "../components/form-fields/text-field";
+import clsx from "clsx";
+import { partition, prop, sortBy } from "remeda";
 
 interface IRouteConfigPanelProps {
   regionConfigs: INewRegionTransformed[];
@@ -204,20 +207,27 @@ const RegionConfigForm = () => {
           </Stack>
         </Grid>
       </Grid>
-      <Typography variant="subtitle2">Region Description</Typography>
-      <Controller
-        control={control}
-        name="description"
-        render={({ field: { value, onChange } }) => {
-          return (
-            <CodeMirror
-              value={value}
-              onChange={onChange}
-              extensions={[html()]}
-            />
-          );
-        }}
-      />
+
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="subtitle2">Region Description</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Controller
+            control={control}
+            name="description"
+            render={({ field: { value, onChange } }) => {
+              return (
+                <CodeMirror
+                  value={value}
+                  onChange={onChange}
+                  extensions={[html()]}
+                />
+              );
+            }}
+          />
+        </AccordionDetails>
+      </Accordion>
     </Stack>
   );
 };
@@ -311,7 +321,14 @@ const UpdateRegionCard = ({
       />
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h5">{regionConfig.label}</Typography>
+          <Typography
+            variant="h5"
+            className={clsx(
+              regionConfig.disabled && "line-through text-slate-400",
+            )}
+          >
+            {regionConfig.label}
+          </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <RegionConfigForm />
@@ -341,6 +358,10 @@ const UpdateRegionCard = ({
 export const RouteConfigPanel = (props: IRouteConfigPanelProps) => {
   const router = useRouter();
   const [newRegionModalOpen, setNewRegionModalOpen] = useState(false);
+  const [disabledRegionConfigs, enabledRegionConfigs] = partition(
+    props.regionConfigs,
+    prop("disabled"),
+  );
 
   return (
     <>
@@ -363,7 +384,18 @@ export const RouteConfigPanel = (props: IRouteConfigPanelProps) => {
           </Grid>
         </Grid>
         <Stack gap="2rem">
-          {props.regionConfigs.map((regionConfig) => (
+          {enabledRegionConfigs.map((regionConfig) => (
+            <UpdateRegionCard
+              key={regionConfig.region}
+              regionConfig={regionConfig}
+              onUpdate={async (regionConfig) => {
+                await props.updateRouteHandler(regionConfig);
+                router.refresh();
+              }}
+            />
+          ))}
+          {!!disabledRegionConfigs.length && <Divider />}
+          {disabledRegionConfigs.map((regionConfig) => (
             <UpdateRegionCard
               key={regionConfig.region}
               regionConfig={regionConfig}
