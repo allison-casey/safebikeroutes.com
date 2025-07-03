@@ -44,6 +44,7 @@ export const ControlledTextField = <T extends FieldValues>({
       }) => {
         return (
           <TextField
+            size="small"
             multiline={multiline}
             error={!!error}
             helperText={!!error && error.message}

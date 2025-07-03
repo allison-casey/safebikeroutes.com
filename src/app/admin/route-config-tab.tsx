@@ -71,48 +71,139 @@ const RegionConfigForm = () => {
   >();
   return (
     <Stack gap="1rem" className="py-3">
-      <ControlledTextField
-        required
-        control={control}
-        rules={{
-          pattern: {
-            value: /^[A-Za-z_]+$/,
-            message: "Only letters and underscores allowed",
-          },
-        }}
-        fieldName="region"
-        label="Region"
-      />
-      <ControlledTextField
-        required
-        control={control}
-        rules={{
-          pattern: {
-            value: /^[A-Za-z]+$/,
-            message: "Only letters allowed",
-          },
-        }}
-        fieldName="urlSegment"
-        label="URL Segment"
-      />
-      <ControlledTextField
-        required
-        control={control}
-        fieldName="label"
-        label="Region Label"
-      />
-      <Controller
-        name="useDefaultDescriptionSkeleton"
-        control={control}
-        render={({ field: { value, onChange } }) => {
-          return (
-            <FormControlLabel
-              control={<Checkbox checked={value} onChange={onChange} />}
-              label="Use default description skeleton"
+      <Grid container spacing={2}>
+        <Grid size={6}>
+          <Stack spacing={2}>
+            <ControlledTextField
+              required
+              control={control}
+              rules={{
+                pattern: {
+                  value: /^[A-Za-z_]+$/,
+                  message: "Only letters and underscores allowed",
+                },
+              }}
+              fieldName="region"
+              label="Region"
             />
-          );
-        }}
-      />
+            <ControlledTextField
+              required
+              control={control}
+              rules={{
+                pattern: {
+                  value: /^[A-Za-z]+$/,
+                  message: "Only letters allowed",
+                },
+              }}
+              fieldName="urlSegment"
+              label="URL Segment"
+            />
+            <ControlledTextField
+              required
+              control={control}
+              fieldName="label"
+              label="Region Label"
+            />
+
+            <ControlledNumberField
+              required
+              control={control}
+              fieldName="zoom"
+              label="Initial Zoom"
+            />
+
+            <Controller
+              name="useDefaultDescriptionSkeleton"
+              control={control}
+              render={({ field: { value, onChange } }) => {
+                return (
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        size="small"
+                        checked={value}
+                        onChange={onChange}
+                      />
+                    }
+                    label="Use default description skeleton"
+                  />
+                );
+              }}
+            />
+
+            <Controller
+              name="disabled"
+              control={control}
+              render={({ field: { value, onChange } }) => {
+                return (
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        size="small"
+                        checked={value}
+                        onChange={onChange}
+                      />
+                    }
+                    label="Region disabled"
+                  />
+                );
+              }}
+            />
+          </Stack>
+        </Grid>
+        <Grid size={6}>
+          <Stack spacing={1.5}>
+            <Typography variant="subtitle1">Center</Typography>
+            <Stack direction="row" gap="1rem">
+              <ControlledNumberField
+                required
+                control={control}
+                fieldName="center.lat"
+                label="Lat"
+              />
+              <ControlledNumberField
+                required
+                control={control}
+                fieldName="center.long"
+                label="long"
+              />
+            </Stack>
+
+            <Typography variant="subtitle1">Bounding Box</Typography>
+            <Typography variant="subtitle2">Lower Left Corner</Typography>
+            <Stack direction="row" gap="1rem">
+              <ControlledNumberField
+                required
+                control={control}
+                fieldName="bbox.0.lat"
+                label="Lat"
+              />
+              <ControlledNumberField
+                required
+                control={control}
+                fieldName="bbox.0.long"
+                label="long"
+              />
+            </Stack>
+
+            <Typography variant="subtitle2">Upper Right Corner</Typography>
+            <Stack direction="row" gap="1rem">
+              <ControlledNumberField
+                required
+                control={control}
+                fieldName="bbox.1.lat"
+                label="Lat"
+              />
+              <ControlledNumberField
+                required
+                control={control}
+                fieldName="bbox.1.long"
+                label="long"
+              />
+            </Stack>
+          </Stack>
+        </Grid>
+      </Grid>
       <Typography variant="subtitle2">Region Description</Typography>
       <Controller
         control={control}
@@ -123,74 +214,6 @@ const RegionConfigForm = () => {
               value={value}
               onChange={onChange}
               extensions={[html()]}
-            />
-          );
-        }}
-      />
-      <Typography variant="h5">Center</Typography>
-      <Stack direction="row" gap="1rem">
-        <ControlledNumberField
-          required
-          control={control}
-          fieldName="center.lat"
-          label="Lat"
-        />
-        <ControlledNumberField
-          required
-          control={control}
-          fieldName="center.long"
-          label="long"
-        />
-      </Stack>
-
-      <Typography variant="h5">Bounding Box</Typography>
-      <Typography variant="h6">Lower Left Corner</Typography>
-      <Stack direction="row" gap="1rem">
-        <ControlledNumberField
-          required
-          control={control}
-          fieldName="bbox.0.lat"
-          label="Lat"
-        />
-        <ControlledNumberField
-          required
-          control={control}
-          fieldName="bbox.0.long"
-          label="long"
-        />
-      </Stack>
-
-      <Typography variant="h6">Upper Right Corner</Typography>
-      <Stack direction="row" gap="1rem">
-        <ControlledNumberField
-          required
-          control={control}
-          fieldName="bbox.1.lat"
-          label="Lat"
-        />
-        <ControlledNumberField
-          required
-          control={control}
-          fieldName="bbox.1.long"
-          label="long"
-        />
-      </Stack>
-
-      <ControlledNumberField
-        required
-        control={control}
-        fieldName="zoom"
-        label="Initial Zoom"
-      />
-
-      <Controller
-        name="disabled"
-        control={control}
-        render={({ field: { value, onChange } }) => {
-          return (
-            <FormControlLabel
-              control={<Checkbox checked={value} onChange={onChange} />}
-              label="Region disabled"
             />
           );
         }}
