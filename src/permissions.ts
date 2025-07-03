@@ -5,5 +5,5 @@ const permittedRoles = new Set<Role>(["ADMIN", "CONTRIBUTOR"]);
 
 export const canViewAdminPage = (session: Session, region: string): boolean =>
   session.user.roles.some(
-    (role) => permittedRoles.has(role.role) && role.region === region,
+    (role) => permittedRoles.has(role.role) && role.region_id === region,
   );
