@@ -128,7 +128,6 @@ export const UserAdminPanel = (props: IUserAdminPanelProps) => {
   const deleteUserFromRegion = useCallback(
     (id: GridRowId) => async () => {
       const user = tableUsers.find((user) => user.id === id);
-      console.log(user?.role.id);
       if (user) await props.deleteUserFromRegionHandler(user.role.id);
       router.refresh();
     },

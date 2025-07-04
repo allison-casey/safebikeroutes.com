@@ -8,9 +8,12 @@ import {
   Box,
   Button,
   Drawer,
+  FormControl,
+  FormHelperText,
   IconButton,
   Menu,
   MenuItem,
+  Select,
   Toolbar,
   Tooltip,
   Typography,
@@ -25,7 +28,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import ReactMap from "react-map-gl";
 import type { MapProps } from "react-map-gl";
-import { useSafeRoutesMapContext } from "./safe-routes-map-context";
+import type { IRegionConfig } from "@/types/map";
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
   open?: boolean;
@@ -77,9 +80,14 @@ export const MapSurface = ({
   </div>
 );
 
-export const MapToolBar = () => {
+export const MapToolBar = (props: {
+  currentRegion: IRegionConfig;
+  regionConfigs: IRegionConfig[];
+}) => {
+  const activeRegions = props.regionConfigs.filter(
+    (region) => !region.disabled,
+  );
   const { data: session, status } = useSession();
-  const { region, regionLabel } = useSafeRoutesMapContext();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -110,7 +118,7 @@ export const MapToolBar = () => {
         )}
         {!isOnAdminPage &&
           session &&
-          canViewRegionEditorPage(session, region) && (
+          canViewRegionEditorPage(session, props.currentRegion.region) && (
             <MenuItem onClick={() => router.push(`${pathname}/admin`)}>
               Region Editor
             </MenuItem>
@@ -128,9 +136,55 @@ export const MapToolBar = () => {
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
           <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Safe Bike Routes: {regionLabel}
-            </Typography>
+            {activeRegions.length > 1 ? (
+              <div className="flex-grow">
+                <FormControl>
+                  <FormHelperText>
+                    <span className="text-slate-100 text-lg">
+                      Safe Bike Routes
+                    </span>
+                  </FormHelperText>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={props.currentRegion.region}
+                    size="small"
+                    sx={{
+                      fontSize: "1.5rem",
+                      boxShadow: "none",
+                      ".MuiOutlinedInput-notchedOutline": { border: 0 },
+                      color: "white",
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "white",
+                      },
+                      "& .MuiSvgIcon-root": {
+                        color: "white",
+                      },
+                    }}
+                    onChange={(event) => {
+                      const nextRegion = props.regionConfigs.find(
+                        (regionConfig) =>
+                          regionConfig.region === event.target.value,
+                      );
+                      if (nextRegion) router.push(nextRegion.urlSegment);
+                    }}
+                  >
+                    {activeRegions.map((regionConfig) => (
+                      <MenuItem
+                        key={regionConfig.region}
+                        value={regionConfig.region}
+                      >
+                        {regionConfig.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+            ) : (
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                Safe Bike Routes: {props.currentRegion.label}
+              </Typography>
+            )}
             {status === "authenticated" ? (
               <Tooltip title="Open Options">
                 <IconButton

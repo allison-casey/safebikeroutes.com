@@ -50,7 +50,7 @@ export default async function SafeRoutes(props: ISafeRoutesPageProps) {
       routes={routes}
       panelContents={
         <Grid container>
-          <MapToolBar />
+          <MapToolBar currentRegion={regionConfig} regionConfigs={regions} />
           {regionConfig.useDefaultDescriptionSkeleton ? (
             <Description regionDescription={regionDescription} />
           ) : (
