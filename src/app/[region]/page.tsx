@@ -45,8 +45,7 @@ export default async function SafeRoutes(props: ISafeRoutesPageProps) {
   return (
     <SafeBikeRoutesClient
       mapboxAccessToken={process.env.ACCESS_TOKEN}
-      region={regionConfig.region}
-      regionLabel={regionConfig.label}
+      regionConfig={regionConfig}
       routes={routes}
       panelContents={
         <Grid container>

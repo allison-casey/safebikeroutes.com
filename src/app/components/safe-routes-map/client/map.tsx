@@ -14,7 +14,7 @@ import StyleSelector, {
   type Styles,
 } from "@/app/components/safe-routes-map/style-selector";
 import { routeStyles } from "@/app/route_styles";
-import type { IRouteFeatureCollection } from "@/types/map";
+import type { IRegionConfig, IRouteFeatureCollection } from "@/types/map";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import mapboxgl, {
   type GeolocateControl as IGeolocateControl,
@@ -34,8 +34,7 @@ type WatchState =
 
 type SafeRoutesMapProps = Omit<MapProps, "mapLib" | "mapStyle"> & {
   mapboxAccessToken: string;
-  region: string;
-  regionLabel: string;
+  regionConfig: IRegionConfig;
   routes: IRouteFeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;
   panelContents: React.ReactNode;
@@ -74,7 +73,10 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
 
   return (
     <SafeRoutesMapContext.Provider
-      value={{ region: props.region, regionLabel: props.regionLabel }}
+      value={{
+        region: props.regionConfig.region,
+        regionLabel: props.regionConfig.label,
+      }}
     >
       <SafeRoutesMap
         mapLib={mapboxgl}
