@@ -7,7 +7,11 @@ import { useRef, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { drawControlRouteStyles } from "@/app/route_styles";
-import type { IRouteFeatureCollection, IRouteProperties } from "@/types/map";
+import type {
+  IRegionConfig,
+  IRouteFeatureCollection,
+  IRouteProperties,
+} from "@/types/map";
 import type MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import {
   Button,
@@ -53,14 +57,14 @@ type SafeRoutesMapProps = Omit<
   "mapboxAccessToken" | "mapLib" | "mapStyle"
 > & {
   token?: string;
-  region: string;
-  regionLabel: string;
+  regionConfig: IRegionConfig;
   routes: IRouteFeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;
   saveRoutesHandler: IUpdateRoutesHandler;
 };
 
 interface ControlPanelProps {
+  regionConfig: IRegionConfig;
   selectedFeatures: GeoJSON.Feature[];
   onFeaturePropertiesSave: (
     feature: GeoJSON.Feature,
@@ -127,10 +131,11 @@ const RouteEditor = ({
 const ControlPanel = ({
   selectedFeatures,
   onFeaturePropertiesSave,
+  regionConfig,
 }: ControlPanelProps) => {
   return (
     <>
-      <MapToolBar />
+      <MapToolBar currentRegion={regionConfig} regionConfigs={[regionConfig]} />
       <div className="grid grid-rows grid-rows-1 p-5">
         <div>
           {selectedFeatures
@@ -200,8 +205,7 @@ const RouteToolbar = (props: {
 
 const SafeRoutesMapAdminInner = ({
   token,
-  region,
-  regionLabel,
+  regionConfig,
   routes,
   saveRoutesHandler,
   geocoderBbox,
@@ -230,7 +234,9 @@ const SafeRoutesMapAdminInner = ({
   const [showControlPanel, toggleControlPanel] = useState(true);
 
   return (
-    <SafeRoutesMapContext.Provider value={{ region, regionLabel }}>
+    <SafeRoutesMapContext.Provider
+      value={{ region: regionConfig.region, regionLabel: regionConfig.label }}
+    >
       <MapProvider>
         <SafeRoutesMap
           mapboxAccessToken={token}
@@ -268,6 +274,7 @@ const SafeRoutesMapAdminInner = ({
         <MapSurfaceContainer>
           <MapPanel open={showControlPanel}>
             <ControlPanel
+              regionConfig={regionConfig}
               selectedFeatures={selectedFeatures}
               onFeaturePropertiesSave={(feature, data) => {
                 if (draw) {
@@ -293,7 +300,10 @@ const SafeRoutesMapAdminInner = ({
                               feature.geometry.type === "LineString",
                           )
                           .map((feature) =>
-                            geoJSONFeatureToRouteFeature(region, feature),
+                            geoJSONFeatureToRouteFeature(
+                              regionConfig.region,
+                              feature,
+                            ),
                           ),
                       },
                       [...deletedRouteIds],

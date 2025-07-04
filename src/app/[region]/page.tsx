@@ -45,12 +45,11 @@ export default async function SafeRoutes(props: ISafeRoutesPageProps) {
   return (
     <SafeBikeRoutesClient
       mapboxAccessToken={process.env.ACCESS_TOKEN}
-      region={regionConfig.region}
-      regionLabel={regionConfig.label}
+      regionConfig={regionConfig}
       routes={routes}
       panelContents={
         <Grid container>
-          <MapToolBar />
+          <MapToolBar currentRegion={regionConfig} regionConfigs={regions} />
           {regionConfig.useDefaultDescriptionSkeleton ? (
             <Description regionDescription={regionDescription} />
           ) : (

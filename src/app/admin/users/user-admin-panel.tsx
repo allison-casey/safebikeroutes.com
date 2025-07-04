@@ -1,7 +1,7 @@
 "use client";
-import { DataGrid, type GridColDef, type GridRowId } from "@mui/x-data-grid";
-import DeleteIcon from "@mui/icons-material/Delete";
+import type { Role } from "@/db/enums";
 import type { IRegionConfig, IUser, IUserRole } from "@/types/map";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Button,
   Dialog,
@@ -17,11 +17,11 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { useCallback, useMemo, useState } from "react";
-import type { Role } from "@/db/enums";
-import { Controller, useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { DataGrid, type GridColDef, type GridRowId } from "@mui/x-data-grid";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useCallback, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 
 export interface IAddUserToRegionForm {
   userId: string;
@@ -128,7 +128,6 @@ export const UserAdminPanel = (props: IUserAdminPanelProps) => {
   const deleteUserFromRegion = useCallback(
     (id: GridRowId) => async () => {
       const user = tableUsers.find((user) => user.id === id);
-      console.log(user?.role.id);
       if (user) await props.deleteUserFromRegionHandler(user.role.id);
       router.refresh();
     },

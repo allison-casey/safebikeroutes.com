@@ -1,11 +1,11 @@
 import { db } from "@/db/client";
 import type { Role } from "@/db/enums";
 import { getRegionConfigs } from "@/db/region-configs";
+import type { IUser } from "@/types/map";
 import { auth } from "@root/auth";
 import { jsonArrayFrom } from "kysely/helpers/postgres";
 import { notFound } from "next/navigation";
 import { type IAddUserToRegionForm, UserAdminPanel } from "./user-admin-panel";
-import type { IUser } from "@/types/map";
 
 const permittedRoles = new Set<Role>(["ADMIN"]);
 

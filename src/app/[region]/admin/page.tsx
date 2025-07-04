@@ -65,8 +65,7 @@ export default async function SafeRoutesAdmin(props: ISafeRoutesPageProps) {
   return (
     <SafeRoutesMapAdmin
       token={process.env.ACCESS_TOKEN}
-      region={regionConfig.region}
-      regionLabel={regionConfig.label}
+      regionConfig={regionConfig}
       routes={routes}
       saveRoutesHandler={async (
         featureCollection: IRouteFeatureCollection,
