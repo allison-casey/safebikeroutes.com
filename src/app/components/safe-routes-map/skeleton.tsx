@@ -1,6 +1,7 @@
 "use client";
 
 import { canViewAdminPage, canViewRegionEditorPage } from "@/permissions";
+import type { IRegionConfig } from "@/types/map";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import {
   AppBar,
@@ -28,7 +29,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import ReactMap from "react-map-gl";
 import type { MapProps } from "react-map-gl";
-import type { IRegionConfig } from "@/types/map";
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
   open?: boolean;
