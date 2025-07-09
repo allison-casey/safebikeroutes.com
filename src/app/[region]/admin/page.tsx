@@ -23,7 +23,7 @@ const saveRoutesForMap = async (
 const permittedRoles = new Set<Role>(["ADMIN", "CONTRIBUTOR"]);
 
 interface ISafeRoutesPageProps {
-  params: { region: string };
+  params: Promise<{ region: string }>;
 }
 
 export default async function SafeRoutesAdmin(props: ISafeRoutesPageProps) {
@@ -38,8 +38,8 @@ export default async function SafeRoutesAdmin(props: ISafeRoutesPageProps) {
   const regionLookup = indexBy(regions, (r) => r.urlSegment);
 
   if (
-    !regionLookup[props.params.region] ||
-    regionLookup[props.params.region].disabled
+    !regionLookup[(await props.params).region] ||
+    regionLookup[(await props.params).region].disabled
   ) {
     notFound();
   }
@@ -56,7 +56,7 @@ export default async function SafeRoutesAdmin(props: ISafeRoutesPageProps) {
     );
   }
 
-  const regionConfig = regionLookup[props.params.region];
+  const regionConfig = regionLookup[(await props.params).region];
   const bounds: MapboxGeocoder.Bbox = [
     regionConfig.bbox[0].long,
     regionConfig.bbox[0].lat,
