@@ -33,13 +33,14 @@ export default async function SafeRoutesAdmin(props: ISafeRoutesPageProps) {
     throw new Error("ACCESS_TOKEN is undefined");
   }
 
+  const urlParams = await props.params;
   const regions = await getRegionConfigs();
 
   const regionLookup = indexBy(regions, (r) => r.urlSegment);
 
   if (
-    !regionLookup[(await props.params).region] ||
-    regionLookup[(await props.params).region].disabled
+    !regionLookup[urlParams.region] ||
+    regionLookup[urlParams.region].disabled
   ) {
     notFound();
   }
@@ -56,7 +57,7 @@ export default async function SafeRoutesAdmin(props: ISafeRoutesPageProps) {
     );
   }
 
-  const regionConfig = regionLookup[(await props.params).region];
+  const regionConfig = regionLookup[urlParams.region];
   const bounds: MapboxGeocoder.Bbox = [
     regionConfig.bbox[0].long,
     regionConfig.bbox[0].lat,
