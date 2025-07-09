@@ -10,23 +10,24 @@ import { MapToolBar } from "../components/safe-routes-map/skeleton";
 import Description from "./description-skeleton.mdx";
 
 interface ISafeRoutesPageProps {
-  params: { region: string };
+  params: Promise<{ region: string }>;
 }
 
 export default async function SafeRoutes(props: ISafeRoutesPageProps) {
   noStore();
+  const urlParams = await props.params;
   const regions = await getRegionConfigs();
 
   const regionLookup = indexBy(regions, (r) => r.urlSegment);
 
   if (
-    !regionLookup[props.params.region] ||
-    regionLookup[props.params.region].disabled
+    !regionLookup[urlParams.region] ||
+    regionLookup[urlParams.region].disabled
   ) {
     notFound();
   }
 
-  const regionConfig = regionLookup[props.params.region];
+  const regionConfig = regionLookup[urlParams.region];
   const bounds: MapboxGeocoder.Bbox = [
     regionConfig.bbox[0].long,
     regionConfig.bbox[0].lat,

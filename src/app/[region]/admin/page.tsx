@@ -23,19 +23,24 @@ const saveRoutesForMap = async (
 const permittedRoles = new Set<Role>(["ADMIN", "CONTRIBUTOR"]);
 
 interface ISafeRoutesPageProps {
-  params: { region: string };
+  params: Promise<{ region: string }>;
 }
 
 export default async function SafeRoutesAdmin(props: ISafeRoutesPageProps) {
   noStore();
 
+  if (!process.env.ACCESS_TOKEN) {
+    throw new Error("ACCESS_TOKEN is undefined");
+  }
+
+  const urlParams = await props.params;
   const regions = await getRegionConfigs();
 
   const regionLookup = indexBy(regions, (r) => r.urlSegment);
 
   if (
-    !regionLookup[props.params.region] ||
-    regionLookup[props.params.region].disabled
+    !regionLookup[urlParams.region] ||
+    regionLookup[urlParams.region].disabled
   ) {
     notFound();
   }
@@ -52,7 +57,7 @@ export default async function SafeRoutesAdmin(props: ISafeRoutesPageProps) {
     );
   }
 
-  const regionConfig = regionLookup[props.params.region];
+  const regionConfig = regionLookup[urlParams.region];
   const bounds: MapboxGeocoder.Bbox = [
     regionConfig.bbox[0].long,
     regionConfig.bbox[0].lat,
@@ -67,17 +72,7 @@ export default async function SafeRoutesAdmin(props: ISafeRoutesPageProps) {
       token={process.env.ACCESS_TOKEN}
       regionConfig={regionConfig}
       routes={routes}
-      saveRoutesHandler={async (
-        featureCollection: IRouteFeatureCollection,
-        routeIdsToDelete: string[],
-      ) => {
-        "use server";
-        return await saveRoutesForMap(
-          regionConfig.region,
-          featureCollection,
-          routeIdsToDelete,
-        );
-      }}
+      saveRoutesHandler={saveRoutesForMap}
       initialViewState={{
         longitude: regionConfig.center.long,
         latitude: regionConfig.center.lat,

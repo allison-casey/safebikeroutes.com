@@ -29,6 +29,9 @@ export interface IAddUserToRegionForm {
   role: Role;
 }
 
+const availableUsers = (region: string, users: IUser[]): IUser[] =>
+  users.filter((user) => user.roles.every((role) => role.region_id !== region));
+
 const AddUserModal = (props: {
   region: string;
   users: IUser[];
@@ -71,15 +74,11 @@ const AddUserModal = (props: {
                 label="User"
                 onChange={onChange}
               >
-                {props.users
-                  .filter((user) =>
-                    user.roles.every((role) => role.region_id !== props.region),
-                  )
-                  .map((user) => (
-                    <MenuItem key={user.id} value={user.id}>
-                      {user.email}
-                    </MenuItem>
-                  ))}
+                {availableUsers(props.region, props.users).map((user) => (
+                  <MenuItem key={user.id} value={user.id}>
+                    {user.email}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           )}
@@ -178,7 +177,11 @@ export const UserAdminPanel = (props: IUserAdminPanelProps) => {
         <Grid container>
           <Grid>
             <Button
-              disabled={!selectedRegionID}
+              disabled={
+                !selectedRegionID ||
+                (!!selectedRegionID &&
+                  availableUsers(selectedRegionID, props.users).length === 0)
+              }
               onClick={() => setAddUserModalOpen(true)}
             >
               Add User
