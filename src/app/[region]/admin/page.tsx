@@ -29,6 +29,10 @@ interface ISafeRoutesPageProps {
 export default async function SafeRoutesAdmin(props: ISafeRoutesPageProps) {
   noStore();
 
+  if (!process.env.ACCESS_TOKEN) {
+    throw new Error("ACCESS_TOKEN is undefined");
+  }
+
   const regions = await getRegionConfigs();
 
   const regionLookup = indexBy(regions, (r) => r.urlSegment);
@@ -67,17 +71,7 @@ export default async function SafeRoutesAdmin(props: ISafeRoutesPageProps) {
       token={process.env.ACCESS_TOKEN}
       regionConfig={regionConfig}
       routes={routes}
-      saveRoutesHandler={async (
-        featureCollection: IRouteFeatureCollection,
-        routeIdsToDelete: string[],
-      ) => {
-        "use server";
-        return await saveRoutesForMap(
-          regionConfig.region,
-          featureCollection,
-          routeIdsToDelete,
-        );
-      }}
+      saveRoutesHandler={saveRoutesForMap}
       initialViewState={{
         longitude: regionConfig.center.long,
         latitude: regionConfig.center.lat,

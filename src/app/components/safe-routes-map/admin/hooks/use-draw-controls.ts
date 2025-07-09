@@ -1,7 +1,7 @@
 import type { IRouteProperties } from "@/types/map";
 import type MapboxDraw from "@mapbox/mapbox-gl-draw";
-import { useRouteAdminContext } from "./state";
-import { repaintDrawLayer } from "./utils";
+import { useRouteAdminContext } from "../lib/state";
+import { repaintDrawLayer } from "../lib/utils";
 
 type ISetFeatureProperty = <
   K extends keyof IRouteProperties,

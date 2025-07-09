@@ -37,17 +37,19 @@ import {
   SafeRoutesMap,
 } from "../skeleton";
 import StyleSelector, { MAP_STYLES, type Styles } from "../style-selector";
+import { ControlPanel } from "./components/control-panel";
+import { useDrawControls } from "./hooks/use-draw-controls";
 import {
   RouteAdminContext,
   createRouteAdminStore,
   useRouteAdminContext,
-} from "./state";
-import { useDrawControls } from "./use-draw-controls";
-import { geoJSONFeatureToRouteFeature } from "./utils";
+} from "./lib/state";
+import { geoJSONFeatureToRouteFeature } from "./lib/utils";
 
 const DEFAULT_MAP_STYLE: Styles = "Streets";
 
 type IUpdateRoutesHandler = (
+  region: string,
   features: IRouteFeatureCollection,
   routeIdsToDelete: string[],
 ) => Promise<void>;
@@ -56,101 +58,11 @@ type SafeRoutesMapProps = Omit<
   MapProps,
   "mapboxAccessToken" | "mapLib" | "mapStyle"
 > & {
-  token?: string;
+  token: string;
   regionConfig: IRegionConfig;
   routes: IRouteFeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;
   saveRoutesHandler: IUpdateRoutesHandler;
-};
-
-interface ControlPanelProps {
-  regionConfig: IRegionConfig;
-  selectedFeatures: GeoJSON.Feature[];
-  onFeaturePropertiesSave: (
-    feature: GeoJSON.Feature,
-    properties: IRouteProperties,
-  ) => void;
-}
-
-const RouteEditor = ({
-  feature,
-  onSave,
-}: {
-  feature: GeoJSON.Feature;
-  onSave: (feature: GeoJSON.Feature, properties: IRouteProperties) => void;
-}) => {
-  const { handleSubmit, control } = useForm<IRouteProperties>({
-    defaultValues: {
-      name: feature.properties?.name || "",
-      route_type: feature.properties?.route_type || "STREET",
-    },
-  });
-
-  const onSubmit = handleSubmit((data) => onSave(feature, data));
-
-  return (
-    <form onSubmit={onSubmit}>
-      <Grid container direction="column" gap={1}>
-        <Controller
-          name="name"
-          control={control}
-          render={({ field: { onChange, value } }) => (
-            <Grid>
-              <TextField
-                label="Route Name"
-                fullWidth
-                onChange={onChange}
-                value={value}
-              />{" "}
-            </Grid>
-          )}
-        />
-        <Controller
-          name="route_type"
-          control={control}
-          render={({ field: { onChange, value } }) => (
-            <Grid>
-              <Select onChange={onChange} value={value} fullWidth>
-                <MenuItem value={"SIDEWALK"}>Sidewalk</MenuItem>
-                <MenuItem value={"STREET"}>Street</MenuItem>
-                <MenuItem value={"LANE"}>Lane</MenuItem>
-                <MenuItem value={"PROTECTED"}>Protected</MenuItem>
-                <MenuItem value={"TRACK"}>Track</MenuItem>
-              </Select>
-            </Grid>
-          )}
-        />
-        <Button color="primary" type="submit">
-          Submit
-        </Button>
-      </Grid>
-    </form>
-  );
-};
-
-const ControlPanel = ({
-  selectedFeatures,
-  onFeaturePropertiesSave,
-  regionConfig,
-}: ControlPanelProps) => {
-  return (
-    <>
-      <MapToolBar currentRegion={regionConfig} regionConfigs={[regionConfig]} />
-      <div className="grid grid-rows grid-rows-1 p-5">
-        <div>
-          {selectedFeatures
-            ? selectedFeatures.map((feature) => (
-                <RouteEditor
-                  key={feature.id}
-                  feature={feature}
-                  onSave={onFeaturePropertiesSave}
-                />
-              ))
-            : null}
-        </div>
-      </div>
-    </>
-  );
 };
 
 const RouteToolbar = (props: {
@@ -211,10 +123,6 @@ const SafeRoutesMapAdminInner = ({
   geocoderBbox,
   ...mapboxProps
 }: SafeRoutesMapProps) => {
-  if (!token) {
-    throw new Error("ACCESS_TOKEN is undefined");
-  }
-
   const { default: draw } = useDraw();
 
   const selectedFeatures = useRouteAdminContext((s) => s.selectedFeatures);
@@ -264,6 +172,7 @@ const SafeRoutesMapAdminInner = ({
             controls={{
               line_string: true,
               trash: true,
+              point: true,
             }}
             onUpdate={onUpdate}
             onCreate={onCreate}
@@ -290,6 +199,7 @@ const SafeRoutesMapAdminInner = ({
                 onSave={() =>
                   handleSubmit(async (features) => {
                     await saveRoutesHandler(
+                      regionConfig.region,
                       {
                         type: "FeatureCollection",
                         features: features
