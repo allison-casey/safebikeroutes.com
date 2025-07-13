@@ -54,12 +54,13 @@ const DrawControl = (props: DrawControlProps) => {
       onModeChange = (evt: DrawModeChangeEvent) =>
         props.onModeChange?.(draw, evt);
 
-      props.onCreate && map.on("draw.create", onCreate);
-      props.onUpdate && map.on("draw.update", onUpdate);
-      props.onDelete && map.on("draw.delete", onDelete);
-      props.onSelectionChange &&
+      if (props.onCreate) map.on("draw.create", onCreate);
+      if (props.onUpdate) map.on("draw.update", onUpdate);
+      if (props.onDelete) map.on("draw.delete", onDelete);
+      if (props.onModeChange) map.on("draw.modechange", onModeChange);
+      if (props.onSelectionChange)
         map.on("draw.selectionchange", onSelectionChange);
-      props.onModeChange && map.on("draw.modechange", onModeChange);
+
       map.on("load", () => draw.add(props.features));
     },
     ({ map }) => {
