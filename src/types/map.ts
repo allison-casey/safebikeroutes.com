@@ -1,6 +1,10 @@
 import type { RouteType } from "@/db/enums";
 import type { User, UserRoles } from "@/db/types";
 
+export interface IPinProperties {
+  type: "default" | "hill" | "offroad" | "gated";
+}
+
 export interface IRouteProperties {
   route_type: RouteType;
   region: string;

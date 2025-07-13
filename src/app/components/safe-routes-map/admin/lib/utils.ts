@@ -5,6 +5,20 @@ type FeaturesByType<TGeom extends GeoJSON.Geometry = GeoJSON.Geometry> = {
   [Geom in TGeom as Geom["type"]]?: GeoJSON.Feature<Geom>[];
 };
 
+export const featureOf = <
+  T extends GeoJSON.Geometry,
+  TGeomType extends T["type"],
+>(
+  feature: GeoJSON.Feature,
+  type: TGeomType,
+): feature is GeoJSON.Feature<Extract<T, { type: TGeomType }>> =>
+  feature.geometry.type === type;
+
+export const isLineString = (
+  feature: GeoJSON.Feature,
+): feature is GeoJSON.Feature<GeoJSON.LineString> =>
+  feature.geometry.type === "LineString";
+
 export const getFeaturesByType = (
   features: GeoJSON.Feature[],
 ): FeaturesByType => R.groupBy(features, (f) => f.geometry.type);

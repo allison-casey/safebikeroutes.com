@@ -1,27 +1,39 @@
-import type { IRouteProperties } from "@/types/map";
+import type { IPinProperties, IRouteProperties } from "@/types/map";
 import type MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { useRouteAdminContext } from "../lib/state";
-import { repaintDrawLayer } from "../lib/utils";
+import { featureOf, repaintDrawLayer } from "../lib/utils";
+
+type IGeometries = GeoJSON.LineString | GeoJSON.Point;
+
+type IFeatureProperties<TGeom extends IGeometries> =
+  TGeom extends GeoJSON.LineString ? IRouteProperties : IPinProperties;
 
 type ISetFeatureProperty = <
-  K extends keyof IRouteProperties,
-  V extends Required<IRouteProperties>[K],
+  TGeom extends IGeometries,
+  TProperties extends IFeatureProperties<TGeom>,
+  K extends keyof TProperties,
+  V extends Required<TProperties>[K],
 >(
   draw: MapboxDraw,
-  feature: GeoJSON.Feature,
+  feature: GeoJSON.Feature<TGeom>,
   key: K,
   value: V,
 ) => void;
 
 const createMergeFeatureProperties =
   (setFeatureProperties: ISetFeatureProperty) =>
-  (
+  <TGeom extends IGeometries, TProperties extends IFeatureProperties<TGeom>>(
     draw: MapboxDraw,
-    feature: GeoJSON.Feature,
-    properties: IRouteProperties,
+    feature: GeoJSON.Feature<TGeom>,
+    properties: TProperties,
   ) => {
     for (const [key, value] of Object.entries(properties)) {
-      setFeatureProperties(draw, feature, key as keyof IRouteProperties, value);
+      setFeatureProperties(
+        draw,
+        feature,
+        key as keyof IFeatureProperties<TGeom>,
+        value,
+      );
     }
   };
 
@@ -35,13 +47,13 @@ export const useDrawControls = () => {
 
   // feature utility methods
   const setFeatureProperty: ISetFeatureProperty = (
-    draw: MapboxDraw,
-    feature: GeoJSON.Feature,
+    draw,
+    feature,
     key,
     value,
   ) => {
     // set the feature on the draw layer
-    draw.setFeatureProperty(feature.id as string, key, value);
+    draw.setFeatureProperty(feature.id as string, key as string, value);
     const features = draw.getAll();
     repaintDrawLayer(draw, features);
 
@@ -66,7 +78,11 @@ export const useDrawControls = () => {
     createFeatures(event.features);
     for (const feature of event.features) {
       // all routes need to have a default route type
-      setFeatureProperty(draw, feature, "route_type", "STREET");
+      if (featureOf(feature, "LineString"))
+        setFeatureProperty(draw, feature, "route_type", "STREET");
+
+      if (featureOf(feature, "Point"))
+        setFeatureProperty(draw, feature, "type", "default");
     }
   };
 

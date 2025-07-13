@@ -33,7 +33,7 @@ import {
   createRouteAdminStore,
   useRouteAdminContext,
 } from "./lib/state";
-import { geoJSONFeatureToRouteFeature } from "./lib/utils";
+import { featureOf, geoJSONFeatureToRouteFeature } from "./lib/utils";
 
 const DEFAULT_MAP_STYLE: Styles = "Streets";
 
@@ -176,7 +176,8 @@ const SafeRoutesMapAdminInner = ({
               selectedFeatures={selectedFeatures}
               onFeaturePropertiesSave={(feature, data) => {
                 if (draw) {
-                  mergeFeatureProperties(draw, feature, data);
+                  if (featureOf(feature, "LineString"))
+                    mergeFeatureProperties(draw, feature, data);
                 }
               }}
             />
@@ -186,24 +187,17 @@ const SafeRoutesMapAdminInner = ({
               <RouteToolbar
                 draw={draw}
                 onSave={() =>
-                  handleSubmit(async (features) => {
+                  handleSubmit(async (routes, pins) => {
                     await saveRoutesHandler(
                       regionConfig.region,
                       {
                         type: "FeatureCollection",
-                        features: features
-                          .filter(
-                            (
-                              feature,
-                            ): feature is GeoJSON.Feature<GeoJSON.LineString> =>
-                              feature.geometry.type === "LineString",
-                          )
-                          .map((feature) =>
-                            geoJSONFeatureToRouteFeature(
-                              regionConfig.region,
-                              feature,
-                            ),
+                        features: routes.map((feature) =>
+                          geoJSONFeatureToRouteFeature(
+                            regionConfig.region,
+                            feature,
                           ),
+                        ),
                       },
                       [...deletedRouteIds],
                     );
