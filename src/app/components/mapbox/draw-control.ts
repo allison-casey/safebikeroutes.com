@@ -6,9 +6,9 @@ import MapboxDraw, {
   type DrawUpdateEvent,
 } from "@mapbox/mapbox-gl-draw";
 import React, { useContext, useRef } from "react";
-import { useControl } from "react-map-gl";
+import { useControl } from "react-map-gl/mapbox";
 
-import type { ControlPosition } from "react-map-gl";
+import type { ControlPosition } from "react-map-gl/mapbox";
 import { MountedDrawsContext } from "./use-draw";
 
 type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {

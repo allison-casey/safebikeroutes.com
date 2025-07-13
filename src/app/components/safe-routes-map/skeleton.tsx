@@ -27,8 +27,8 @@ import mapboxgl from "mapbox-gl";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import ReactMap from "react-map-gl";
-import type { MapProps } from "react-map-gl";
+import ReactMap from "react-map-gl/mapbox";
+import type { MapProps } from "react-map-gl/mapbox";
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
   open?: boolean;

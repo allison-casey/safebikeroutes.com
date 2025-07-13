@@ -21,7 +21,12 @@ import mapboxgl, {
 } from "mapbox-gl";
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
-import { GeolocateControl, Layer, type MapProps, Source } from "react-map-gl";
+import {
+  GeolocateControl,
+  Layer,
+  type MapProps,
+  Source,
+} from "react-map-gl/mapbox";
 import { SafeRoutesMapContext } from "../safe-routes-map-context";
 
 type WatchState =

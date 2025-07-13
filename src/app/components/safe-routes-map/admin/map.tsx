@@ -23,7 +23,11 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import { GeolocateControl, type MapProps, MapProvider } from "react-map-gl";
+import {
+  GeolocateControl,
+  type MapProps,
+  MapProvider,
+} from "react-map-gl/mapbox";
 import DrawControl from "../../mapbox/draw-control";
 import GeocoderControl from "../../mapbox/geocoder-control";
 import { useDraw } from "../../mapbox/use-draw";
