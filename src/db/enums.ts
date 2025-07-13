@@ -1,8 +1,3 @@
-export const Region = {
-  LA: "LA",
-  CC_PRIDE: "CC_PRIDE",
-} as const;
-export type Region = (typeof Region)[keyof typeof Region];
 export const RouteType = {
   SIDEWALK: "SIDEWALK",
   STREET: "STREET",
