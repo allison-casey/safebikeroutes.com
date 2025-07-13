@@ -63,8 +63,6 @@ const DrawControl = (props: DrawControlProps) => {
       map.on("load", () => draw.add(props.features));
     },
     ({ map }) => {
-      const test = (event: DrawCreateEvent) => props.onCreate?.(draw, event);
-      test;
       map.off("draw.create", onCreate);
       map.off("draw.update", onUpdate);
       map.off("draw.delete", onDelete);
