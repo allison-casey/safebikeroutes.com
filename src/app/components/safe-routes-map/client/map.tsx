@@ -15,10 +15,13 @@ import StyleSelector, {
 } from "@/app/components/safe-routes-map/style-selector";
 import { routeStyles } from "@/app/route_styles";
 import type {
+  IPinFeature,
   IPinFeatureCollection,
   IRegionConfig,
   IRouteFeatureCollection,
 } from "@/types/map";
+import InfoOutlineIcon from "@mui/icons-material/InfoOutline";
+import { Box, Card, CardContent, Typography } from "@mui/material";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import mapboxgl, {
   type GeolocateControl as IGeolocateControl,
@@ -30,6 +33,7 @@ import {
   Layer,
   type MapProps,
   Marker,
+  Popup,
   Source,
 } from "react-map-gl/mapbox";
 import { SafeRoutesMapContext } from "../safe-routes-map-context";
@@ -64,6 +68,7 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
   );
 
   const [geolocater, setGelocater] = useState<IGeolocateControl | null>(null);
+  const [popupInfo, setPopupInfo] = useState<IPinFeature | null>(null);
   const geolocateRef = useCallback(
     (node: IGeolocateControl) => setGelocater(node),
     [],
@@ -94,7 +99,7 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
             // If we let the click event propagates to the map, it will immediately close the popup
             // with `closeOnClick: true`
             e.originalEvent.stopPropagation();
-            // setPopupInfo(city);
+            setPopupInfo(pin);
           }}
         >
           <Pin />
@@ -139,6 +144,21 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
           {...layers}
         </Source>
         {pins}
+        {popupInfo && (
+          <Popup
+            anchor="top"
+            longitude={popupInfo.geometry.coordinates[0]}
+            latitude={popupInfo.geometry.coordinates[1]}
+            onClose={() => setPopupInfo(null)}
+          >
+            <Box>
+              <Typography variant="h6">{popupInfo.properties.type}</Typography>
+              <Typography variant="body2">
+                {popupInfo.properties.description}
+              </Typography>
+            </Box>
+          </Popup>
+        )}
         <GeocoderControl
           mapboxAccessToken={props.mapboxAccessToken}
           position="top-left"
