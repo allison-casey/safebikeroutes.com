@@ -1,12 +1,7 @@
-import type { IPinProperties, IRouteProperties } from "@/types/map";
+import type { IFeatureProperties, IGeometries } from "@/types/map";
 import type MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { useRouteAdminContext } from "../lib/state";
 import { featureOf, repaintDrawLayer } from "../lib/utils";
-
-type IGeometries = GeoJSON.LineString | GeoJSON.Point;
-
-type IFeatureProperties<TGeom extends IGeometries> =
-  TGeom extends GeoJSON.LineString ? IRouteProperties : IPinProperties;
 
 type ISetFeatureProperty = <
   TGeom extends IGeometries,
@@ -82,7 +77,7 @@ export const useDrawControls = () => {
         setFeatureProperty(draw, feature, "route_type", "STREET");
 
       if (featureOf(feature, "Point"))
-        setFeatureProperty(draw, feature, "type", "default");
+        setFeatureProperty(draw, feature, "type", "DEFAULT");
     }
   };
 

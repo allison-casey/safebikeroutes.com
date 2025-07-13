@@ -178,6 +178,8 @@ const SafeRoutesMapAdminInner = ({
                 if (draw) {
                   if (featureOf(feature, "LineString"))
                     mergeFeatureProperties(draw, feature, data);
+                  if (featureOf(feature, "Point"))
+                    mergeFeatureProperties(draw, feature, data);
                 }
               }}
             />
