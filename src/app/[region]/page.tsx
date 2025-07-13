@@ -1,4 +1,5 @@
 import SafeBikeRoutesClient from "@/app/components/safe-routes-map/client/map";
+import { getPins } from "@/db/pins";
 import { getRegionConfigs } from "@/db/region-configs";
 import { getRoutesByRegionID } from "@/db/routes";
 import { Grid } from "@mui/material";
@@ -36,6 +37,7 @@ export default async function SafeRoutes(props: ISafeRoutesPageProps) {
   ];
 
   const routes = await getRoutesByRegionID(regionConfig.region);
+  const pins = await getPins(regionConfig.region);
 
   if (!process.env.ACCESS_TOKEN) {
     throw Error("ACCESS_TOKEN not set");
@@ -48,6 +50,7 @@ export default async function SafeRoutes(props: ISafeRoutesPageProps) {
       mapboxAccessToken={process.env.ACCESS_TOKEN}
       regionConfig={regionConfig}
       routes={routes}
+      pins={pins}
       panelContents={
         <Grid container>
           <MapToolBar currentRegion={regionConfig} regionConfigs={regions} />

@@ -14,20 +14,26 @@ import StyleSelector, {
   type Styles,
 } from "@/app/components/safe-routes-map/style-selector";
 import { routeStyles } from "@/app/route_styles";
-import type { IRegionConfig, IRouteFeatureCollection } from "@/types/map";
+import type {
+  IPinFeatureCollection,
+  IRegionConfig,
+  IRouteFeatureCollection,
+} from "@/types/map";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import mapboxgl, {
   type GeolocateControl as IGeolocateControl,
 } from "mapbox-gl";
 import dynamic from "next/dynamic";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   GeolocateControl,
   Layer,
   type MapProps,
+  Marker,
   Source,
 } from "react-map-gl/mapbox";
 import { SafeRoutesMapContext } from "../safe-routes-map-context";
+import Pin from "./pin";
 
 type WatchState =
   | "OFF"
@@ -41,6 +47,7 @@ type SafeRoutesMapProps = Omit<MapProps, "mapLib" | "mapStyle"> & {
   mapboxAccessToken: string;
   regionConfig: IRegionConfig;
   routes: IRouteFeatureCollection;
+  pins: IPinFeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;
   panelContents: React.ReactNode;
 };
@@ -74,6 +81,26 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
         beforeId="road-label"
       />
     )),
+  );
+  const pins = useMemo(
+    () =>
+      props.pins.features.map((pin) => (
+        <Marker
+          key={`marker-${pin.id}`}
+          longitude={pin.geometry.coordinates[0]}
+          latitude={pin.geometry.coordinates[1]}
+          anchor="bottom"
+          onClick={(e) => {
+            // If we let the click event propagates to the map, it will immediately close the popup
+            // with `closeOnClick: true`
+            e.originalEvent.stopPropagation();
+            // setPopupInfo(city);
+          }}
+        >
+          <Pin />
+        </Marker>
+      )),
+    [props.pins],
   );
 
   return (
@@ -111,6 +138,7 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
         <Source id="saferoutes" type="geojson" data={props.routes}>
           {...layers}
         </Source>
+        {pins}
         <GeocoderControl
           mapboxAccessToken={props.mapboxAccessToken}
           position="top-left"
