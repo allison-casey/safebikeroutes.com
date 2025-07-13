@@ -8,6 +8,7 @@ export type IFeatureProperties<TGeom extends IGeometries> =
 
 export interface IPinProperties {
   type: "DEFAULT" | "HILL" | "OFFROAD" | "GATED";
+  region_id: string;
   description: string;
 }
 

@@ -1,6 +1,6 @@
 import { SafeRoutesMapAdmin } from "@/app/components/safe-routes-map/admin/map";
 import type { Role } from "@/db/enums";
-import { savePins } from "@/db/pins";
+import { getPins, savePins } from "@/db/pins";
 import { getRegionConfigs } from "@/db/region-configs";
 import { deleteRoutes, getRoutesByRegionID, saveRoutes } from "@/db/routes";
 import type {
@@ -73,12 +73,14 @@ export default async function SafeRoutesAdmin(props: ISafeRoutesPageProps) {
   ];
 
   const routes = await getRoutesByRegionID(regionConfig.region);
+  const pins = await getPins(regionConfig.region);
 
   return (
     <SafeRoutesMapAdmin
       token={process.env.ACCESS_TOKEN}
       regionConfig={regionConfig}
       routes={routes}
+      pins={pins}
       saveSBRFeatures={saveFeaturesForMap}
       initialViewState={{
         longitude: regionConfig.center.long,

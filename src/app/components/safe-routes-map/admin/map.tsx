@@ -2,11 +2,13 @@
 
 import SaveIcon from "@mui/icons-material/Save";
 import UndoIcon from "@mui/icons-material/Undo";
+import * as turf from "@turf/turf";
 import mapboxgl from "mapbox-gl";
 import { useRef, useState, useTransition } from "react";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { drawControlRouteStyles } from "@/app/route_styles";
 import type {
+  IGeometries,
   IPinFeatureCollection,
   IRegionConfig,
   IRouteFeatureCollection,
@@ -59,6 +61,7 @@ type SafeRoutesMapProps = Omit<
   token: string;
   regionConfig: IRegionConfig;
   routes: IRouteFeatureCollection;
+  pins: IPinFeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;
   saveSBRFeatures: IUpdateSBRFeaturesHandler;
 };
@@ -117,6 +120,7 @@ const SafeRoutesMapAdminInner = ({
   token,
   regionConfig,
   routes,
+  pins,
   saveSBRFeatures,
   geocoderBbox,
   ...mapboxProps
@@ -166,7 +170,10 @@ const SafeRoutesMapAdminInner = ({
             position="top-left"
             displayControlsDefault={false}
             styles={drawControlRouteStyles}
-            features={routes}
+            features={turf.featureCollection<IGeometries>([
+              ...routes.features,
+              ...pins.features,
+            ])}
             controls={{
               line_string: true,
               trash: true,
