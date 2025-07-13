@@ -4,25 +4,11 @@ import SaveIcon from "@mui/icons-material/Save";
 import UndoIcon from "@mui/icons-material/Undo";
 import mapboxgl from "mapbox-gl";
 import { useRef, useState, useTransition } from "react";
-import { Controller, useForm } from "react-hook-form";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { drawControlRouteStyles } from "@/app/route_styles";
-import type {
-  IRegionConfig,
-  IRouteFeatureCollection,
-  IRouteProperties,
-} from "@/types/map";
+import type { IRegionConfig, IRouteFeatureCollection } from "@/types/map";
 import type MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
-import {
-  Button,
-  Grid,
-  IconButton,
-  MenuItem,
-  Select,
-  Snackbar,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { IconButton, Snackbar, Stack } from "@mui/material";
 import {
   GeolocateControl,
   type MapProps,
@@ -37,7 +23,6 @@ import {
   MapPanelButton,
   MapSurface,
   MapSurfaceContainer,
-  MapToolBar,
   SafeRoutesMap,
 } from "../skeleton";
 import StyleSelector, { MAP_STYLES, type Styles } from "../style-selector";
