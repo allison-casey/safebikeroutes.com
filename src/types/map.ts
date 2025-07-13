@@ -22,8 +22,17 @@ export interface IRouteFeature
   id: string;
 }
 
+export interface IPinFeature
+  extends GeoJSON.Feature<GeoJSON.Point, IPinProperties> {
+  id: string;
+}
+
 export interface IRouteFeatureCollection extends GeoJSON.FeatureCollection {
   features: IRouteFeature[];
+}
+
+export interface IPinFeatureCollection extends GeoJSON.FeatureCollection {
+  features: IPinFeature[];
 }
 
 export interface IRegionConfig {

@@ -6,7 +6,11 @@ import mapboxgl from "mapbox-gl";
 import { useRef, useState, useTransition } from "react";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { drawControlRouteStyles } from "@/app/route_styles";
-import type { IRegionConfig, IRouteFeatureCollection } from "@/types/map";
+import type {
+  IPinFeatureCollection,
+  IRegionConfig,
+  IRouteFeatureCollection,
+} from "@/types/map";
 import type MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import { IconButton, Snackbar, Stack } from "@mui/material";
 import {
@@ -33,14 +37,19 @@ import {
   createRouteAdminStore,
   useRouteAdminContext,
 } from "./lib/state";
-import { featureOf, geoJSONFeatureToRouteFeature } from "./lib/utils";
+import {
+  featureOf,
+  geoJSONFeatureToPinFeature,
+  geoJSONFeatureToRouteFeature,
+} from "./lib/utils";
 
 const DEFAULT_MAP_STYLE: Styles = "Streets";
 
-type IUpdateRoutesHandler = (
+type IUpdateSBRFeaturesHandler = (
   region: string,
   features: IRouteFeatureCollection,
   routeIdsToDelete: string[],
+  pins: IPinFeatureCollection,
 ) => Promise<void>;
 
 type SafeRoutesMapProps = Omit<
@@ -51,7 +60,7 @@ type SafeRoutesMapProps = Omit<
   regionConfig: IRegionConfig;
   routes: IRouteFeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;
-  saveRoutesHandler: IUpdateRoutesHandler;
+  saveSBRFeatures: IUpdateSBRFeaturesHandler;
 };
 
 const RouteToolbar = (props: {
@@ -108,7 +117,7 @@ const SafeRoutesMapAdminInner = ({
   token,
   regionConfig,
   routes,
-  saveRoutesHandler,
+  saveSBRFeatures,
   geocoderBbox,
   ...mapboxProps
 }: SafeRoutesMapProps) => {
@@ -190,7 +199,7 @@ const SafeRoutesMapAdminInner = ({
                 draw={draw}
                 onSave={() =>
                   handleSubmit(async (routes, pins) => {
-                    await saveRoutesHandler(
+                    await saveSBRFeatures(
                       regionConfig.region,
                       {
                         type: "FeatureCollection",
@@ -202,6 +211,12 @@ const SafeRoutesMapAdminInner = ({
                         ),
                       },
                       [...deletedRouteIds],
+                      {
+                        type: "FeatureCollection",
+                        features: pins.map((feature) =>
+                          geoJSONFeatureToPinFeature(feature),
+                        ),
+                      },
                     );
                   })
                 }
