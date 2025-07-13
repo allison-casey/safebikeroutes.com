@@ -18,11 +18,7 @@ datasource db {
   extensions = [uuidOssp(map: "uuid-ossp"), postgis]
 }
 
-enum Region {
-  LA
-  CC_PRIDE
-}
-
+// Routes
 enum RouteType {
   SIDEWALK
   STREET
@@ -34,7 +30,6 @@ enum RouteType {
 model Route {
   id           String                                     @id @default(dbgenerated("gen_random_uuid()"))
   name         String?
-  region       Region?
   regionId     String                                     @map("region_id")
   regionConfig RegionConfig                               @relation(fields: [regionId], references: [region], onDelete: Cascade)
   routeType    RouteType                                  @map("route_type")
@@ -43,6 +38,19 @@ model Route {
   @@map("route")
 }
 
+// Pins
+model Pin {
+  id           String                         @id
+  type         String
+  description  String
+  location     Unsupported("geometry(Point)")
+  regionId     String                         @map("region_id")
+  regionConfig RegionConfig                   @relation(fields: [regionId], references: [region], onDelete: Cascade)
+
+  @@map("pin")
+}
+
+// Meta
 model RegionConfig {
   region                        String                         @id
   urlSegment                    String                         @map("url_segment")
@@ -55,6 +63,7 @@ model RegionConfig {
   useDefaultDescriptionSkeleton Boolean                        @default(true) @map("use_default_description_skeleton")
   Route                         Route[]
   UserRoles                     UserRoles[]
+  Pin                           Pin[]
 
   @@map("region_config")
 }
@@ -143,7 +152,6 @@ model UserRoles {
   id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId       String       @db.Uuid
   role         Role
-  region       Region?
   regionId     String       @map("region_id")
   regionConfig RegionConfig @relation(fields: [regionId], references: [region], onDelete: Cascade)
 
