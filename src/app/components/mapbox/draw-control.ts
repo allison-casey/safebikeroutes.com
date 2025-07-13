@@ -34,13 +34,11 @@ const DrawControl = (props: DrawControlProps) => {
   const { current: contextValue } = useRef<DrawContextValue<MapboxDraw>>({
     draw: null,
   });
-  let onCreate: ((evt: DrawCreateEvent) => void) | undefined = undefined;
-  let onUpdate: ((evt: DrawUpdateEvent) => void) | undefined = undefined;
-  let onDelete: ((evt: DrawDeleteEvent) => void) | undefined = undefined;
-  let onSelectionChange: ((evt: DrawSelectionChangeEvent) => void) | undefined =
-    undefined;
-  let onModeChange: ((evt: DrawModeChangeEvent) => void) | undefined =
-    undefined;
+  let onCreate: (evt: DrawCreateEvent) => void;
+  let onUpdate: (evt: DrawUpdateEvent) => void;
+  let onDelete: (evt: DrawDeleteEvent) => void;
+  let onSelectionChange: (evt: DrawSelectionChangeEvent) => void;
+  let onModeChange: (evt: DrawModeChangeEvent) => void;
 
   const draw = useControl<MapboxDraw>(
     () => new MapboxDraw(props),
@@ -65,6 +63,8 @@ const DrawControl = (props: DrawControlProps) => {
       map.on("load", () => draw.add(props.features));
     },
     ({ map }) => {
+      const test = (event: DrawCreateEvent) => props.onCreate?.(draw, event);
+      test;
       map.off("draw.create", onCreate);
       map.off("draw.update", onUpdate);
       map.off("draw.delete", onDelete);
