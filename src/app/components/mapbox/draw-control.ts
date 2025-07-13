@@ -6,9 +6,9 @@ import MapboxDraw, {
   type DrawUpdateEvent,
 } from "@mapbox/mapbox-gl-draw";
 import React, { useContext, useRef } from "react";
-import { useControl } from "react-map-gl";
+import { useControl } from "react-map-gl/mapbox";
 
-import type { ControlPosition } from "react-map-gl";
+import type { ControlPosition } from "react-map-gl/mapbox";
 import { MountedDrawsContext } from "./use-draw";
 
 type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {
@@ -34,13 +34,11 @@ const DrawControl = (props: DrawControlProps) => {
   const { current: contextValue } = useRef<DrawContextValue<MapboxDraw>>({
     draw: null,
   });
-  let onCreate: ((evt: DrawCreateEvent) => void) | undefined = undefined;
-  let onUpdate: ((evt: DrawUpdateEvent) => void) | undefined = undefined;
-  let onDelete: ((evt: DrawDeleteEvent) => void) | undefined = undefined;
-  let onSelectionChange: ((evt: DrawSelectionChangeEvent) => void) | undefined =
-    undefined;
-  let onModeChange: ((evt: DrawModeChangeEvent) => void) | undefined =
-    undefined;
+  let onCreate: (evt: DrawCreateEvent) => void;
+  let onUpdate: (evt: DrawUpdateEvent) => void;
+  let onDelete: (evt: DrawDeleteEvent) => void;
+  let onSelectionChange: (evt: DrawSelectionChangeEvent) => void;
+  let onModeChange: (evt: DrawModeChangeEvent) => void;
 
   const draw = useControl<MapboxDraw>(
     () => new MapboxDraw(props),
@@ -56,12 +54,13 @@ const DrawControl = (props: DrawControlProps) => {
       onModeChange = (evt: DrawModeChangeEvent) =>
         props.onModeChange?.(draw, evt);
 
-      props.onCreate && map.on("draw.create", onCreate);
-      props.onUpdate && map.on("draw.update", onUpdate);
-      props.onDelete && map.on("draw.delete", onDelete);
-      props.onSelectionChange &&
+      if (props.onCreate) map.on("draw.create", onCreate);
+      if (props.onUpdate) map.on("draw.update", onUpdate);
+      if (props.onDelete) map.on("draw.delete", onDelete);
+      if (props.onModeChange) map.on("draw.modechange", onModeChange);
+      if (props.onSelectionChange)
         map.on("draw.selectionchange", onSelectionChange);
-      props.onModeChange && map.on("draw.modechange", onModeChange);
+
       map.on("load", () => draw.add(props.features));
     },
     ({ map }) => {
