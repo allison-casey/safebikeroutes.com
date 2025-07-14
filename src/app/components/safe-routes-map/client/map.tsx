@@ -1,5 +1,5 @@
 "use client";
-
+import LocationPinIcon from "@mui/icons-material/LocationPin";
 import GeocoderControl from "@/app/components/mapbox/geocoder-control";
 import {
   MapPanel,
@@ -20,8 +20,7 @@ import type {
   IRegionConfig,
   IRouteFeatureCollection,
 } from "@/types/map";
-import InfoOutlineIcon from "@mui/icons-material/InfoOutline";
-import { Box, Card, CardContent, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import mapboxgl, {
   type GeolocateControl as IGeolocateControl,
@@ -38,6 +37,7 @@ import {
 } from "react-map-gl/mapbox";
 import { SafeRoutesMapContext } from "../safe-routes-map-context";
 import Pin from "./pin";
+import { LayerFilter } from "../layer-filter";
 
 type WatchState =
   | "OFF"
@@ -67,6 +67,8 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
     false,
   );
 
+  const [showRoutes, setShowRoutes] = useState(true);
+  const [showPins, setShowPins] = useState(true);
   const [geolocater, setGelocater] = useState<IGeolocateControl | null>(null);
   const [popupInfo, setPopupInfo] = useState<IPinFeature | null>(null);
   const geolocateRef = useCallback(
@@ -102,7 +104,7 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
             setPopupInfo(pin);
           }}
         >
-          <Pin />
+          <LocationPinIcon />
         </Marker>
       )),
     [props.pins],
@@ -140,10 +142,12 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
         }}
         {...props}
       >
-        <Source id="saferoutes" type="geojson" data={props.routes}>
-          {...layers}
-        </Source>
-        {pins}
+        {showRoutes && (
+          <Source id="saferoutes" type="geojson" data={props.routes}>
+            {...layers}
+          </Source>
+        )}
+        {showPins && pins}
         {popupInfo && (
           <Popup
             anchor="top"
@@ -175,6 +179,12 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
       <MapSurfaceContainer>
         <MapPanel open={drawerOpen}>{props.panelContents}</MapPanel>
         <MapSurface open={drawerOpen}>
+          <LayerFilter
+            showPins={showPins}
+            onPinLayerClick={() => setShowPins(!showPins)}
+            showRoutes={showRoutes}
+            onRouteLayerClick={() => setShowRoutes(!showRoutes)}
+          />
           <StyleSelector
             onClick={(title) => setCurrentStyle(title)}
             currentlySelectedStyle={currentStyle}
