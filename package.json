@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "prisma migrate dev && kysely-codegen --url 'env(POSTGRES_URL)' && next build",
+    "build": "prisma migrate deploy && kysely-codegen --url 'env(POSTGRES_URL)' && next build",
     "start": "next start",
     "lint:next": "next lint",
     "lint:exports": "npx ts-unused-exports tsconfig.json --excludePathsFromReport='.next' --searchNamespaces --showLineNumber",
