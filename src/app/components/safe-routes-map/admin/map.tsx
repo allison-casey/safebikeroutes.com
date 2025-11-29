@@ -2,11 +2,17 @@
 
 import SaveIcon from "@mui/icons-material/Save";
 import UndoIcon from "@mui/icons-material/Undo";
+import * as turf from "@turf/turf";
 import mapboxgl from "mapbox-gl";
 import { useRef, useState, useTransition } from "react";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { drawControlRouteStyles } from "@/app/route_styles";
-import type { IRegionConfig, IRouteFeatureCollection } from "@/types/map";
+import type {
+  IGeometries,
+  IPinFeatureCollection,
+  IRegionConfig,
+  IRouteFeatureCollection,
+} from "@/types/map";
 import type MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import { IconButton, Snackbar, Stack } from "@mui/material";
 import {
@@ -33,14 +39,19 @@ import {
   createRouteAdminStore,
   useRouteAdminContext,
 } from "./lib/state";
-import { geoJSONFeatureToRouteFeature } from "./lib/utils";
+import {
+  featureOf,
+  geoJSONFeatureToPinFeature,
+  geoJSONFeatureToRouteFeature,
+} from "./lib/utils";
 
 const DEFAULT_MAP_STYLE: Styles = "Streets";
 
-type IUpdateRoutesHandler = (
+type IUpdateSBRFeaturesHandler = (
   region: string,
   features: IRouteFeatureCollection,
   routeIdsToDelete: string[],
+  pins: IPinFeatureCollection,
 ) => Promise<void>;
 
 type SafeRoutesMapProps = Omit<
@@ -50,8 +61,9 @@ type SafeRoutesMapProps = Omit<
   token: string;
   regionConfig: IRegionConfig;
   routes: IRouteFeatureCollection;
+  pins: IPinFeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;
-  saveRoutesHandler: IUpdateRoutesHandler;
+  saveSBRFeatures: IUpdateSBRFeaturesHandler;
 };
 
 const RouteToolbar = (props: {
@@ -108,7 +120,8 @@ const SafeRoutesMapAdminInner = ({
   token,
   regionConfig,
   routes,
-  saveRoutesHandler,
+  pins,
+  saveSBRFeatures,
   geocoderBbox,
   ...mapboxProps
 }: SafeRoutesMapProps) => {
@@ -157,7 +170,10 @@ const SafeRoutesMapAdminInner = ({
             position="top-left"
             displayControlsDefault={false}
             styles={drawControlRouteStyles}
-            features={routes}
+            features={turf.featureCollection<IGeometries>([
+              ...routes.features,
+              ...pins.features,
+            ])}
             controls={{
               line_string: true,
               trash: true,
@@ -176,7 +192,10 @@ const SafeRoutesMapAdminInner = ({
               selectedFeatures={selectedFeatures}
               onFeaturePropertiesSave={(feature, data) => {
                 if (draw) {
-                  mergeFeatureProperties(draw, feature, data);
+                  if (featureOf(feature, "LineString"))
+                    mergeFeatureProperties(draw, feature, data);
+                  if (featureOf(feature, "Point"))
+                    mergeFeatureProperties(draw, feature, data);
                 }
               }}
             />
@@ -186,26 +205,25 @@ const SafeRoutesMapAdminInner = ({
               <RouteToolbar
                 draw={draw}
                 onSave={() =>
-                  handleSubmit(async (features) => {
-                    await saveRoutesHandler(
+                  handleSubmit(async (routes, pins) => {
+                    await saveSBRFeatures(
                       regionConfig.region,
                       {
                         type: "FeatureCollection",
-                        features: features
-                          .filter(
-                            (
-                              feature,
-                            ): feature is GeoJSON.Feature<GeoJSON.LineString> =>
-                              feature.geometry.type === "LineString",
-                          )
-                          .map((feature) =>
-                            geoJSONFeatureToRouteFeature(
-                              regionConfig.region,
-                              feature,
-                            ),
+                        features: routes.map((feature) =>
+                          geoJSONFeatureToRouteFeature(
+                            regionConfig.region,
+                            feature,
                           ),
+                        ),
                       },
                       [...deletedRouteIds],
+                      {
+                        type: "FeatureCollection",
+                        features: pins.map((feature) =>
+                          geoJSONFeatureToPinFeature(feature),
+                        ),
+                      },
                     );
                   })
                 }

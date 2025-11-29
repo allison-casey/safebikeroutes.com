@@ -6,8 +6,11 @@ export const RouteEditorForm = ({
   feature,
   onSave,
 }: {
-  feature: GeoJSON.Feature;
-  onSave: (feature: GeoJSON.Feature, properties: IRouteProperties) => void;
+  feature: GeoJSON.Feature<GeoJSON.LineString>;
+  onSave: (
+    feature: GeoJSON.Feature<GeoJSON.LineString>,
+    properties: IRouteProperties,
+  ) => void;
 }) => {
   const { handleSubmit, control } = useForm<IRouteProperties>({
     defaultValues: {

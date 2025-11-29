@@ -64,6 +64,8 @@ export const routeStyles: RouteStyle[] = [
   },
 ];
 
+const orange = "#fbb03b";
+
 export const drawControlRouteStyles = [
   ...routeStyles.map(({ routeType, paintLayers }) =>
     paintLayers.map((layer, index) => ({
@@ -78,7 +80,28 @@ export const drawControlRouteStyles = [
       paint: layer,
     })),
   ),
+  // copied from https://github.com/mapbox/mapbox-gl-draw/blob/cf7a49d094d5335a17b90a149f06e571f92f48bb/src/lib/theme.js#L32
+  {
+    id: "gl-draw-lines",
+    type: "line",
+    filter: [
+      "all",
+      ["any", ["==", "$type", "LineString"], ["==", "$type", "Polygon"]],
+      ["==", "active", "true"],
+    ],
+    layout: {
+      "line-cap": "round",
+      "line-join": "round",
+    },
+    paint: {
+      "line-color": orange,
+      "line-dasharray": [0.2, 2],
+      "line-width": 2,
+    },
+  },
+  // types haven't been updated for 1.5.0 where the styles have been
+  // consolidated using the expression syntax
   ...MapboxDraw.lib.theme.filter(
-    (style) => style.id !== "gl-draw-line-inactive",
+    (style) => (style.id as string) !== "gl-draw-lines",
   ),
 ].flat();

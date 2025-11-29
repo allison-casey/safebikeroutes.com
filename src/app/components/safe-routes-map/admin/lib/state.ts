@@ -22,6 +22,7 @@ interface RouteAdminState {
   // Properties
   //// Map Feature State
   routes: Record<string, GeoJSON.Feature<GeoJSON.LineString>>;
+  pins: Record<string, GeoJSON.Feature<GeoJSON.Point>>;
 
   //// Edit Metadata State
   selectedFeatures: GeoJSON.Feature[];
@@ -42,7 +43,12 @@ interface RouteAdminState {
     onPopHistory: (features: GeoJSON.FeatureCollection) => void,
   ) => void;
 
-  handleSubmit: (handler: (features: GeoJSON.Feature[]) => void) => void;
+  handleSubmit: (
+    handler: (
+      routes: GeoJSON.Feature<GeoJSON.LineString>[],
+      pins: GeoJSON.Feature<GeoJSON.Point>[],
+    ) => void,
+  ) => void;
 }
 
 type RouteAdminStore = ReturnType<typeof createRouteAdminStore>;
@@ -52,6 +58,7 @@ export const createRouteAdminStore = (initProps: RouteAdminProps) => {
     // Properties
     //// Map Feature state
     routes: R.indexBy(initProps.routes.features, (f) => f.id),
+    pins: {},
 
     //// Edit Metadata State
     selectedFeatures: [],
@@ -66,9 +73,14 @@ export const createRouteAdminStore = (initProps: RouteAdminProps) => {
     createFeatures: (features) =>
       set((state) => {
         const featuresByType = getFeaturesByType(features);
+        featuresByType;
         const newRoutes = {
           ...state.routes,
           ...R.indexBy(featuresByType.LineString ?? [], (f) => f.id as string),
+        };
+        const newPins = {
+          ...state.pins,
+          ...R.indexBy(featuresByType.Point ?? [], (f) => f.id as string),
         };
         return {
           history: pushDrawHistory(
@@ -76,6 +88,7 @@ export const createRouteAdminStore = (initProps: RouteAdminProps) => {
             toFeatureCollection(newRoutes),
           ),
           routes: newRoutes,
+          pins: newPins,
         };
       }),
     deleteFeatures: (features) =>
@@ -86,16 +99,23 @@ export const createRouteAdminStore = (initProps: RouteAdminProps) => {
           featuresByType.LineString?.map((f) => f.id as string) ?? [],
         );
 
+        const newPins = R.omit(
+          state.pins,
+          featuresByType.Point?.map((f) => f.id as string) ?? [],
+        );
+
         return {
           history: pushDrawHistory(
             state.history,
             toFeatureCollection(newRoutes),
           ),
           routes: newRoutes,
+          pins: newPins,
           deletedRouteIDs: new Set([
             ...state.deletedRouteIDs,
             ...features.map((f) => f.id as string),
           ]),
+          // TODO: add deleted pins
         };
       }),
     updateFeatures: (features) =>
@@ -105,12 +125,17 @@ export const createRouteAdminStore = (initProps: RouteAdminProps) => {
           ...state.routes,
           ...R.indexBy(featuresByType.LineString ?? [], (f) => f.id as string),
         };
+        const newPins = {
+          ...state.pins,
+          ...R.indexBy(featuresByType.Point ?? [], (f) => f.id as string),
+        };
         return {
           history: pushDrawHistory(
             state.history,
             toFeatureCollection(newRoutes),
           ),
           routes: newRoutes,
+          pins: newPins,
           featureIDsToUpdate: new Set([
             ...state.featureIDsToUpdate,
             ...features.map((f) => f.id as string),
@@ -134,8 +159,9 @@ export const createRouteAdminStore = (initProps: RouteAdminProps) => {
     },
 
     handleSubmit: (handler) => {
-      const features = get().routes;
-      handler(Object.values(features));
+      const routes = get().routes;
+      const pins = get().pins;
+      handler(Object.values(routes), Object.values(pins));
       set(() => ({
         selectedFeatures: [],
         deletedRouteIDs: new Set(),

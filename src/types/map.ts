@@ -1,6 +1,17 @@
 import type { RouteType } from "@/db/enums";
 import type { User, UserRoles } from "@/db/types";
 
+export type IGeometries = GeoJSON.LineString | GeoJSON.Point;
+
+export type IFeatureProperties<TGeom extends IGeometries> =
+  TGeom extends GeoJSON.LineString ? IRouteProperties : IPinProperties;
+
+export interface IPinProperties {
+  type: "DEFAULT" | "HILL" | "OFFROAD" | "GATED" | "WARNING";
+  region_id: string;
+  description: string;
+}
+
 export interface IRouteProperties {
   route_type: RouteType;
   region: string;
@@ -12,8 +23,17 @@ export interface IRouteFeature
   id: string;
 }
 
+export interface IPinFeature
+  extends GeoJSON.Feature<GeoJSON.Point, IPinProperties> {
+  id: string;
+}
+
 export interface IRouteFeatureCollection extends GeoJSON.FeatureCollection {
   features: IRouteFeature[];
+}
+
+export interface IPinFeatureCollection extends GeoJSON.FeatureCollection {
+  features: IPinFeature[];
 }
 
 export interface IRegionConfig {

@@ -21,12 +21,15 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{css}": ["npx stylelint --fix"]
+    "*.{css}": [
+      "npx stylelint --fix"
+    ]
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.2.0",
     "@codemirror/lang-html": "^6.4.9",
     "@codemirror/lang-json": "^6.0.1",
+    "@codemirror/lang-markdown": "^6.3.3",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@fontsource/roboto": "^5.2.6",
@@ -41,6 +44,7 @@
     "@prisma/client": "^5.13.0",
     "@tailwindcss/typography": "^0.5.13",
     "@toolpad/core": "^0.16.0",
+    "@turf/turf": "^7.2.0",
     "@types/mapbox__mapbox-gl-draw": "^1.4.9",
     "@types/mapbox__mapbox-gl-geocoder": "^4.7.7",
     "@types/mdx": "^2.0.13",

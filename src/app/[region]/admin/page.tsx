@@ -1,23 +1,30 @@
 import { SafeRoutesMapAdmin } from "@/app/components/safe-routes-map/admin/map";
 import type { Role } from "@/db/enums";
+import { getPins, savePins } from "@/db/pins";
 import { getRegionConfigs } from "@/db/region-configs";
 import { deleteRoutes, getRoutesByRegionID, saveRoutes } from "@/db/routes";
-import type { IRouteFeatureCollection } from "@/types/map";
+import type {
+  IPinFeatureCollection,
+  IRouteFeatureCollection,
+} from "@/types/map";
 import { Typography } from "@mui/material";
 import { auth } from "@root/auth";
 import { unstable_noStore as noStore } from "next/cache";
 import { notFound } from "next/navigation";
 import { indexBy } from "remeda";
 
-const saveRoutesForMap = async (
+const saveFeaturesForMap = async (
   region: string,
-  featureCollection: IRouteFeatureCollection,
+  routeCollection: IRouteFeatureCollection,
   routeIdsToDelete: string[],
+  pinCollection: IPinFeatureCollection,
 ): Promise<void> => {
   "use server";
 
-  await saveRoutes(region, featureCollection);
+  await saveRoutes(region, routeCollection);
   await deleteRoutes(region, routeIdsToDelete);
+
+  await savePins(region, pinCollection);
 };
 
 const permittedRoles = new Set<Role>(["ADMIN", "CONTRIBUTOR"]);
@@ -66,13 +73,15 @@ export default async function SafeRoutesAdmin(props: ISafeRoutesPageProps) {
   ];
 
   const routes = await getRoutesByRegionID(regionConfig.region);
+  const pins = await getPins(regionConfig.region);
 
   return (
     <SafeRoutesMapAdmin
       token={process.env.ACCESS_TOKEN}
       regionConfig={regionConfig}
       routes={routes}
-      saveRoutesHandler={saveRoutesForMap}
+      pins={pins}
+      saveSBRFeatures={saveFeaturesForMap}
       initialViewState={{
         longitude: regionConfig.center.long,
         latitude: regionConfig.center.lat,

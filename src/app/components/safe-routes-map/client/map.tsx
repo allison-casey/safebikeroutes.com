@@ -1,5 +1,5 @@
 "use client";
-
+import LocationPinIcon from "@mui/icons-material/LocationPin";
 import GeocoderControl from "@/app/components/mapbox/geocoder-control";
 import {
   MapPanel,
@@ -14,20 +14,30 @@ import StyleSelector, {
   type Styles,
 } from "@/app/components/safe-routes-map/style-selector";
 import { routeStyles } from "@/app/route_styles";
-import type { IRegionConfig, IRouteFeatureCollection } from "@/types/map";
+import type {
+  IPinFeature,
+  IPinFeatureCollection,
+  IRegionConfig,
+  IRouteFeatureCollection,
+} from "@/types/map";
+import { Box, Typography } from "@mui/material";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import mapboxgl, {
   type GeolocateControl as IGeolocateControl,
 } from "mapbox-gl";
 import dynamic from "next/dynamic";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   GeolocateControl,
   Layer,
   type MapProps,
+  Marker,
+  Popup,
   Source,
 } from "react-map-gl/mapbox";
 import { SafeRoutesMapContext } from "../safe-routes-map-context";
+import Pin from "./pin";
+import { LayerFilter } from "../layer-filter";
 
 type WatchState =
   | "OFF"
@@ -41,6 +51,7 @@ type SafeRoutesMapProps = Omit<MapProps, "mapLib" | "mapStyle"> & {
   mapboxAccessToken: string;
   regionConfig: IRegionConfig;
   routes: IRouteFeatureCollection;
+  pins: IPinFeatureCollection;
   geocoderBbox: MapboxGeocoder.Bbox;
   panelContents: React.ReactNode;
 };
@@ -56,7 +67,10 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
     false,
   );
 
+  const [showRoutes, setShowRoutes] = useState(true);
+  const [showPins, setShowPins] = useState(true);
   const [geolocater, setGelocater] = useState<IGeolocateControl | null>(null);
+  const [popupInfo, setPopupInfo] = useState<IPinFeature | null>(null);
   const geolocateRef = useCallback(
     (node: IGeolocateControl) => setGelocater(node),
     [],
@@ -74,6 +88,26 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
         beforeId="road-label"
       />
     )),
+  );
+  const pins = useMemo(
+    () =>
+      props.pins.features.map((pin) => (
+        <Marker
+          key={`marker-${pin.id}`}
+          longitude={pin.geometry.coordinates[0]}
+          latitude={pin.geometry.coordinates[1]}
+          anchor="bottom"
+          onClick={(e) => {
+            // If we let the click event propagates to the map, it will immediately close the popup
+            // with `closeOnClick: true`
+            e.originalEvent.stopPropagation();
+            setPopupInfo(pin);
+          }}
+        >
+          <Pin type={pin.properties.type} />
+        </Marker>
+      )),
+    [props.pins],
   );
 
   return (
@@ -108,9 +142,27 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
         }}
         {...props}
       >
-        <Source id="saferoutes" type="geojson" data={props.routes}>
-          {...layers}
-        </Source>
+        {showRoutes && (
+          <Source id="saferoutes" type="geojson" data={props.routes}>
+            {...layers}
+          </Source>
+        )}
+        {showPins && pins}
+        {popupInfo && (
+          <Popup
+            anchor="top"
+            longitude={popupInfo.geometry.coordinates[0]}
+            latitude={popupInfo.geometry.coordinates[1]}
+            onClose={() => setPopupInfo(null)}
+          >
+            <Box>
+              <Typography variant="h6">{popupInfo.properties.type}</Typography>
+              <Typography variant="body2">
+                {popupInfo.properties.description}
+              </Typography>
+            </Box>
+          </Popup>
+        )}
         <GeocoderControl
           mapboxAccessToken={props.mapboxAccessToken}
           position="top-left"
@@ -127,6 +179,12 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
       <MapSurfaceContainer>
         <MapPanel open={drawerOpen}>{props.panelContents}</MapPanel>
         <MapSurface open={drawerOpen}>
+          <LayerFilter
+            showPins={showPins}
+            onPinLayerClick={() => setShowPins(!showPins)}
+            showRoutes={showRoutes}
+            onRouteLayerClick={() => setShowRoutes(!showRoutes)}
+          />
           <StyleSelector
             onClick={(title) => setCurrentStyle(title)}
             currentlySelectedStyle={currentStyle}
