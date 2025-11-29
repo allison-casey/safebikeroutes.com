@@ -17,7 +17,7 @@
     "format": "biome check --write",
     "test": "jest --watch",
     "migrate": "prisma migrate dev && npm run generate-types",
-    "generate-types": "kysely-codegen --url 'env(POSTGRES_URL)'",
+    "generate-types": "kysely-codegen --url 'env(POSTGRES_URL)' && npm run format",
     "prepare": "husky"
   },
   "lint-staged": {
