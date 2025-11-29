@@ -21,7 +21,7 @@ export const LayerFilter = ({
   showRoutes: boolean;
   onRouteLayerClick: () => void;
 }) => (
-  <div className="pointer-events-auto absolute top-0 right-2 mt-16 sm:mt-3 sm:top-0 z-20 px-4 py-2 drop-shadow-md">
+  <div className="pointer-events-auto absolute bottom-0 left-0 mb-20  z-20 px-2 py-2 drop-shadow-md">
     <Accordion>
       <AccordionSummary expandIcon={<LayersOutlineIcon />}>
         <Typography component="span">Layers</Typography>

@@ -7,7 +7,7 @@ export type IFeatureProperties<TGeom extends IGeometries> =
   TGeom extends GeoJSON.LineString ? IRouteProperties : IPinProperties;
 
 export interface IPinProperties {
-  type: "DEFAULT" | "HILL" | "OFFROAD" | "GATED";
+  type: "DEFAULT" | "HILL" | "OFFROAD" | "GATED" | "WARNING";
   region_id: string;
   description: string;
 }

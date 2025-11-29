@@ -104,7 +104,7 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
             setPopupInfo(pin);
           }}
         >
-          <LocationPinIcon />
+          <Pin type={pin.properties.type} />
         </Marker>
       )),
     [props.pins],

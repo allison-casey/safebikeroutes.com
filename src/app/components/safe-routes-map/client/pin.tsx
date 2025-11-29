@@ -1,23 +1,57 @@
 import * as React from "react";
-import InfoOutlineIcon from "@mui/icons-material/InfoOutline";
-import PlaceIcon from "@mui/icons-material/Place";
+import type { IPinProperties } from "@/types/map";
+import defaultPinIcon from "../../../../../public/pin-default.svg";
+import gatedPinIcon from "../../../../../public/pin-gated.svg";
+import hillPinIcon from "../../../../../public/pin-hill.svg";
+import offroadPinIcon from "../../../../../public/pin-offroad.svg";
+import warningPinIcon from "../../../../../public/pin-warning.svg";
+import Image, { type StaticImageData } from "next/image";
 
-const ICON = `M20.2,15.7L20.2,15.7c1.1-1.6,1.8-3.6,1.8-5.7c0-5.6-4.5-10-10-10S2,4.5,2,10c0,2,0.6,3.9,1.6,5.4c0,0.1,0.1,0.2,0.2,0.3
-  c0,0,0.1,0.1,0.1,0.2c0.2,0.3,0.4,0.6,0.7,0.9c2.6,3.1,7.4,7.6,7.4,7.6s4.8-4.5,7.4-7.5c0.2-0.3,0.5-0.6,0.7-0.9
-  C20.1,15.8,20.2,15.8,20.2,15.7z`;
-
-const pinStyle = {
-  cursor: "pointer",
-  fill: "#d00",
-  stroke: "none",
+const styleByType: Record<IPinProperties["type"], React.CSSProperties> = {
+  DEFAULT: { color: "blue", fill: "blue" },
+  OFFROAD: {},
+  HILL: {},
+  WARNING: {},
+  GATED: {},
 };
 
-function Pin({ size = 30 }) {
+function Pin({
+  type,
+  size = 30,
+}: { type: IPinProperties["type"]; size?: number }) {
+  let pinSrc: StaticImageData;
+  switch (type) {
+    case "DEFAULT":
+      pinSrc = defaultPinIcon;
+      break;
+    case "HILL":
+      pinSrc = hillPinIcon;
+      break;
+    case "OFFROAD":
+      pinSrc = offroadPinIcon;
+      break;
+    case "GATED":
+      pinSrc = gatedPinIcon;
+      break;
+    case "WARNING":
+      pinSrc = warningPinIcon;
+      break;
+    default: {
+      const exhaustiveCheck: never = type;
+      throw new Error(`Unhandled color case: ${exhaustiveCheck}`);
+    }
+  }
+
   return (
-    <svg height={size} viewBox="0 0 24 24" style={pinStyle}>
-      <title>Pin</title>
-      <path d={ICON} />
-    </svg>
+    <div>
+      <Image
+        width={size}
+        height={size}
+        src={pinSrc}
+        alt={`${type} Pin`}
+        style={styleByType[type]}
+      />
+    </div>
   );
 }
 

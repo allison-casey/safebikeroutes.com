@@ -1,6 +1,10 @@
 import type { IPinProperties } from "@/types/map";
-import { Button, Grid, MenuItem, Select, TextField } from "@mui/material";
+import { EditorView } from "@codemirror/view";
+import { Button, MenuItem, Select, Stack } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
+import CodeMirror from "@uiw/react-codemirror";
+import { markdown } from "@codemirror/lang-markdown";
+import { ControlledSelectField } from "@/app/components/form-fields/select-field";
 
 export const PinEditorForm = ({
   feature,
@@ -23,45 +27,51 @@ export const PinEditorForm = ({
 
   return (
     <form onSubmit={onSubmit}>
-      <Grid container direction="column" gap={1}>
-        <Controller
-          name="description"
+      <Stack gap={1}>
+        <ControlledSelectField
           control={control}
-          render={({ field: { onChange, value } }) => (
-            <Grid>
-              <TextField
-                label="Description"
-                multiline
-                fullWidth
-                onChange={onChange}
-                value={value}
-              />
-            </Grid>
-          )}
+          fieldName="type"
+          options={[
+            { label: "Default", value: "DEFAULT" },
+            { label: "Hill", value: "HILL" },
+            { label: "Offroad", value: "OFFROAD" },
+            { label: "Gated", value: "GATED" },
+          ]}
         />
         <Controller
           name="type"
           control={control}
           render={({ field: { onChange, value } }) => (
-            <Grid>
-              <Select
-                label="Pin Type"
-                onChange={onChange}
-                value={value}
-                fullWidth
-              >
-                <MenuItem value={"DEFAULT"}>Default</MenuItem>
-                <MenuItem value={"HILL"}>Hill</MenuItem>
-                <MenuItem value={"OFFROAD"}>Offroad</MenuItem>
-                <MenuItem value={"GATED"}>Gated</MenuItem>
-              </Select>
-            </Grid>
+            <Select
+              label="Pin Type"
+              onChange={onChange}
+              value={value}
+              fullWidth
+            >
+              <MenuItem value={"DEFAULT"}>Default</MenuItem>
+              <MenuItem value={"HILL"}>Hill</MenuItem>
+              <MenuItem value={"OFFROAD"}>Offroad</MenuItem>
+              <MenuItem value={"GATED"}>Gated</MenuItem>
+            </Select>
+          )}
+        />
+        <Controller
+          name="description"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <CodeMirror
+              value={value}
+              onChange={onChange}
+              height="300px"
+              style={{ border: "1px solid #c4c4c4", borderRadius: "4px" }}
+              extensions={[markdown(), EditorView.lineWrapping]}
+            />
           )}
         />
         <Button color="primary" type="submit">
           Submit
         </Button>
-      </Grid>
+      </Stack>
     </form>
   );
 };
