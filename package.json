@@ -2,9 +2,12 @@
   "name": "safe-bike-routes",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "24"
+  },
   "scripts": {
     "dev": "next dev",
-    "build": "prisma migrate dev && kysely-codegen --url 'env(POSTGRES_URL)' && next build",
+    "build": "prisma migrate deploy && kysely-codegen --url 'env(POSTGRES_URL)' && next build",
     "start": "next start",
     "lint:next": "next lint",
     "lint:exports": "npx ts-unused-exports tsconfig.json --excludePathsFromReport='.next' --searchNamespaces --showLineNumber",
@@ -14,7 +17,7 @@
     "format": "biome check --write",
     "test": "jest --watch",
     "migrate": "prisma migrate dev && npm run generate-types",
-    "generate-types": "kysely-codegen --url 'env(POSTGRES_URL)'",
+    "generate-types": "kysely-codegen --url 'env(POSTGRES_URL)' && npm run format",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -58,7 +61,7 @@
     "lodash": "^4.17.21",
     "mapbox-gl": "3.13.0",
     "next": "15.3.5",
-    "next-auth": "^5.0.0-beta.19",
+    "next-auth": "^5.0.0-beta.30",
     "npm": "^10.8.1",
     "pg": "^8.12.0",
     "prisma": "^5.13.0",
@@ -91,7 +94,7 @@
     "kysely-codegen": "^0.15.0",
     "lint-staged": "^15.2.7",
     "postcss": "^8",
-    "prettier": "^3.3.2",
+    "prettier": "^3.6.2",
     "stylelint": "^16.6.1",
     "stylelint-config-standard": "^36.0.1",
     "tailwindcss": "^3.3.0",
