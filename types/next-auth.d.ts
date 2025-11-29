@@ -1,7 +1,7 @@
 import type { UserRoles } from "@/db/types";
-import NextAuth from "next-auth";
+import NextAuth, { type DefaultSession } from "next-auth";
 
-declare module "@auth/core/types" {
+declare module "next-auth" {
   /**
    * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
    */
