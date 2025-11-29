@@ -2,6 +2,9 @@
   "name": "safe-bike-routes",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "24"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "prisma migrate dev && kysely-codegen --url 'env(POSTGRES_URL)' && next build",
