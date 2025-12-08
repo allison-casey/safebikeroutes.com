@@ -55,7 +55,7 @@
     "install": "^0.13.0",
     "kysely": "^0.27.3",
     "lodash": "^4.17.21",
-    "mapbox-gl": "3.13.0",
+    "mapbox-gl": "3.17.0",
     "next": "15.5.7",
     "next-auth": "^5.0.0-beta.30",
     "npm": "^11.6.4",
