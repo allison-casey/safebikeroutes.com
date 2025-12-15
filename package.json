@@ -81,7 +81,7 @@
     "@types/node": "^24",
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",
-    "autoprefixer": "^10.0.1",
+    "autoprefixer": "^10.4.23",
     "eslint": "^9.31.0",
     "eslint-config-next": "15.3.5",
     "husky": "^9.0.11",
