@@ -9,7 +9,12 @@
           "apply",
           "variants",
           "responsive",
-          "screen"
+          "screen",
+          "plugin",
+          "theme",
+          "utility",
+          "source",
+          "config"
         ]
       }
     ]
