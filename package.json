@@ -21,7 +21,9 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{css}": ["npx stylelint --fix"]
+    "*.{css}": [
+      "npx stylelint --fix"
+    ]
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.2.0",
@@ -71,6 +73,7 @@
     "remeda": "^1.61.0",
     "swr": "^2.3.4",
     "ws": "^8.17.0",
+    "zod": "^4.4.3",
     "zustand": "^5.0.5"
   },
   "devDependencies": {
