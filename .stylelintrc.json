@@ -1,6 +1,7 @@
 {
   "extends": ["stylelint-config-standard"],
   "rules": {
+    "import-notation": "string",
     "at-rule-no-unknown": [
       true,
       {
@@ -9,7 +10,12 @@
           "apply",
           "variants",
           "responsive",
-          "screen"
+          "screen",
+          "plugin",
+          "theme",
+          "utility",
+          "source",
+          "config"
         ]
       }
     ]
