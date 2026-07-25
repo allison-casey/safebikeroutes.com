@@ -18,6 +18,12 @@ const permittedAdminRoles = new Set<Role>(["ADMIN"]);
 export const canViewAdminPage = (session: Session): boolean =>
   session.user.roles.some((role) => permittedAdminRoles.has(role.role));
 
+/** Coarse check for middleware — page/actions still enforce region scope. */
+export const canViewAnyRegionEditorPage = (session: Session): boolean =>
+  session.user.roles.some((role) =>
+    permittedRegionEditorRoles.has(role.role),
+  );
+
 class UnauthorizedError extends Error {
   constructor(message = "Unauthorized") {
     super(message);
