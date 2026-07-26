@@ -105,6 +105,41 @@ describe(saveRoutes, () => {
     });
   });
 
+  it("should reject upserting a route owned by another region", async () => {
+    const [savedRoute] = await saveRoutes("LA", {
+      type: "FeatureCollection",
+      features: [aRoute],
+    });
+
+    await expect(
+      saveRoutes("SF", {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            id: savedRoute.id,
+            properties: {
+              route_type: "PROTECTED",
+              region: "SF",
+              name: null,
+            },
+            geometry: aRoute.geometry,
+          },
+        ],
+      }),
+    ).rejects.toThrow(/belong to another region/);
+
+    const [unchanged] = await db
+      .selectFrom("route")
+      .selectAll()
+      .where("id", "=", savedRoute.id)
+      .execute();
+    expect(unchanged).toMatchObject({
+      region_id: "LA",
+      route_type: "STREET",
+    });
+  });
+
   it("should add routes to regions existing routes", async () => {
     await saveRoutes("LA", {
       type: "FeatureCollection",

@@ -37,9 +37,7 @@ export const saveRegionConfig = async (regionConfig: IRegionConfig) => {
     .executeTakeFirst();
 };
 
-export const updateRegionConfig = async (
-  regionConfig: z.input<typeof regionConfigSchema>,
-) => {
+export const updateRegionConfig = async (regionConfig: IRegionConfig) => {
   const parsed = regionConfigSchema.parse(regionConfig);
 
   return await db
