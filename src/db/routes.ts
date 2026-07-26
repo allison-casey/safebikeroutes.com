@@ -92,6 +92,23 @@ export const saveRoutes = async (
     return [];
   }
 
+  const ids = featureCollection.features.map((feature) => feature.id);
+
+  const routesInOtherRegion = await db
+    .selectFrom("route")
+    .select("id")
+    .where("id", "in", ids)
+    .where("region_id", "!=", region)
+    .execute();
+
+  if (routesInOtherRegion.length > 0) {
+    throw new Error(
+      `Cannot save routes that belong to another region: ${routesInOtherRegion
+        .map((row) => row.id)
+        .join(", ")}`,
+    );
+  }
+
   const result = await db
     .insertInto("route")
     .values(
@@ -105,24 +122,29 @@ export const saveRoutes = async (
     )
     .returningAll()
     .onConflict((oc) =>
-      oc.column("id").doUpdateSet({
-        name: (eb) => eb.ref("excluded.name"),
-        route_type: (eb) => eb.ref("excluded.route_type"),
-        geometry: (eb) => eb.ref("excluded.geometry"),
-      }),
+      oc
+        .column("id")
+        .doUpdateSet({
+          name: (eb) => eb.ref("excluded.name"),
+          route_type: (eb) => eb.ref("excluded.route_type"),
+          geometry: (eb) => eb.ref("excluded.geometry"),
+        })
+        // Only update rows already owned by this region
+        .where("route.region_id", "=", region),
     )
     .execute();
   return result;
 };
 
 export const deleteRoutes = async (
-  _region: string,
+  region: string,
   ids: string[],
 ): Promise<number> => {
   if (ids.length) {
     const { numDeletedRows } = await db
       .deleteFrom("route")
       .where("id", "in", ids)
+      .where("region_id", "=", region)
       .executeTakeFirst();
     return Number(numDeletedRows);
   }

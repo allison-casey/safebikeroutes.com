@@ -1,7 +1,7 @@
 import { SafeRoutesMapAdmin } from "@/app/components/safe-routes-map/admin/map";
-import type { Role } from "@/db/enums";
 import { getRegionConfigs } from "@/db/region-configs";
 import { deleteRoutes, getRoutesByRegionID, saveRoutes } from "@/db/routes";
+import { canViewRegionEditorPage, requireRegionEditor } from "@/permissions";
 import type { IRouteFeatureCollection } from "@/types/map";
 import { Typography } from "@mui/material";
 import { auth } from "@root/auth";
@@ -16,11 +16,11 @@ const saveRoutesForMap = async (
 ): Promise<void> => {
   "use server";
 
+  await requireRegionEditor(region);
+
   await saveRoutes(region, featureCollection);
   await deleteRoutes(region, routeIdsToDelete);
 };
-
-const permittedRoles = new Set<Role>(["ADMIN", "CONTRIBUTOR"]);
 
 interface ISafeRoutesPageProps {
   params: Promise<{ region: string }>;
@@ -45,9 +45,10 @@ export default async function SafeRoutesAdmin(props: ISafeRoutesPageProps) {
     notFound();
   }
 
+  const regionConfig = regionLookup[urlParams.region];
   const session = await auth();
 
-  if (!session?.user.roles.some((role) => permittedRoles.has(role.role))) {
+  if (!session || !canViewRegionEditorPage(session, regionConfig.region)) {
     return (
       <main className="flex items-center justify-center md:h-screen">
         <div className="relative mx-auto flex w-full max-w-[400px] flex-col space-y-2.5 p-4 md:-mt-32">
@@ -57,7 +58,6 @@ export default async function SafeRoutesAdmin(props: ISafeRoutesPageProps) {
     );
   }
 
-  const regionConfig = regionLookup[urlParams.region];
   const bounds: MapboxGeocoder.Bbox = [
     regionConfig.bbox[0].long,
     regionConfig.bbox[0].lat,
