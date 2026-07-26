@@ -1,7 +1,4 @@
-import {
-  canViewAdminPage,
-  canViewAnyRegionEditorPage,
-} from "@/permissions";
+import { canViewAdminPage, canViewAnyRegionEditorPage } from "@/permissions";
 import { auth } from "@root/auth";
 import { NextResponse } from "next/server";
 

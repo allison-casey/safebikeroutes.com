@@ -9,6 +9,8 @@ const withMDX = mdx({
 const nextConfig = {
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   experimental: { serverActions: { bodySizeLimit: "4mb" } },
+  // Avoid webpack-bundling jsdom (breaks isomorphic-dompurify CSS path lookup).
+  serverExternalPackages: ["isomorphic-dompurify", "jsdom"],
 };
 
 export default withMDX(nextConfig);

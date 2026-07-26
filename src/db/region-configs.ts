@@ -1,6 +1,6 @@
 import {
-  type IRegionConfig,
   type ILatLong,
+  type IRegionConfig,
   regionConfigSchema,
 } from "@/schemas/region-config";
 import { type RawBuilder, sql } from "kysely";

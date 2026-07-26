@@ -1,3 +1,4 @@
+import { sanitizeRegionDescriptionHtml } from "@/lib/sanitize-html";
 import { z } from "zod";
 
 export const latLongSchema = z.object({
@@ -17,7 +18,7 @@ export const regionConfigSchema = z.object({
     .min(1)
     .regex(/^[A-Za-z]+$/, "Only letters allowed"),
   label: z.string().min(1),
-  description: z.string(),
+  description: z.string().transform(sanitizeRegionDescriptionHtml),
   center: latLongSchema,
   bbox: z.tuple([latLongSchema, latLongSchema]),
   zoom: z.number(),
