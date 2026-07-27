@@ -67,7 +67,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.60.0",
-    "react-map-gl": "^8.0.4",
+    "react-map-gl": "^8.1.1",
     "react-number-format": "^5.4.4",
     "remark-gfm": "^4.0.0",
     "remeda": "^1.61.0",
