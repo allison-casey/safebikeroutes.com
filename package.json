@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.2.0",
-    "@codemirror/lang-html": "^6.4.9",
+    "@codemirror/lang-html": "^6.4.11",
     "@codemirror/lang-json": "^6.0.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
