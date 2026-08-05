@@ -63,14 +63,14 @@ const SafeBikeRoutesClient = (props: SafeRoutesMapProps) => {
   );
 
   const layers = routeStyles.flatMap(({ routeType, paintLayers }) =>
-    paintLayers.map((paintLayer, index) => (
+    paintLayers.map(({ id: layerId, ...paint }, index) => (
       <Layer
-        key={`saferoutes-${routeType}-${paintLayer.id}`}
+        key={`saferoutes-${routeType}-${layerId}`}
         id={`saferoutes-${routeType}-${index}`}
         type="line"
         source="saferoutes"
         filter={["==", "route_type", routeType]}
-        paint={paintLayer}
+        paint={paint}
         beforeId="road-label"
       />
     )),
