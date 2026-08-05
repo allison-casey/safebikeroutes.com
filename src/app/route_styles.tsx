@@ -37,7 +37,7 @@ export const routeStyles: RouteStyle[] = [
     paintLayers: [
       {
         id: "background",
-        "line-color": "#c2a5cf",
+        "line-color": "#6b7fc4",
         "line-width": 3,
       },
     ],
