@@ -56,6 +56,7 @@ function DashboardFrame({ title, homeUrl, children }: DashboardLayoutProps) {
         overflow: "hidden",
         height: "100vh",
         width: "100%",
+        bgcolor: "background.default",
       }}
     >
       <DashboardHeader
