@@ -3,6 +3,7 @@ import { auth } from "@root/auth";
 import { NextResponse } from "next/server";
 
 export const config = {
+  runtime: "nodejs",
   matcher: ["/admin", "/admin/:path*", "/:region/admin"],
 };
 

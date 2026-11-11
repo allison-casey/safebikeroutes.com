@@ -1,6 +1,6 @@
 "use client";
 
-import { canViewAdminPage, canViewRegionEditorPage } from "@/permissions";
+import { canViewAdminPage, canViewRegionEditorPage } from "@/role-checks";
 import type { IRegionConfig } from "@/types/map";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import {

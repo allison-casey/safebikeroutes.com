@@ -202,4 +202,12 @@ const config = {
   // watchman: true,
 };
 
-module.exports = createJestConfig(config);
+// next/jest ignores /node_modules/ and overrides any patterns set above, so
+// exempt ESM-only packages (kysely >=0.29) after the fact to let SWC transform them
+module.exports = async () => {
+  const jestConfig = await createJestConfig(config)();
+  jestConfig.transformIgnorePatterns = jestConfig.transformIgnorePatterns.map(
+    (pattern) => pattern.replace(/^\/node_modules\//, "$&(?!kysely/)"),
+  );
+  return jestConfig;
+};
