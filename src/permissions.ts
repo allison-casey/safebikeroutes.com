@@ -1,26 +1,12 @@
 import { auth } from "@root/auth";
 import type { Session } from "next-auth";
-import type { Role } from "./db/enums";
+import { canViewAdminPage, canViewRegionEditorPage } from "./role-checks";
 
-const permittedRegionEditorRoles = new Set<Role>(["ADMIN", "CONTRIBUTOR"]);
-
-export const canViewRegionEditorPage = (
-  session: Session,
-  regionId: string,
-): boolean =>
-  session.user.roles.some(
-    (role) =>
-      permittedRegionEditorRoles.has(role.role) && role.region_id === regionId,
-  );
-
-const permittedAdminRoles = new Set<Role>(["ADMIN"]);
-
-export const canViewAdminPage = (session: Session): boolean =>
-  session.user.roles.some((role) => permittedAdminRoles.has(role.role));
-
-/** Coarse check for middleware — page/actions still enforce region scope. */
-export const canViewAnyRegionEditorPage = (session: Session): boolean =>
-  session.user.roles.some((role) => permittedRegionEditorRoles.has(role.role));
+export {
+  canViewAdminPage,
+  canViewAnyRegionEditorPage,
+  canViewRegionEditorPage,
+} from "./role-checks";
 
 class UnauthorizedError extends Error {
   constructor(message = "Unauthorized") {

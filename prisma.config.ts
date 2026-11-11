@@ -8,6 +8,6 @@ export default defineConfig({
   },
   datasource: {
     // Set via direnv (.envrc), Vercel, or a local .env — required for migrate/db commands.
-    url: process.env.POSTGRES_PRISMA_URL,
+    url: process.env.DATABASE_URL_UNPOOLED,
   },
 });
