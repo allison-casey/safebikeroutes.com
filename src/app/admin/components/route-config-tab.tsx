@@ -41,7 +41,7 @@ export const RouteConfigPanel = (props: IRouteConfigPanelProps) => {
             </Button>
           </Grid>
         </Grid>
-        <Stack gap="2rem">
+        <Stack sx={{ gap: "2rem" }}>
           {enabledRegionConfigs.map((regionConfig) => (
             <UpdateRegionCard
               key={regionConfig.region}

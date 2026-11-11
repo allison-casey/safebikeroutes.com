@@ -35,7 +35,7 @@ export interface INewRegionForm {
 export const RegionConfigForm = (props: { regionDisabled: boolean }) => {
   const { control } = useFormContext<INewRegionForm, null, IRegionConfig>();
   return (
-    <Stack gap="1rem" className="py-3">
+    <Stack sx={{ gap: "1rem" }} className="py-3">
       <Grid container spacing={2}>
         <Grid size={6}>
           <Stack spacing={2}>
@@ -120,7 +120,7 @@ export const RegionConfigForm = (props: { regionDisabled: boolean }) => {
         <Grid size={6}>
           <Stack spacing={1.5}>
             <Typography variant="subtitle1">Center</Typography>
-            <Stack direction="row" gap="1rem">
+            <Stack direction="row" sx={{ gap: "1rem" }}>
               <ControlledNumberField
                 required
                 control={control}
@@ -137,7 +137,7 @@ export const RegionConfigForm = (props: { regionDisabled: boolean }) => {
 
             <Typography variant="subtitle1">Bounding Box</Typography>
             <Typography variant="subtitle2">Lower Left Corner</Typography>
-            <Stack direction="row" gap="1rem">
+            <Stack direction="row" sx={{ gap: "1rem" }}>
               <ControlledNumberField
                 required
                 control={control}
@@ -153,7 +153,7 @@ export const RegionConfigForm = (props: { regionDisabled: boolean }) => {
             </Stack>
 
             <Typography variant="subtitle2">Upper Right Corner</Typography>
-            <Stack direction="row" gap="1rem">
+            <Stack direction="row" sx={{ gap: "1rem" }}>
               <ControlledNumberField
                 required
                 control={control}

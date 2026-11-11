@@ -1,5 +1,5 @@
 import type { IRouteProperties } from "@/types/map";
-import { Button, Grid, MenuItem, Select, TextField } from "@mui/material";
+import { Box, Button, MenuItem, Select, Stack, TextField } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 
 export const RouteEditorForm = ({
@@ -20,26 +20,26 @@ export const RouteEditorForm = ({
 
   return (
     <form onSubmit={onSubmit}>
-      <Grid container direction="column" gap={1}>
+      <Stack sx={{ gap: 1 }}>
         <Controller
           name="name"
           control={control}
           render={({ field: { onChange, value } }) => (
-            <Grid>
+            <Box>
               <TextField
                 label="Route Name"
                 fullWidth
                 onChange={onChange}
                 value={value}
               />{" "}
-            </Grid>
+            </Box>
           )}
         />
         <Controller
           name="route_type"
           control={control}
           render={({ field: { onChange, value } }) => (
-            <Grid>
+            <Box>
               <Select onChange={onChange} value={value} fullWidth>
                 <MenuItem value={"SIDEWALK"}>Sidewalk</MenuItem>
                 <MenuItem value={"STREET"}>Street</MenuItem>
@@ -47,13 +47,13 @@ export const RouteEditorForm = ({
                 <MenuItem value={"PROTECTED"}>Protected</MenuItem>
                 <MenuItem value={"TRACK"}>Track</MenuItem>
               </Select>
-            </Grid>
+            </Box>
           )}
         />
         <Button color="primary" type="submit">
           Submit
         </Button>
-      </Grid>
+      </Stack>
     </form>
   );
 };
