@@ -24,7 +24,7 @@ if (!process.env.VERCEL_ENV) {
 
 export const pool = new Pool({ connectionString: process.env.POSTGRES_URL });
 
-// export const db = createKysely<DB>();
 export const db = new Kysely<DB>({
-  dialect: new PostgresDialect({ pool }),
+  // Neon 0.9's Pool typings omit `options`, which exists at runtime and kysely >=0.29 requires
+  dialect: new PostgresDialect({ pool: pool as Pool & { options: object } }),
 });
