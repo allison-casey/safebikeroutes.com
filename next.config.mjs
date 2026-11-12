@@ -1,8 +1,8 @@
 import mdx from "@next/mdx";
-import remarkGfm from "remark-gfm";
 
 const withMDX = mdx({
-  options: { remarkPlugins: [remarkGfm] },
+  // Turbopack needs serializable loader options, so plugins go by package name
+  options: { remarkPlugins: ["remark-gfm"] },
 });
 
 /** @type {import('next').NextConfig} */
